@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useCart } from '../contexts/CartContext';
 import { useAuth } from '../contexts/AuthContext';
 import { ordersAPI } from '../services/api';
+import { localOrdersAPI } from '../services/localOrdersAPI';
 import { useMutation } from 'react-query';
 import { CreditCard, Smartphone, Truck, MapPin, User, Phone } from 'lucide-react';
 import toast from 'react-hot-toast';
@@ -43,16 +44,28 @@ const Checkout = () => {
     }
   }, [user]);
 
-  const createOrderMutation = useMutation(ordersAPI.createOrder, {
-    onSuccess: (response) => {
-      toast.success('Commande passée avec succès !');
-      clearCart();
-      navigate(`/orders/${response.data.order._id}`);
+  const createOrderMutation = useMutation(
+    async (orderData) => {
+      try {
+        // Essayer d'abord l'API locale
+        return await localOrdersAPI.createOrder(orderData);
+      } catch (error) {
+        console.error('Erreur API locale:', error);
+        // Si l'API locale échoue, essayer l'API serveur
+        return await ordersAPI.createOrder(orderData);
+      }
     },
-    onError: (error) => {
-      toast.error(error.response?.data?.message || 'Erreur lors de la commande');
+    {
+      onSuccess: (response) => {
+        toast.success('Commande passée avec succès !');
+        clearCart();
+        navigate(`/orders/${response.data.order._id}`);
+      },
+      onError: (error) => {
+        toast.error(error.response?.data?.message || 'Erreur lors de la commande');
+      }
     }
-  });
+  );
 
   const formatPrice = (price) => {
     return new Intl.NumberFormat('fr-FR', {
@@ -126,15 +139,27 @@ const Checkout = () => {
       return;
     }
 
+    // Calculer les totaux
+    const subtotal = totalPrice;
+    const shippingCost = 5000; // Frais de livraison fixes
+    const tax = 0; // Pas de taxe pour l'instant
+    const total = subtotal + shippingCost + tax;
+
     const orderData = {
       items: items.map(item => ({
         product: item.product._id,
         quantity: item.quantity,
-        price: item.product.price
+        price: item.product.price,
+        name: item.product.name,
+        image: item.product.images?.[0]?.url || ''
       })),
       shippingAddress: formData.shippingAddress,
       paymentMethod: formData.paymentMethod,
-      notes: formData.notes
+      notes: formData.notes,
+      subtotal,
+      shippingCost,
+      tax,
+      total
     };
 
     createOrderMutation.mutate(orderData);

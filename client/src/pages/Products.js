@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useSearchParams, Link } from 'react-router-dom';
 import { useQuery } from 'react-query';
 import { productsAPI } from '../services/api';
+import { localProductsAPI } from '../services/localProductsAPI';
 import { useCart } from '../contexts/CartContext';
 import { Star, ShoppingCart, Filter, Grid, List, SlidersHorizontal } from 'lucide-react';
 import { getProductImage, getPlaceholderImage } from '../utils/imageUtils';
@@ -26,18 +27,35 @@ const Products = () => {
   // Récupérer les produits
   const { data: productsData, isLoading } = useQuery(
     ['products', { page, search, category, minPrice, maxPrice, sort, order, featured }],
-    () => productsAPI.getProducts({
-      page,
-      search,
-      category,
-      minPrice,
-      maxPrice,
-      sort,
-      order,
-      featured
-    }),
-    {
-      select: (response) => response.data.data
+    async () => {
+      try {
+        // Essayer d'abord l'API locale
+        const localData = await localProductsAPI.getProducts({
+          page,
+          search,
+          category,
+          minPrice,
+          maxPrice,
+          sort,
+          order,
+          featured
+        });
+        return localData;
+      } catch (error) {
+        console.error('Erreur API locale:', error);
+        // Si l'API locale échoue, essayer l'API serveur
+        const serverResponse = await productsAPI.getProducts({
+          page,
+          search,
+          category,
+          minPrice,
+          maxPrice,
+          sort,
+          order,
+          featured
+        });
+        return serverResponse.data.data;
+      }
     }
   );
 

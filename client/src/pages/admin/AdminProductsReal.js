@@ -105,9 +105,18 @@ const AdminProductsReal = () => {
         }
       ];
       
-      // Toujours utiliser nos données de test
-      setProducts(testProducts);
-      localStorage.setItem('adminProducts', JSON.stringify(testProducts));
+      // Charger les produits depuis localStorage
+      const savedProducts = localStorage.getItem('adminProducts');
+      
+      if (savedProducts) {
+        // Si des produits existent, les charger
+        const products = JSON.parse(savedProducts);
+        setProducts(products);
+      } else {
+        // Si aucun produit n'existe, initialiser avec des données de test
+        setProducts(testProducts);
+        localStorage.setItem('adminProducts', JSON.stringify(testProducts));
+      }
       
     } catch (error) {
       console.error('Erreur lors du chargement des produits:', error);
@@ -155,6 +164,8 @@ const AdminProductsReal = () => {
         stock: parseInt(newProduct.stock) || 0,
         brand: newProduct.brand,
         images: newProduct.images.map(img => typeof img === 'string' ? { url: img } : img),
+        isPublished: newProduct.isPublished,
+        isFeatured: newProduct.isFeatured,
         createdAt: editingProduct ? editingProduct.createdAt : new Date().toISOString()
       };
 

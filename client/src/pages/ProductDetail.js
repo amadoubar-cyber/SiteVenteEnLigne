@@ -2,11 +2,13 @@ import React, { useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useQuery } from 'react-query';
 import { productsAPI } from '../services/api';
+import { localProductsAPI } from '../services/localProductsAPI';
 import { useCart } from '../contexts/CartContext';
 import { useAuth } from '../contexts/AuthContext';
 import { Star, ShoppingCart, Heart, Share2, Truck, Shield, RotateCcw, ChevronLeft, ChevronRight } from 'lucide-react';
 import ConfirmationMessage from '../components/ConfirmationMessage';
 import useConfirmationMessage from '../hooks/useConfirmationMessage';
+import { getProductImage } from '../utils/imageUtils';
 
 const ProductDetail = () => {
   const { id } = useParams();
@@ -18,24 +20,45 @@ const ProductDetail = () => {
   
   const { addToCart, isInCart, getItemQuantity } = useCart();
   const { isAuthenticated } = useAuth();
-  const { message, showSuccess, showError, showWarning, showInfo, hideMessage } = useConfirmationMessage();
+  const { message, showSuccess, showError, showWarning, hideMessage } = useConfirmationMessage();
 
   // Récupérer le produit
   const { data: productData, isLoading } = useQuery(
     ['product', id],
-    () => productsAPI.getProduct(id),
+    async () => {
+      try {
+        // Essayer d'abord l'API locale
+        return await localProductsAPI.getProductById(id);
+      } catch (error) {
+        console.error('Erreur API locale:', error);
+        // Si l'API locale échoue, essayer l'API serveur
+        const response = await productsAPI.getProduct(id);
+        return response.data.data.product;
+      }
+    },
     {
-      select: (response) => response.data.data.product
+      enabled: !!id
     }
   );
 
   // Récupérer les produits recommandés
   const { data: recommendedData } = useQuery(
     ['recommended-products', id],
-    () => productsAPI.getRecommendedProducts(id),
+    async () => {
+      try {
+        // Essayer d'abord l'API locale pour les produits recommandés
+        const allProductsData = await localProductsAPI.getProducts({});
+        // Filtrer les produits de la même catégorie (recommandations simples)
+        return allProductsData.products.filter(p => p._id !== id && p.category === productData?.category).slice(0, 4);
+      } catch (error) {
+        console.error('Erreur API locale pour recommandations:', error);
+        // Si l'API locale échoue, essayer l'API serveur
+        const response = await productsAPI.getRecommendedProducts(id);
+        return response.data.data.products;
+      }
+    },
     {
-      select: (response) => response.data.data.products,
-      enabled: !!id
+      enabled: !!id && !!productData
     }
   );
 
@@ -149,21 +172,26 @@ const ProductDetail = () => {
             {/* Main Image */}
             <div className="relative">
               <img
-                src={product.images[selectedImage]?.url || '/placeholder-product.svg'}
+                src={getProductImage(product)}
                 alt={product.name}
                 className="w-full h-96 object-cover rounded-lg"
+                onError={(e) => {
+                  e.target.src = getProductImage({});
+                }}
               />
-              {product.images.length > 1 && (
+              {product.images && product.images.length > 1 && (
                 <>
                   <button
                     onClick={prevImage}
                     className="absolute left-2 top-1/2 transform -translate-y-1/2 bg-white/80 hover:bg-white rounded-full p-2 shadow-lg"
+                    disabled={selectedImage === 0}
                   >
                     <ChevronLeft className="h-5 w-5" />
                   </button>
                   <button
                     onClick={nextImage}
                     className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-white/80 hover:bg-white rounded-full p-2 shadow-lg"
+                    disabled={selectedImage === product.images.length - 1}
                   >
                     <ChevronRight className="h-5 w-5" />
                   </button>
@@ -177,7 +205,7 @@ const ProductDetail = () => {
             </div>
 
             {/* Thumbnail Images */}
-            {product.images.length > 1 && (
+            {product.images && product.images.length > 1 && (
               <div className="flex space-x-2 overflow-x-auto">
                 {product.images.map((image, index) => (
                   <button
@@ -188,9 +216,12 @@ const ProductDetail = () => {
                     }`}
                   >
                     <img
-                      src={image.url}
+                      src={getProductImage({ images: [image] })}
                       alt={`${product.name} ${index + 1}`}
                       className="w-full h-full object-cover"
+                      onError={(e) => {
+                        e.target.src = getProductImage({});
+                      }}
                     />
                   </button>
                 ))}
@@ -475,9 +506,12 @@ const ProductDetail = () => {
                 <div key={recProduct._id} className="product-card card p-4">
                   <Link to={`/products/${recProduct._id}`}>
                     <img
-                      src={recProduct.images?.[0]?.url || '/placeholder-product.svg'}
+                      src={getProductImage(recProduct)}
                       alt={recProduct.name}
                       className="w-full h-48 object-cover rounded-lg mb-4"
+                      onError={(e) => {
+                        e.target.src = getProductImage({});
+                      }}
                     />
                     <h3 className="font-medium text-secondary-900 mb-2 line-clamp-2">
                       {recProduct.name}

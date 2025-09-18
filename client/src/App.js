@@ -59,6 +59,10 @@ import AdminFinal from './pages/AdminFinal';
 import AdminComplete from './pages/admin/AdminComplete';
 import AdminSimpleComplete from './pages/admin/AdminSimpleComplete';
 import AdminLogin from './pages/AdminLogin';
+import AdminAuth from './components/AdminAuth';
+import AdminLoginNew from './pages/admin/AdminLogin';
+import AdminRedirect from './pages/AdminRedirect';
+import TestAccounts from './pages/TestAccounts';
 import TestButtons from './pages/TestButtons';
 import TestAlerts from './pages/TestAlerts';
 import TestImages from './pages/TestImages';
@@ -166,6 +170,18 @@ function App() {
             <Route path="/test-page" element={<TestPage />} />
             <Route path="/test-api" element={<TestAPI />} />
             <Route path="/stock-simple" element={<StockControlSimplePage />} />
+            
+            {/* Routes d'authentification admin */}
+            <Route path="/admin" element={<AdminRedirect />} />
+            <Route path="/admin-login" element={<AdminLoginNew />} />
+            <Route path="/admin-simple-complete" element={
+              <AdminAuth>
+                <AdminSimpleComplete />
+              </AdminAuth>
+            } />
+            
+            {/* Page des comptes de test */}
+            <Route path="/test-accounts" element={<TestAccounts />} />
           </Routes>
             </div>
           </AlertInterceptor>

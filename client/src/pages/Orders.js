@@ -2,14 +2,33 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { useQuery } from 'react-query';
 import { ordersAPI } from '../services/api';
+import { localOrdersAPI } from '../services/localOrdersAPI';
 import { Package, Eye, Calendar, MapPin, Phone, Mail, ShoppingCart, CreditCard, User } from 'lucide-react';
 
 const Orders = () => {
   const { data: ordersData, isLoading } = useQuery(
     'my-orders',
-    () => ordersAPI.getMyOrders(),
+    async () => {
+      try {
+        // Essayer d'abord l'API locale
+        const localData = await localOrdersAPI.getMyOrders();
+        return localData;
+      } catch (error) {
+        console.error('Erreur API locale:', error);
+        // Si l'API locale échoue, essayer l'API serveur
+        const serverResponse = await ordersAPI.getMyOrders();
+        return serverResponse.data.data;
+      }
+    },
     {
-      select: (response) => response.data.data.orders
+      select: (response) => {
+        // Si c'est l'API locale, retourner directement
+        if (response.orders) {
+          return response.orders;
+        }
+        // Si c'est l'API serveur, extraire data.data.orders
+        return response.orders;
+      }
     }
   );
 

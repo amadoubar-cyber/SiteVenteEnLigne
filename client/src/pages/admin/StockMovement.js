@@ -730,10 +730,10 @@ const StockMovement = () => {
             
             {/* Champ de recherche */}
             <div className="mb-3">
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
-                <input
-                  type="text"
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+              <input
+                type="text"
                   placeholder="Rechercher un produit par nom, catégorie ou marque..."
                   value={productSearchTerm}
                   onChange={(e) => setProductSearchTerm(e.target.value)}

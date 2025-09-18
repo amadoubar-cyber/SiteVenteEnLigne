@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Rapide - Images</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; background: #f5f5f5; }
+        .container { background: white; padding: 20px; border-radius: 8px; margin-bottom: 20px; }
+        .product { display: inline-block; margin: 10px; text-align: center; border: 1px solid #ddd; padding: 15px; border-radius: 8px; }
+        .product img { width: 150px; height: 150px; object-fit: cover; border-radius: 4px; }
+        .success { color: green; }
+        .error { color: red; }
+        button { background: #007bff; color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer; margin: 5px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧪 Test Rapide des Images</h1>
+        <button onclick="testImages()">Tester les Images</button>
+        <button onclick="loadProducts()">Charger les Produits</button>
+        <div id="results"></div>
+        <div id="products"></div>
+    </div>
+
+    <script>
+        function testImages() {
+            const results = document.getElementById('results');
+            results.innerHTML = '<h3>Test des Images :</h3>';
+            
+            // Test des images de test
+            const testImages = [
+                '/test-image-1.jpg',
+                '/test-image-2.jpg',
+                '/placeholder-product.svg'
+            ];
+            
+            testImages.forEach((src, index) => {
+                const img = new Image();
+                img.onload = () => {
+                    results.innerHTML += `<p class="success">✅ ${src} - OK</p>`;
+                };
+                img.onerror = () => {
+                    results.innerHTML += `<p class="error">❌ ${src} - ERREUR</p>`;
+                };
+                img.src = src;
+            });
+        }
+
+        function loadProducts() {
+            const productsDiv = document.getElementById('products');
+            productsDiv.innerHTML = '<h3>Produits :</h3>';
+            
+            // Charger depuis localStorage
+            const products = JSON.parse(localStorage.getItem('adminProducts') || '[]');
+            
+            if (products.length === 0) {
+                productsDiv.innerHTML += '<p class="error">Aucun produit trouvé dans localStorage</p>';
+                return;
+            }
+            
+            products.forEach((product, index) => {
+                const imageUrl = getProductImage(product);
+                productsDiv.innerHTML += `
+                    <div class="product">
+                        <img src="${imageUrl}" alt="${product.name}" onerror="this.src='/placeholder-product.svg'">
+                        <h4>${product.name}</h4>
+                        <p>${product.price ? product.price.toLocaleString() + ' GNF' : 'Prix non défini'}</p>
+                        <p>Image: ${imageUrl}</p>
+                        <p>Publié: ${product.isPublished ? 'Oui' : 'Non'}</p>
+                    </div>
+                `;
+            });
+        }
+
+        function getProductImage(product) {
+            if (!product) return '/placeholder-product.svg';
+            
+            if (typeof product.image === 'string') {
+                return product.image;
+            }
+            
+            if (product.images && Array.isArray(product.images) && product.images.length > 0) {
+                const firstImage = product.images[0];
+                
+                if (typeof firstImage === 'string') {
+                    return firstImage;
+                }
+                
+                if (firstImage && typeof firstImage === 'object' && firstImage.url) {
+                    return firstImage.url;
+                }
+            }
+            
+            if (product.imageUrl) {
+                return product.imageUrl;
+            }
+            
+            return '/placeholder-product.svg';
+        }
+
+        // Test automatique au chargement
+        window.onload = function() {
+            testImages();
+            loadProducts();
+        };
+    </script>
+</body>
+</html>

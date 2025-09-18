@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useReducer, useEffect } from 'react';
 import { authAPI } from '../services/api';
+import { localAuthAPI } from '../services/localAuthAPI';
 import toast from 'react-hot-toast';
 
 const AuthContext = createContext();
@@ -71,7 +72,8 @@ export const AuthProvider = ({ children }) => {
       const token = localStorage.getItem('token');
       if (token) {
         try {
-          const response = await authAPI.getMe();
+          // Essayer d'abord l'API locale
+          const response = await localAuthAPI.getMe();
           dispatch({
             type: 'AUTH_SUCCESS',
             payload: {
@@ -80,8 +82,21 @@ export const AuthProvider = ({ children }) => {
             }
           });
         } catch (error) {
-          localStorage.removeItem('token');
-          dispatch({ type: 'AUTH_FAILURE', payload: 'Session expirée' });
+          // Si l'API locale échoue, essayer l'API serveur
+          try {
+            const response = await authAPI.getMe();
+            dispatch({
+              type: 'AUTH_SUCCESS',
+              payload: {
+                user: response.data.user,
+                token
+              }
+            });
+          } catch (serverError) {
+            localStorage.removeItem('token');
+            localStorage.removeItem('user');
+            dispatch({ type: 'AUTH_FAILURE', payload: 'Session expirée' });
+          }
         }
       } else {
         dispatch({ type: 'AUTH_FAILURE', payload: null });
@@ -94,7 +109,8 @@ export const AuthProvider = ({ children }) => {
   const login = async (email, password) => {
     dispatch({ type: 'AUTH_START' });
     try {
-      const response = await authAPI.login(email, password);
+      // Essayer d'abord l'API locale
+      const response = await localAuthAPI.login(email, password);
       const { token, user } = response.data;
       
       localStorage.setItem('token', token);
@@ -106,17 +122,33 @@ export const AuthProvider = ({ children }) => {
       toast.success('Connexion réussie !');
       return { success: true };
     } catch (error) {
-      const message = error.response?.data?.message || 'Erreur de connexion';
-      dispatch({ type: 'AUTH_FAILURE', payload: message });
-      toast.error(message);
-      return { success: false, error: message };
+      // Si l'API locale échoue, essayer l'API serveur
+      try {
+        const response = await authAPI.login(email, password);
+        const { token, user } = response.data;
+        
+        localStorage.setItem('token', token);
+        dispatch({
+          type: 'AUTH_SUCCESS',
+          payload: { user, token }
+        });
+        
+        toast.success('Connexion réussie !');
+        return { success: true };
+      } catch (serverError) {
+        const message = serverError.response?.data?.message || serverError.message || 'Erreur de connexion';
+        dispatch({ type: 'AUTH_FAILURE', payload: message });
+        toast.error(message);
+        return { success: false, error: message };
+      }
     }
   };
 
   const register = async (userData) => {
     dispatch({ type: 'AUTH_START' });
     try {
-      const response = await authAPI.register(userData);
+      // Essayer d'abord l'API locale
+      const response = await localAuthAPI.register(userData);
       const { token, user } = response.data;
       
       localStorage.setItem('token', token);
@@ -128,15 +160,32 @@ export const AuthProvider = ({ children }) => {
       toast.success('Inscription réussie !');
       return { success: true };
     } catch (error) {
-      const message = error.response?.data?.message || 'Erreur d\'inscription';
-      dispatch({ type: 'AUTH_FAILURE', payload: message });
-      toast.error(message);
-      return { success: false, error: message };
+      // Si l'API locale échoue, essayer l'API serveur
+      try {
+        const response = await authAPI.register(userData);
+        const { token, user } = response.data;
+        
+        localStorage.setItem('token', token);
+        dispatch({
+          type: 'AUTH_SUCCESS',
+          payload: { user, token }
+        });
+        
+        toast.success('Inscription réussie !');
+        return { success: true };
+      } catch (serverError) {
+        const message = serverError.response?.data?.message || serverError.message || 'Erreur d\'inscription';
+        dispatch({ type: 'AUTH_FAILURE', payload: message });
+        toast.error(message);
+        return { success: false, error: message };
+      }
     }
   };
 
   const logout = () => {
     localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    localAuthAPI.logout();
     dispatch({ type: 'LOGOUT' });
     toast.success('Déconnexion réussie');
   };

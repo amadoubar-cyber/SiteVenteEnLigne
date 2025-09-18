@@ -2,6 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { useQuery } from 'react-query';
 import { productsAPI } from '../services/api';
+import { localProductsAPI } from '../services/localProductsAPI';
 import { useCart } from '../contexts/CartContext';
 import { Star, ShoppingCart, ArrowRight, Truck, Shield, Headphones, Zap, Calculator, BarChart3 } from 'lucide-react';
 import { getProductImage, getPlaceholderImage } from '../utils/imageUtils';
@@ -12,18 +13,46 @@ const Home = () => {
   // Récupérer les produits vedettes de construction
   const { data: featuredConstruction, isLoading: featuredConstructionLoading } = useQuery(
     'featured-construction',
-    () => productsAPI.getProducts({ featured: 'true', productType: 'construction', limit: 4 }),
+    async () => {
+      try {
+        const response = await localProductsAPI.getProducts({ featured: 'true', productType: 'matériau', limit: 4 });
+        return response;
+      } catch (error) {
+        return await productsAPI.getProducts({ featured: 'true', productType: 'construction', limit: 4 });
+      }
+    },
     {
-      select: (response) => response.data.data.products
+      select: (response) => {
+        // Si c'est l'API locale, retourner directement
+        if (response.products) {
+          return response.products;
+        }
+        // Si c'est l'API serveur, extraire data.data.products
+        return response.data.data.products;
+      }
     }
   );
 
   // Récupérer les produits vedettes électroniques
   const { data: featuredElectronics, isLoading: featuredElectronicsLoading } = useQuery(
     'featured-electronics',
-    () => productsAPI.getProducts({ featured: 'true', productType: 'electronique', limit: 4 }),
+    async () => {
+      try {
+        const response = await localProductsAPI.getProducts({ featured: 'true', productType: 'électronique', limit: 4 });
+        return response;
+      } catch (error) {
+        return await productsAPI.getProducts({ featured: 'true', productType: 'electronique', limit: 4 });
+      }
+    },
     {
-      select: (response) => response.data.data.products
+      select: (response) => {
+        // Si c'est l'API locale, retourner directement
+        if (response.products) {
+          return response.products;
+        }
+        // Si c'est l'API serveur, extraire data.data.products
+        return response.data.data.products;
+      }
     }
   );
 

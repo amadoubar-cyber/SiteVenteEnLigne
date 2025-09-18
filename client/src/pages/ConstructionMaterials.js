@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useSearchParams, Link } from 'react-router-dom';
 import { useQuery } from 'react-query';
 import { productsAPI } from '../services/api';
+import { localProductsAPI } from '../services/localProductsAPI';
 import { useCart } from '../contexts/CartContext';
 import { Star, ShoppingCart, Filter, Grid, List, Calculator, Quote, Truck } from 'lucide-react';
 import { getProductImage, getPlaceholderImage } from '../utils/imageUtils';
@@ -28,18 +29,43 @@ const ConstructionMaterials = () => {
   // Récupérer les produits de construction
   const { data: productsData, isLoading } = useQuery(
     ['construction-products', { page, search, category, minPrice, maxPrice, sort, order, brand }],
-    () => productsAPI.getProducts({
-      page,
-      search,
-      category,
-      minPrice,
-      maxPrice,
-      sort,
-      order,
-      productType: 'construction'
-    }),
+    async () => {
+      try {
+        // Essayer d'abord l'API locale
+        return await localProductsAPI.getProducts({
+          page,
+          search,
+          category,
+          minPrice,
+          maxPrice,
+          sort,
+          order,
+          brand,
+          productType: 'matériau'
+        });
+      } catch (error) {
+        // Si l'API locale échoue, essayer l'API serveur
+        return await productsAPI.getProducts({
+          page,
+          search,
+          category,
+          minPrice,
+          maxPrice,
+          sort,
+          order,
+          productType: 'construction'
+        });
+      }
+    },
     {
-      select: (response) => response.data.data
+      select: (response) => {
+        // Si c'est l'API locale, retourner directement
+        if (response.products) {
+          return response;
+        }
+        // Si c'est l'API serveur, extraire data.data
+        return response.data.data;
+      }
     }
   );
 

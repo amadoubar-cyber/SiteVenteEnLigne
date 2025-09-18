@@ -29,8 +29,10 @@ import StockMovement from './StockMovement';
 import StockControl from './StockControl';
 import SalesManagement from './SalesManagement';
 import DebtManagement from './DebtManagement';
+import OrderManagement from './OrderManagement';
+import StockDemo from './StockDemo';
 
-const AdminSimpleComplete = () => {
+const AdminSimpleComplete = ({ onLogout }) => {
   const navigate = useNavigate();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [activeTab, setActiveTab] = useState('dashboard');
@@ -43,6 +45,8 @@ const AdminSimpleComplete = () => {
     { name: 'Gestion des Ventes', tab: 'sales', icon: ShoppingCart },
     { name: 'Gestion des Dettes', tab: 'debts', icon: CreditCard },
     { name: 'Commandes', tab: 'orders', icon: ShoppingCart },
+    { name: 'Gestion des Commandes', tab: 'order-management', icon: ShoppingCart },
+    { name: 'Démo Stock', tab: 'stock-demo', icon: Package },
     { name: 'Galerie d\'Images', tab: 'images', icon: ImageIcon },
     { name: 'Utilisateurs', tab: 'users', icon: Users },
     { name: 'Catégories', tab: 'categories', icon: Tag },
@@ -61,6 +65,8 @@ const AdminSimpleComplete = () => {
       case 'sales': return <SalesManagement />;
       case 'debts': return <DebtManagement />;
       case 'orders': return <AdminOrdersComplete />;
+      case 'order-management': return <OrderManagement />;
+      case 'stock-demo': return <StockDemo />;
       case 'images': return <AdminImagesComplete />;
       case 'users': return <AdminUsersComplete />;
       case 'categories': return <AdminCategoriesComplete />;
@@ -214,6 +220,15 @@ const AdminSimpleComplete = () => {
                     <p className="text-xs text-gray-500">Administrateur</p>
                   </div>
                 </div>
+                {onLogout && (
+                  <button
+                    onClick={onLogout}
+                    className="text-gray-400 hover:text-gray-600 flex items-center gap-1 text-sm"
+                  >
+                    <LogOut className="w-4 h-4" />
+                    Déconnexion
+                  </button>
+                )}
               </div>
             </div>
           </div>

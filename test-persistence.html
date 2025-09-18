@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test de Persistance - Koula</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .success { background-color: #d4edda; border-color: #c3e6cb; }
+        .error { background-color: #f8d7da; border-color: #f5c6cb; }
+        .info { background-color: #d1ecf1; border-color: #bee5eb; }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover { background: #0056b3; }
+        .clear-btn { background: #dc3545; }
+        .clear-btn:hover { background: #c82333; }
+        pre {
+            background: #f8f9fa;
+            padding: 10px;
+            border-radius: 4px;
+            overflow-x: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧪 Test de Persistance des Données</h1>
+        <p>Cette page teste si les données sont correctement sauvegardées dans localStorage.</p>
+
+        <div class="test-section info">
+            <h3>📊 État actuel du localStorage</h3>
+            <button onclick="checkLocalStorage()">Vérifier localStorage</button>
+            <button onclick="clearAllData()" class="clear-btn">Effacer toutes les données</button>
+            <div id="localStorageStatus"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>🛍️ Test des Produits</h3>
+            <button onclick="addTestProduct()">Ajouter un produit de test</button>
+            <button onclick="loadProducts()">Charger les produits</button>
+            <button onclick="clearProducts()" class="clear-btn">Effacer les produits</button>
+            <div id="productsStatus"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>👤 Test des Utilisateurs</h3>
+            <button onclick="addTestUser()">Ajouter un utilisateur de test</button>
+            <button onclick="loadUsers()">Charger les utilisateurs</button>
+            <button onclick="clearUsers()" class="clear-btn">Effacer les utilisateurs</button>
+            <div id="usersStatus"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>📦 Test des Commandes</h3>
+            <button onclick="addTestOrder()">Ajouter une commande de test</button>
+            <button onclick="loadOrders()">Charger les commandes</button>
+            <button onclick="clearOrders()" class="clear-btn">Effacer les commandes</button>
+            <div id="ordersStatus"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>📈 Test des Mouvements de Stock</h3>
+            <button onclick="addTestMovement()">Ajouter un mouvement de test</button>
+            <button onclick="loadMovements()">Charger les mouvements</button>
+            <button onclick="clearMovements()" class="clear-btn">Effacer les mouvements</button>
+            <div id="movementsStatus"></div>
+        </div>
+    </div>
+
+    <script>
+        // Fonction pour vérifier le localStorage
+        function checkLocalStorage() {
+            const status = document.getElementById('localStorageStatus');
+            const keys = Object.keys(localStorage);
+            
+            if (keys.length === 0) {
+                status.innerHTML = '<p class="error">❌ Aucune donnée dans localStorage</p>';
+            } else {
+                let html = '<p class="success">✅ Données trouvées dans localStorage:</p><ul>';
+                keys.forEach(key => {
+                    const value = localStorage.getItem(key);
+                    const size = new Blob([value]).size;
+                    html += `<li><strong>${key}:</strong> ${size} bytes</li>`;
+                });
+                html += '</ul>';
+                status.innerHTML = html;
+            }
+        }
+
+        // Fonction pour effacer toutes les données
+        function clearAllData() {
+            localStorage.clear();
+            document.getElementById('localStorageStatus').innerHTML = '<p class="info">🗑️ Toutes les données ont été effacées</p>';
+        }
+
+        // Test des produits
+        function addTestProduct() {
+            const testProduct = {
+                _id: Date.now().toString(),
+                name: 'Produit de Test',
+                description: 'Description du produit de test',
+                price: 10000,
+                category: 'Test',
+                productType: 'Test',
+                stock: 50,
+                brand: 'Test Brand',
+                images: [{ url: '/test-image-1.jpg' }],
+                isPublished: true,
+                isFeatured: false,
+                createdAt: new Date().toISOString()
+            };
+
+            const existingProducts = JSON.parse(localStorage.getItem('adminProducts') || '[]');
+            existingProducts.push(testProduct);
+            localStorage.setItem('adminProducts', JSON.stringify(existingProducts));
+            
+            document.getElementById('productsStatus').innerHTML = '<p class="success">✅ Produit de test ajouté</p>';
+        }
+
+        function loadProducts() {
+            const products = JSON.parse(localStorage.getItem('adminProducts') || '[]');
+            const status = document.getElementById('productsStatus');
+            
+            if (products.length === 0) {
+                status.innerHTML = '<p class="error">❌ Aucun produit trouvé</p>';
+            } else {
+                status.innerHTML = `<p class="success">✅ ${products.length} produit(s) trouvé(s)</p><pre>${JSON.stringify(products, null, 2)}</pre>`;
+            }
+        }
+
+        function clearProducts() {
+            localStorage.removeItem('adminProducts');
+            document.getElementById('productsStatus').innerHTML = '<p class="info">🗑️ Produits effacés</p>';
+        }
+
+        // Test des utilisateurs
+        function addTestUser() {
+            const testUser = {
+                id: Date.now().toString(),
+                firstName: 'Test',
+                lastName: 'User',
+                email: 'test@example.com',
+                password: 'password123',
+                role: 'user'
+            };
+
+            const existingUsers = JSON.parse(localStorage.getItem('users') || '[]');
+            existingUsers.push(testUser);
+            localStorage.setItem('users', JSON.stringify(existingUsers));
+            
+            document.getElementById('usersStatus').innerHTML = '<p class="success">✅ Utilisateur de test ajouté</p>';
+        }
+
+        function loadUsers() {
+            const users = JSON.parse(localStorage.getItem('users') || '[]');
+            const status = document.getElementById('usersStatus');
+            
+            if (users.length === 0) {
+                status.innerHTML = '<p class="error">❌ Aucun utilisateur trouvé</p>';
+            } else {
+                status.innerHTML = `<p class="success">✅ ${users.length} utilisateur(s) trouvé(s)</p><pre>${JSON.stringify(users, null, 2)}</pre>`;
+            }
+        }
+
+        function clearUsers() {
+            localStorage.removeItem('users');
+            document.getElementById('usersStatus').innerHTML = '<p class="info">🗑️ Utilisateurs effacés</p>';
+        }
+
+        // Test des commandes
+        function addTestOrder() {
+            const testOrder = {
+                _id: Date.now().toString(),
+                customerName: 'Client Test',
+                customerEmail: 'client@test.com',
+                items: [
+                    { productId: '1', name: 'Produit Test', quantity: 2, price: 10000 }
+                ],
+                total: 20000,
+                status: 'pending',
+                createdAt: new Date().toISOString()
+            };
+
+            const existingOrders = JSON.parse(localStorage.getItem('orders') || '[]');
+            existingOrders.push(testOrder);
+            localStorage.setItem('orders', JSON.stringify(existingOrders));
+            
+            document.getElementById('ordersStatus').innerHTML = '<p class="success">✅ Commande de test ajoutée</p>';
+        }
+
+        function loadOrders() {
+            const orders = JSON.parse(localStorage.getItem('orders') || '[]');
+            const status = document.getElementById('ordersStatus');
+            
+            if (orders.length === 0) {
+                status.innerHTML = '<p class="error">❌ Aucune commande trouvée</p>';
+            } else {
+                status.innerHTML = `<p class="success">✅ ${orders.length} commande(s) trouvée(s)</p><pre>${JSON.stringify(orders, null, 2)}</pre>`;
+            }
+        }
+
+        function clearOrders() {
+            localStorage.removeItem('orders');
+            document.getElementById('ordersStatus').innerHTML = '<p class="info">🗑️ Commandes effacées</p>';
+        }
+
+        // Test des mouvements de stock
+        function addTestMovement() {
+            const testMovement = {
+                _id: Date.now().toString(),
+                productId: '1',
+                productName: 'Produit Test',
+                type: 'in',
+                quantity: 10,
+                reason: 'Réception',
+                date: new Date().toISOString(),
+                reference: 'REF-TEST',
+                supplier: 'Fournisseur Test'
+            };
+
+            const existingMovements = JSON.parse(localStorage.getItem('stockMovements') || '[]');
+            existingMovements.push(testMovement);
+            localStorage.setItem('stockMovements', JSON.stringify(existingMovements));
+            
+            document.getElementById('movementsStatus').innerHTML = '<p class="success">✅ Mouvement de test ajouté</p>';
+        }
+
+        function loadMovements() {
+            const movements = JSON.parse(localStorage.getItem('stockMovements') || '[]');
+            const status = document.getElementById('movementsStatus');
+            
+            if (movements.length === 0) {
+                status.innerHTML = '<p class="error">❌ Aucun mouvement trouvé</p>';
+            } else {
+                status.innerHTML = `<p class="success">✅ ${movements.length} mouvement(s) trouvé(s)</p><pre>${JSON.stringify(movements, null, 2)}</pre>`;
+            }
+        }
+
+        function clearMovements() {
+            localStorage.removeItem('stockMovements');
+            document.getElementById('movementsStatus').innerHTML = '<p class="info">🗑️ Mouvements effacés</p>';
+        }
+
+        // Vérifier le localStorage au chargement de la page
+        window.onload = function() {
+            checkLocalStorage();
+        };
+    </script>
+</body>
+</html>

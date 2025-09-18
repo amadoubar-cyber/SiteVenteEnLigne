@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Commandes</title>
+    <style>
+        body { 
+            font-family: Arial, sans-serif; 
+            margin: 20px; 
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 { 
+            color: #333; 
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            background: #f9f9f9;
+        }
+        .test-section h2 {
+            margin-top: 0;
+            color: #333;
+        }
+        .order-card {
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 10px 0;
+            background: white;
+        }
+        .order-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        .order-id {
+            font-weight: bold;
+            color: #2563eb;
+        }
+        .order-status {
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        .status-pending { background: #fff3cd; color: #856404; }
+        .status-confirmed { background: #d1ecf1; color: #0c5460; }
+        .status-processing { background: #d4edda; color: #155724; }
+        .status-shipped { background: #cce5ff; color: #004085; }
+        .status-delivered { background: #d4edda; color: #155724; }
+        .status-cancelled { background: #f8d7da; color: #721c24; }
+        .order-items {
+            margin: 10px 0;
+        }
+        .order-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 5px 0;
+            border-bottom: 1px solid #eee;
+        }
+        .order-total {
+            font-weight: bold;
+            font-size: 18px;
+            color: #2563eb;
+            margin-top: 10px;
+        }
+        .status {
+            padding: 5px 10px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: bold;
+            margin: 5px 0;
+            display: inline-block;
+        }
+        .success { background: #d4edda; color: #155724; }
+        .error { background: #f8d7da; color: #721c24; }
+        .loading { background: #fff3cd; color: #856404; }
+        .console-log {
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 4px;
+            padding: 10px;
+            font-family: monospace;
+            font-size: 12px;
+            max-height: 200px;
+            overflow-y: auto;
+            margin: 10px 0;
+        }
+        .btn {
+            display: inline-block;
+            padding: 10px 20px;
+            background: #2563eb;
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+            margin: 5px;
+            transition: background 0.2s;
+            border: none;
+            cursor: pointer;
+        }
+        .btn:hover {
+            background: #1d4ed8;
+        }
+        .btn-danger {
+            background: #dc3545;
+        }
+        .btn-danger:hover {
+            background: #c82333;
+        }
+        .form-group {
+            margin: 10px 0;
+        }
+        .form-group label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        .form-group input, .form-group select, .form-group textarea {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧪 Test du Système de Commandes</h1>
+        <p style="text-align: center; color: #666; margin-bottom: 30px;">
+            Test de création et gestion des commandes avec API locale
+        </p>
+
+        <div class="test-section">
+            <h2>📦 Créer une Commande de Test</h2>
+            <form id="order-form">
+                <div class="form-group">
+                    <label>Prénom:</label>
+                    <input type="text" id="firstName" value="Mamadou" required>
+                </div>
+                <div class="form-group">
+                    <label>Nom:</label>
+                    <input type="text" id="lastName" value="Diallo" required>
+                </div>
+                <div class="form-group">
+                    <label>Adresse:</label>
+                    <input type="text" id="street" value="123 Rue de la Paix" required>
+                </div>
+                <div class="form-group">
+                    <label>Ville:</label>
+                    <input type="text" id="city" value="Conakry" required>
+                </div>
+                <div class="form-group">
+                    <label>Téléphone:</label>
+                    <input type="text" id="phone" value="+224 123 456 789" required>
+                </div>
+                <div class="form-group">
+                    <label>Méthode de paiement:</label>
+                    <select id="paymentMethod">
+                        <option value="mobile_money">Mobile Money</option>
+                        <option value="orange_money">Orange Money</option>
+                        <option value="card">Carte bancaire</option>
+                        <option value="cash_on_delivery">Paiement à la livraison</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Notes (optionnel):</label>
+                    <textarea id="notes" rows="3" placeholder="Instructions spéciales..."></textarea>
+                </div>
+                <button type="submit" class="btn">Créer la Commande</button>
+            </form>
+        </div>
+
+        <div class="test-section">
+            <h2>📋 Commandes Existantes</h2>
+            <button onclick="loadOrders()" class="btn">Charger les Commandes</button>
+            <button onclick="clearOrders()" class="btn btn-danger">Effacer Toutes les Commandes</button>
+            <div id="orders-container">
+                <div class="status loading">Cliquez sur "Charger les Commandes" pour commencer</div>
+            </div>
+        </div>
+
+        <div class="test-section">
+            <h2>🔍 Console Log</h2>
+            <div class="console-log" id="console-log">
+                <!-- Les logs seront affichés ici -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Fonction pour logger dans la console et l'affichage
+        function log(message, type = 'info') {
+            console.log(message);
+            const logDiv = document.getElementById('console-log');
+            const timestamp = new Date().toLocaleTimeString();
+            const logEntry = document.createElement('div');
+            logEntry.innerHTML = `<span style="color: #666;">[${timestamp}]</span> ${message}`;
+            logDiv.appendChild(logEntry);
+            logDiv.scrollTop = logDiv.scrollHeight;
+        }
+
+        // Fonction pour formater le prix
+        function formatPrice(price) {
+            return new Intl.NumberFormat('fr-FR', {
+                style: 'currency',
+                currency: 'GNF',
+                minimumFractionDigits: 0
+            }).format(price);
+        }
+
+        // Fonction pour obtenir le statut en français
+        function getStatusText(status) {
+            const statusMap = {
+                'pending': 'En attente',
+                'confirmed': 'Confirmée',
+                'processing': 'En cours',
+                'shipped': 'Expédiée',
+                'delivered': 'Livrée',
+                'cancelled': 'Annulée'
+            };
+            return statusMap[status] || status;
+        }
+
+        // Fonction pour obtenir la classe CSS du statut
+        function getStatusClass(status) {
+            return `status-${status}`;
+        }
+
+        // Créer une commande de test
+        async function createTestOrder() {
+            log('🔄 Création d\'une commande de test...');
+            
+            try {
+                // Données de test
+                const orderData = {
+                    items: [
+                        {
+                            product: '1758210447762',
+                            quantity: 2,
+                            price: 75000,
+                            name: 'Ciment Portland 50kg',
+                            image: 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KICA8cmVjdCB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgZmlsbD0iIzYwQTVGQSIvPgogIDx0ZXh0IHg9IjUwJSIgeT0iNTAlIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iMTYiIGZpbGw9IiNGRkZGRkYiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGR5PSIuM2VtIj5JTUFHRSAxPC90ZXh0Pgo8L3N2Zz4K'
+                        },
+                        {
+                            product: '1758210447763',
+                            quantity: 1,
+                            price: 3500000,
+                            name: 'Téléphone Samsung Galaxy A54',
+                            image: 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KICA8cmVjdCB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgZmlsbD0iIzM0RDM5OSIvPgogIDx0ZXh0IHg9IjUwJSIgeT0iNTAlIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iMTYiIGZpbGw9IiNGRkZGRkYiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGR5PSIuM2VtIj5JTUFHRSAyPC90ZXh0Pgo8L3N2Zz4K'
+                        }
+                    ],
+                    shippingAddress: {
+                        firstName: document.getElementById('firstName').value,
+                        lastName: document.getElementById('lastName').value,
+                        street: document.getElementById('street').value,
+                        city: document.getElementById('city').value,
+                        postalCode: '001',
+                        phone: document.getElementById('phone').value
+                    },
+                    paymentMethod: document.getElementById('paymentMethod').value,
+                    notes: document.getElementById('notes').value,
+                    subtotal: 3650000, // 2 * 75000 + 1 * 3500000
+                    shippingCost: 5000,
+                    tax: 0,
+                    total: 3655000
+                };
+
+                // Simuler l'API locale
+                const orders = JSON.parse(localStorage.getItem('clientOrders') || '[]');
+                
+                const newOrder = {
+                    _id: Date.now().toString() + Math.random().toString(36).substr(2, 9),
+                    user: {
+                        id: 'local-user',
+                        firstName: orderData.shippingAddress.firstName,
+                        lastName: orderData.shippingAddress.lastName,
+                        email: 'client@koula.gn',
+                        phone: orderData.shippingAddress.phone
+                    },
+                    items: orderData.items,
+                    shippingAddress: orderData.shippingAddress,
+                    paymentMethod: orderData.paymentMethod,
+                    notes: orderData.notes,
+                    subtotal: orderData.subtotal,
+                    shippingCost: orderData.shippingCost,
+                    tax: orderData.tax,
+                    total: orderData.total,
+                    orderStatus: 'pending',
+                    trackingNumber: 'AB' + Math.random().toString().substr(2, 8),
+                    createdAt: new Date().toISOString(),
+                    updatedAt: new Date().toISOString()
+                };
+                
+                orders.unshift(newOrder);
+                localStorage.setItem('clientOrders', JSON.stringify(orders));
+                
+                log(`✅ Commande créée avec succès: ${newOrder._id}`);
+                log(`📦 Numéro de suivi: ${newOrder.trackingNumber}`);
+                log(`💰 Total: ${formatPrice(newOrder.total)}`);
+                
+                // Recharger les commandes
+                loadOrders();
+                
+            } catch (error) {
+                log(`❌ Erreur lors de la création de la commande: ${error.message}`);
+            }
+        }
+
+        // Charger les commandes
+        function loadOrders() {
+            log('🔄 Chargement des commandes...');
+            const container = document.getElementById('orders-container');
+            
+            try {
+                const orders = JSON.parse(localStorage.getItem('clientOrders') || '[]');
+                log(`📦 ${orders.length} commandes trouvées`);
+                
+                if (orders.length === 0) {
+                    container.innerHTML = '<div class="status loading">Aucune commande trouvée</div>';
+                    return;
+                }
+                
+                // Trier par date de création (plus récent en premier)
+                orders.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+                
+                let html = '';
+                orders.forEach((order, index) => {
+                    html += `
+                        <div class="order-card">
+                            <div class="order-header">
+                                <div class="order-id">Commande #${order._id}</div>
+                                <div class="order-status ${getStatusClass(order.orderStatus)}">
+                                    ${getStatusText(order.orderStatus)}
+                                </div>
+                            </div>
+                            <div class="order-items">
+                                ${order.items.map(item => `
+                                    <div class="order-item">
+                                        <span>${item.name} x${item.quantity}</span>
+                                        <span>${formatPrice(item.price * item.quantity)}</span>
+                                    </div>
+                                `).join('')}
+                            </div>
+                            <div class="order-total">
+                                Total: ${formatPrice(order.total)}
+                            </div>
+                            <div style="margin-top: 10px; font-size: 12px; color: #666;">
+                                <div>Numéro de suivi: ${order.trackingNumber}</div>
+                                <div>Date: ${new Date(order.createdAt).toLocaleString('fr-FR')}</div>
+                                <div>Méthode de paiement: ${order.paymentMethod}</div>
+                            </div>
+                        </div>
+                    `;
+                });
+                
+                container.innerHTML = html;
+                log('✅ Commandes affichées avec succès');
+                
+            } catch (error) {
+                log(`❌ Erreur lors du chargement des commandes: ${error.message}`);
+                container.innerHTML = `<div class="status error">Erreur: ${error.message}</div>`;
+            }
+        }
+
+        // Effacer toutes les commandes
+        function clearOrders() {
+            if (confirm('Êtes-vous sûr de vouloir effacer toutes les commandes ?')) {
+                localStorage.removeItem('clientOrders');
+                log('🗑️ Toutes les commandes ont été effacées');
+                loadOrders();
+            }
+        }
+
+        // Gérer le formulaire
+        document.getElementById('order-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            createTestOrder();
+        });
+
+        // Démarrer le test automatiquement
+        log('🚀 Démarrage du test des commandes...');
+        loadOrders();
+    </script>
+</body>
+</html>

@@ -536,29 +536,29 @@ const ProductManagement = () => {
                         <img
                           className="h-12 w-12 rounded-lg object-cover group-hover:opacity-80 transition-opacity"
                           src={product.images?.[0]?.url ? `/test-image-${product._id.charCodeAt(0) % 2 + 1}.jpg` : '/placeholder-product.svg'}
-                          alt={product.name}
+                    alt={product.name}
                           onError={(e) => {
                             e.target.src = '/placeholder-product.svg';
                           }}
-                        />
+                  />
                         {product.images?.length > 1 && (
                           <div className="absolute -top-1 -right-1 bg-blue-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
                             {product.images.length}
-                          </div>
+                </div>
                         )}
                         {product.images?.length > 0 && (
                           <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 rounded-lg transition-all flex items-center justify-center">
                             <div className="opacity-0 group-hover:opacity-100 transition-opacity text-white text-xs font-medium">
                               Voir
-                            </div>
-                          </div>
-                        )}
                       </div>
+                    </div>
+                        )}
+                    </div>
                       <div className="ml-4">
                         <div className="text-sm font-medium text-gray-900">{product.name}</div>
                         <div className="text-sm text-gray-500 truncate max-w-xs">{product.description}</div>
-                      </div>
-                    </div>
+                  </div>
+                </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
@@ -629,19 +629,19 @@ const ProductManagement = () => {
         </div>
       )}
 
-            {/* Modal de confirmation personnalisée */}
-            <ConfirmationModal
-              isOpen={confirmation.isOpen}
-              onClose={hideConfirmation}
-              onConfirm={handleConfirm}
-              title={confirmation.title}
-              message={confirmation.message}
-              confirmText={confirmation.confirmText}
-              cancelText={confirmation.cancelText}
-              type={confirmation.type}
-              icon={confirmation.icon}
-              details={confirmation.details}
-            />
+      {/* Modal de confirmation personnalisée */}
+      <ConfirmationModal
+        isOpen={confirmation.isOpen}
+        onClose={hideConfirmation}
+        onConfirm={handleConfirm}
+        title={confirmation.title}
+        message={confirmation.message}
+        confirmText={confirmation.confirmText}
+        cancelText={confirmation.cancelText}
+        type={confirmation.type}
+        icon={confirmation.icon}
+        details={confirmation.details}
+      />
 
             {/* Galerie d'images */}
             <ImageGallery
@@ -661,8 +661,8 @@ const ProductManagement = () => {
               cancelText="Annuler"
               type="danger"
             />
-          </div>
-        );
-      };
+    </div>
+  );
+};
 
-      export default ProductManagement;
+export default ProductManagement;

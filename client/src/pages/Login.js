@@ -5,12 +5,12 @@ import { Eye, EyeOff, Mail, Lock, Shield, User } from 'lucide-react';
 
 const Login = () => {
   const [formData, setFormData] = useState({
-    email: '',
-    password: ''
+    email: 'client@koula.gn',
+    password: 'password123'
   });
   const [adminFormData, setAdminFormData] = useState({
-    email: '',
-    password: ''
+    email: 'admin@koula.gn',
+    password: 'admin123'
   });
   const [showPassword, setShowPassword] = useState(false);
   const [showAdminPassword, setShowAdminPassword] = useState(false);
@@ -170,6 +170,14 @@ const Login = () => {
             créez un nouveau compte
           </Link>
         </p>
+        <div className="mt-4 text-center">
+          <Link
+            to="/test-accounts"
+            className="text-sm text-gray-500 hover:text-gray-700 underline"
+          >
+            Voir tous les comptes de test disponibles
+          </Link>
+        </div>
       </div>
 
       <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
