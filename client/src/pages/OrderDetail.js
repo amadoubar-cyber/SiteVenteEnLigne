@@ -1,17 +1,39 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useQuery } from 'react-query';
 import { ordersAPI } from '../services/api';
-import { Package, MapPin, CreditCard, Calendar, Truck, ArrowLeft } from 'lucide-react';
+import { localOrdersAPI } from '../services/localOrdersAPI';
+import { Package, MapPin, CreditCard, Calendar, Truck, ArrowLeft, Clock, CheckCircle, FileText } from 'lucide-react';
+import OrderStatus from '../components/OrderStatus';
+import Invoice from '../components/Invoice';
 
 const OrderDetail = () => {
   const { id } = useParams();
+  const [showInvoice, setShowInvoice] = useState(false);
 
   const { data: orderData, isLoading } = useQuery(
     ['order', id],
-    () => ordersAPI.getOrder(id),
+    async () => {
+      try {
+        // Essayer d'abord l'API locale
+        const localData = await localOrdersAPI.getOrderById(id);
+        return localData;
+      } catch (error) {
+        console.error('Erreur API locale:', error);
+        // Si l'API locale échoue, essayer l'API serveur
+        const serverResponse = await ordersAPI.getOrder(id);
+        return serverResponse.data.data;
+      }
+    },
     {
-      select: (response) => response.data.data.order
+      select: (response) => {
+        // Si c'est l'API locale, retourner directement
+        if (response.data && response.data.order) {
+          return response.data.order;
+        }
+        // Si c'est l'API serveur, extraire data.data.order
+        return response.order;
+      }
     }
   );
 
@@ -37,6 +59,9 @@ const OrderDetail = () => {
 
   const getStatusColor = (status) => {
     const colors = {
+      pending_approval: 'bg-yellow-100 text-yellow-800',
+      approved: 'bg-green-100 text-green-800',
+      rejected: 'bg-red-100 text-red-800',
       pending: 'bg-yellow-100 text-yellow-800',
       confirmed: 'bg-blue-100 text-blue-800',
       processing: 'bg-purple-100 text-purple-800',
@@ -49,6 +74,9 @@ const OrderDetail = () => {
 
   const getStatusText = (status) => {
     const texts = {
+      pending_approval: 'En attente de validation',
+      approved: 'Approuvée',
+      rejected: 'Rejetée',
       pending: 'En attente',
       confirmed: 'Confirmée',
       processing: 'En cours de traitement',
@@ -80,13 +108,39 @@ const OrderDetail = () => {
   if (!order) {
     return (
       <div className="min-h-screen bg-secondary-50 flex items-center justify-center">
-        <div className="text-center">
+        <div className="text-center max-w-md mx-auto px-4">
+          <div className="mb-6">
+            <div className="mx-auto w-16 h-16 bg-yellow-100 rounded-full flex items-center justify-center">
+              <Clock className="h-8 w-8 text-yellow-600" />
+            </div>
+          </div>
+          
           <h2 className="text-2xl font-bold text-secondary-900 mb-4">
-            Commande non trouvée
+            Commande en cours de traitement
           </h2>
-          <Link to="/orders" className="btn btn-primary">
-            Retour aux commandes
-          </Link>
+          
+          <p className="text-lg text-secondary-600 mb-6">
+            Votre commande est en attente de validation par notre équipe.
+          </p>
+          
+          <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-6">
+            <div className="flex items-center">
+              <Clock className="h-5 w-5 text-yellow-600 mr-2" />
+              <p className="text-sm text-yellow-800">
+                <strong>En attente d'approbation</strong><br />
+                Notre équipe va examiner votre commande et vous informer du statut.
+              </p>
+            </div>
+          </div>
+          
+          <div className="space-y-3">
+            <Link to="/orders" className="btn btn-primary w-full">
+              Voir mes commandes
+            </Link>
+            <Link to="/" className="btn btn-secondary w-full">
+              Retour à l'accueil
+            </Link>
+          </div>
         </div>
       </div>
     );
@@ -115,9 +169,23 @@ const OrderDetail = () => {
               </p>
             </div>
             <div className="mt-4 sm:mt-0">
-              <span className={`badge ${getStatusColor(order.orderStatus)}`}>
-                {getStatusText(order.orderStatus)}
-              </span>
+              <div className="flex items-center space-x-3">
+                <span className={`badge ${getStatusColor(order.orderStatus)}`}>
+                  {getStatusText(order.orderStatus)}
+                </span>
+                <button
+                  onClick={() => setShowInvoice(true)}
+                  className="flex items-center px-3 py-1 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm"
+                >
+                  <FileText className="h-4 w-4 mr-1" />
+                  Facture
+                </button>
+              </div>
+              {order.orderStatus === 'pending_approval' && (
+                <div className="mt-2 text-sm text-yellow-600">
+                  ⏳ En attente de validation par l'administrateur
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -187,6 +255,28 @@ const OrderDetail = () => {
               <div className="card p-6">
                 <h2 className="text-xl font-semibold mb-4">Notes de commande</h2>
                 <p className="text-secondary-700">{order.notes}</p>
+              </div>
+            )}
+
+            {/* Admin Notes */}
+            {order.adminNotes && (
+              <div className="card p-6">
+                <div className="flex items-center mb-4">
+                  <CheckCircle className="h-6 w-6 text-green-600 mr-3" />
+                  <h2 className="text-xl font-semibold">Notes d'approbation</h2>
+                </div>
+                <p className="text-secondary-700">{order.adminNotes}</p>
+              </div>
+            )}
+
+            {/* Rejection Reason */}
+            {order.rejectionReason && (
+              <div className="card p-6">
+                <div className="flex items-center mb-4">
+                  <Clock className="h-6 w-6 text-red-600 mr-3" />
+                  <h2 className="text-xl font-semibold">Raison du rejet</h2>
+                </div>
+                <p className="text-secondary-700">{order.rejectionReason}</p>
               </div>
             )}
           </div>
@@ -293,6 +383,18 @@ const OrderDetail = () => {
           </div>
         </div>
       </div>
+
+      {/* Modal de facture */}
+      {showInvoice && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 z-50 overflow-y-auto">
+          <div className="relative">
+            <Invoice 
+              order={order} 
+              onClose={() => setShowInvoice(false)} 
+            />
+          </div>
+        </div>
+      )}
     </div>
   );
 };

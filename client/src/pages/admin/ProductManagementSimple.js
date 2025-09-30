@@ -33,6 +33,7 @@ const ProductManagementSimple = () => {
     name: '',
     description: '',
     price: '',
+    purchasePrice: '',
     stock: '',
     productType: 'construction',
     category: 'Matériaux de Construction',
@@ -45,37 +46,18 @@ const ProductManagementSimple = () => {
   useEffect(() => {
     const savedProducts = localStorage.getItem('koula_products');
     if (savedProducts) {
-      setProducts(JSON.parse(savedProducts));
+      try {
+        const parsedProducts = JSON.parse(savedProducts);
+        setProducts(parsedProducts);
+        console.log(`✅ ${parsedProducts.length} produits chargés depuis localStorage`);
+      } catch (error) {
+        console.error('❌ Erreur lors du chargement des produits:', error);
+        setProducts([]);
+      }
     } else {
-      // Données de test par défaut
-      const defaultProducts = [
-        {
-          _id: '1',
-          name: 'Ciment Portland',
-          description: 'Ciment de haute qualité pour construction',
-          price: 15000,
-          stock: 50,
-          productType: 'construction',
-          category: 'Matériaux de Construction',
-          featured: true,
-          isPublished: true,
-          images: [{ url: '/test-image-1.jpg' }]
-        },
-        {
-          _id: '2',
-          name: 'Tôle Galvanisée',
-          description: 'Tôle galvanisée 2mm d\'épaisseur',
-          price: 25000,
-          stock: 30,
-          productType: 'construction',
-          category: 'Matériaux de Construction',
-          featured: false,
-          isPublished: true,
-          images: [{ url: '/test-image-2.jpg' }]
-        }
-      ];
-      setProducts(defaultProducts);
-      localStorage.setItem('koula_products', JSON.stringify(defaultProducts));
+      // Aucun produit sauvegardé - démarrer avec une liste vide
+      console.log('📝 Aucun produit sauvegardé - démarrage avec liste vide');
+      setProducts([]);
     }
   }, []);
 
@@ -99,6 +81,7 @@ const ProductManagementSimple = () => {
     const productData = {
       ...formData,
       price: parseFloat(formData.price),
+      purchasePrice: parseFloat(formData.purchasePrice) || 0,
       stock: parseInt(formData.stock),
       // Utiliser les images uploadées ou une image par défaut
       images: formData.images.length > 0 ? formData.images : [{ url: `/test-image-${Math.floor(Math.random() * 2) + 1}.jpg` }]
@@ -133,6 +116,7 @@ const ProductManagementSimple = () => {
       name: product.name,
       description: product.description,
       price: product.price.toString(),
+      purchasePrice: product.purchasePrice ? product.purchasePrice.toString() : '',
       stock: product.stock.toString(),
       productType: product.productType,
       category: product.category,
@@ -178,6 +162,7 @@ const ProductManagementSimple = () => {
       name: '',
       description: '',
       price: '',
+      purchasePrice: '',
       stock: '',
       productType: 'construction',
       category: 'Matériaux de Construction',
@@ -301,7 +286,7 @@ const ProductManagementSimple = () => {
 
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Prix (FG) *
+                      Prix de vente (FG) *
                     </label>
                     <input
                       type="number"
@@ -309,6 +294,20 @@ const ProductManagementSimple = () => {
                       min="0"
                       value={formData.price}
                       onChange={(e) => setFormData(prev => ({ ...prev, price: e.target.value }))}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Prix d'achat (FG) *
+                    </label>
+                    <input
+                      type="number"
+                      required
+                      min="0"
+                      value={formData.purchasePrice}
+                      onChange={(e) => setFormData(prev => ({ ...prev, purchasePrice: e.target.value }))}
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
                     />
                   </div>
@@ -326,6 +325,31 @@ const ProductManagementSimple = () => {
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
                     />
                   </div>
+
+                  {/* Calcul automatique de la marge */}
+                  {formData.price && formData.purchasePrice && (
+                    <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+                      <h4 className="text-sm font-medium text-green-800 mb-2">💰 Calcul de la marge</h4>
+                      <div className="grid grid-cols-2 gap-4 text-sm">
+                        <div>
+                          <span className="text-green-700">Marge unitaire:</span>
+                          <span className="ml-2 font-medium text-green-800">
+                            {new Intl.NumberFormat('fr-FR', {
+                              style: 'currency',
+                              currency: 'GNF',
+                              minimumFractionDigits: 0
+                            }).format(parseFloat(formData.price) - parseFloat(formData.purchasePrice))}
+                          </span>
+                        </div>
+                        <div>
+                          <span className="text-green-700">Marge en %:</span>
+                          <span className="ml-2 font-medium text-green-800">
+                            {Math.round(((parseFloat(formData.price) - parseFloat(formData.purchasePrice)) / parseFloat(formData.purchasePrice)) * 100)}%
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  )}
 
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">

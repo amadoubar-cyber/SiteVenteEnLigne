@@ -1,0 +1,691 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test - Système de Factures</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        .success {
+            background: #d4edda;
+            color: #155724;
+            padding: 15px;
+            border-radius: 4px;
+            margin: 10px 0;
+        }
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 15px;
+            border-radius: 4px;
+            margin: 10px 0;
+        }
+        .warning {
+            background: #fff3cd;
+            color: #856404;
+            padding: 15px;
+            border-radius: 4px;
+            margin: 10px 0;
+        }
+        .info {
+            background: #d1ecf1;
+            color: #0c5460;
+            padding: 15px;
+            border-radius: 4px;
+            margin: 10px 0;
+        }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+            font-size: 14px;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+        .danger {
+            background: #dc3545;
+        }
+        .danger:hover {
+            background: #c82333;
+        }
+        .success-btn {
+            background: #28a745;
+        }
+        .success-btn:hover {
+            background: #218838;
+        }
+        .warning-btn {
+            background: #ffc107;
+            color: #212529;
+        }
+        .warning-btn:hover {
+            background: #e0a800;
+        }
+        .invoice-preview {
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+            background: white;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        .invoice-header {
+            text-align: center;
+            border-bottom: 2px solid #007bff;
+            padding-bottom: 20px;
+            margin-bottom: 20px;
+        }
+        .company-logo {
+            display: inline-flex;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        .logo-box {
+            width: 40px;
+            height: 40px;
+            background: #007bff;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 10px;
+            color: white;
+            font-weight: bold;
+            font-size: 18px;
+        }
+        .invoice-details {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin: 20px 0;
+        }
+        .invoice-info, .customer-info {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 6px;
+        }
+        .items-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        .items-table th, .items-table td {
+            border: 1px solid #ddd;
+            padding: 10px;
+            text-align: left;
+        }
+        .items-table th {
+            background: #f8f9fa;
+            font-weight: bold;
+        }
+        .totals {
+            text-align: right;
+            margin-top: 20px;
+        }
+        .total-line {
+            display: flex;
+            justify-content: space-between;
+            margin: 5px 0;
+        }
+        .total-final {
+            font-size: 18px;
+            font-weight: bold;
+            border-top: 2px solid #007bff;
+            padding-top: 10px;
+            margin-top: 10px;
+        }
+        .status-badge {
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        .status-pending {
+            background: #fff3cd;
+            color: #856404;
+        }
+        .status-approved {
+            background: #d4edda;
+            color: #155724;
+        }
+        .status-rejected {
+            background: #f8d7da;
+            color: #721c24;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📄 Test - Système de Factures</h1>
+        <p>Ce test vérifie le système de génération de factures et reçus.</p>
+        
+        <div class="info">
+            <strong>🎯 Objectif :</strong> Tester la génération de factures professionnelles avec toutes les informations de commande.
+        </div>
+
+        <div class="container">
+            <h3>📊 Commandes Disponibles</h3>
+            <div id="ordersList">
+                <p>Cliquez sur "Charger les Commandes" pour voir les commandes disponibles.</p>
+            </div>
+        </div>
+
+        <div class="container">
+            <h3>🧪 Actions de Test</h3>
+            <button onclick="loadOrders()" class="success-btn">
+                📋 Charger les Commandes
+            </button>
+            <button onclick="createTestOrder()" class="warning-btn">
+                📦 Créer Commande Test
+            </button>
+            <button onclick="generateSampleInvoice()" class="success-btn">
+                📄 Générer Facture Exemple
+            </button>
+            <button onclick="testPrintFunction()" class="success-btn">
+                🖨️ Tester Impression
+            </button>
+            <button onclick="testDownloadFunction()" class="success-btn">
+                💾 Tester Téléchargement
+            </button>
+        </div>
+
+        <div class="container">
+            <h3>📄 Aperçu de Facture</h3>
+            <div id="invoicePreview">
+                <p>Cliquez sur "Générer Facture Exemple" pour voir un aperçu.</p>
+            </div>
+        </div>
+
+        <div class="container">
+            <h3>📝 Résultats des Tests</h3>
+            <div id="testResults">
+                <p>Aucun test exécuté pour le moment.</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        class InvoiceTester {
+            constructor() {
+                this.orders = [];
+                this.testResults = [];
+                this.init();
+            }
+
+            init() {
+                this.loadOrders();
+            }
+
+            loadOrders() {
+                try {
+                    const ordersData = localStorage.getItem('clientOrders');
+                    this.orders = ordersData ? JSON.parse(ordersData) : [];
+                    
+                    this.displayOrders();
+                    showSuccess(`✅ ${this.orders.length} commandes chargées`);
+                    this.addTestResult('Chargement commandes', 'SUCCESS', `${this.orders.length} commandes trouvées`);
+                } catch (error) {
+                    console.error('Erreur lors du chargement:', error);
+                    showError('Erreur lors du chargement des commandes: ' + error.message);
+                    this.addTestResult('Chargement commandes', 'ERROR', error.message);
+                }
+            }
+
+            displayOrders() {
+                const ordersList = document.getElementById('ordersList');
+                
+                if (this.orders.length === 0) {
+                    ordersList.innerHTML = '<p class="warning">⚠️ Aucune commande trouvée. Créez une commande test.</p>';
+                    return;
+                }
+
+                ordersList.innerHTML = `
+                    <div style="display: grid; gap: 10px;">
+                        ${this.orders.map(order => `
+                            <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px; border: 1px solid #ddd; border-radius: 4px; background: white;">
+                                <div>
+                                    <strong>Commande #${order.trackingNumber || order._id}</strong>
+                                    <div style="font-size: 12px; color: #666;">
+                                        Client: ${order.user?.firstName || ''} ${order.user?.lastName || ''} | 
+                                        Total: ${(order.total || 0).toLocaleString()} FG | 
+                                        Statut: ${this.getStatusText(order.orderStatus)}
+                                    </div>
+                                </div>
+                                <button onclick="generateInvoiceForOrder('${order._id}')" class="success-btn" style="margin: 0; padding: 8px 16px;">
+                                    📄 Générer Facture
+                                </button>
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+            }
+
+            createTestOrder() {
+                const testOrder = {
+                    _id: Date.now().toString(),
+                    user: {
+                        id: 'test-user',
+                        firstName: 'Jean',
+                        lastName: 'Dupont',
+                        email: 'jean.dupont@example.com',
+                        phone: '+224 123 456 789'
+                    },
+                    items: [
+                        {
+                            product: { 
+                                _id: '1', 
+                                name: 'Ciment Portland',
+                                description: 'Ciment de qualité supérieure',
+                                images: [{ url: '/placeholder-product.svg' }]
+                            },
+                            quantity: 10,
+                            price: 15000,
+                            name: 'Ciment Portland'
+                        },
+                        {
+                            product: { 
+                                _id: '2', 
+                                name: 'Téléphone Samsung',
+                                description: 'Smartphone dernière génération',
+                                images: [{ url: '/placeholder-product.svg' }]
+                            },
+                            quantity: 1,
+                            price: 500000,
+                            name: 'Téléphone Samsung'
+                        }
+                    ],
+                    shippingAddress: {
+                        firstName: 'Jean',
+                        lastName: 'Dupont',
+                        street: 'Rue du Commerce 123',
+                        city: 'Conakry',
+                        postalCode: '001',
+                        phone: '+224 123 456 789',
+                        country: 'Guinée'
+                    },
+                    paymentMethod: 'mobile_money',
+                    notes: 'Commande urgente pour chantier',
+                    subtotal: 650000,
+                    shippingCost: 0,
+                    tax: 0,
+                    total: 650000,
+                    orderStatus: 'approved',
+                    adminNotes: 'Commande approuvée - Livraison prévue dans 2 jours',
+                    trackingNumber: 'IN' + Date.now().toString().slice(-6),
+                    createdAt: new Date().toISOString(),
+                    approvedAt: new Date().toISOString(),
+                    updatedAt: new Date().toISOString()
+                };
+
+                this.orders.unshift(testOrder);
+                localStorage.setItem('clientOrders', JSON.stringify(this.orders));
+
+                showSuccess(`✅ Commande test créée: #${testOrder.trackingNumber}`);
+                this.addTestResult('Création commande test', 'SUCCESS', `Commande #${testOrder.trackingNumber} créée`);
+                this.loadOrders();
+            }
+
+            generateSampleInvoice() {
+                const sampleOrder = {
+                    _id: 'sample-order',
+                    user: {
+                        firstName: 'Marie',
+                        lastName: 'Traoré',
+                        email: 'marie.traore@example.com',
+                        phone: '+224 987 654 321'
+                    },
+                    items: [
+                        {
+                            product: { 
+                                name: 'Tôles Ondulées',
+                                description: 'Tôles galvanisées de qualité'
+                            },
+                            quantity: 20,
+                            price: 25000
+                        }
+                    ],
+                    shippingAddress: {
+                        firstName: 'Marie',
+                        lastName: 'Traoré',
+                        street: 'Avenue de la République',
+                        city: 'Labé',
+                        postalCode: '002',
+                        phone: '+224 987 654 321',
+                        country: 'Guinée'
+                    },
+                    paymentMethod: 'orange_money',
+                    notes: 'Pour construction de hangar',
+                    subtotal: 500000,
+                    shippingCost: 0,
+                    tax: 0,
+                    total: 500000,
+                    orderStatus: 'approved',
+                    adminNotes: 'Commande validée - Stock disponible',
+                    trackingNumber: 'SA' + Date.now().toString().slice(-6),
+                    createdAt: new Date().toISOString(),
+                    approvedAt: new Date().toISOString()
+                };
+
+                this.displayInvoicePreview(sampleOrder);
+                this.addTestResult('Génération facture exemple', 'SUCCESS', 'Aperçu généré avec succès');
+            }
+
+            displayInvoicePreview(order) {
+                const invoicePreview = document.getElementById('invoicePreview');
+                
+                invoicePreview.innerHTML = `
+                    <div class="invoice-preview">
+                        <div class="invoice-header">
+                            <div class="company-logo">
+                                <div class="logo-box">K</div>
+                                <div>
+                                    <h2 style="margin: 0; color: #333;">Bowoye Multi Services</h2>
+                                    <p style="margin: 0; color: #666;">Votre partenaire de confiance</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="invoice-details">
+                            <div class="invoice-info">
+                                <h4 style="margin: 0 0 10px 0; color: #333;">Informations Facture</h4>
+                                <p style="margin: 5px 0; font-size: 14px;"><strong>N° Facture:</strong> ${order.trackingNumber}</p>
+                                <p style="margin: 5px 0; font-size: 14px;"><strong>Date:</strong> ${new Date(order.createdAt).toLocaleDateString('fr-FR')}</p>
+                                <p style="margin: 5px 0; font-size: 14px;"><strong>Statut:</strong> 
+                                    <span class="status-badge status-${order.orderStatus}">${this.getStatusText(order.orderStatus)}</span>
+                                </p>
+                            </div>
+                            <div class="customer-info">
+                                <h4 style="margin: 0 0 10px 0; color: #333;">Informations Client</h4>
+                                <p style="margin: 5px 0; font-size: 14px;"><strong>Nom:</strong> ${order.user.firstName} ${order.user.lastName}</p>
+                                <p style="margin: 5px 0; font-size: 14px;"><strong>Adresse:</strong> ${order.shippingAddress.street}, ${order.shippingAddress.city}</p>
+                                <p style="margin: 5px 0; font-size: 14px;"><strong>Téléphone:</strong> ${order.shippingAddress.phone}</p>
+                            </div>
+                        </div>
+
+                        <table class="items-table">
+                            <thead>
+                                <tr>
+                                    <th>Article</th>
+                                    <th>Quantité</th>
+                                    <th>Prix Unitaire</th>
+                                    <th>Total</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${order.items.map(item => `
+                                    <tr>
+                                        <td>${item.product.name}</td>
+                                        <td>${item.quantity}</td>
+                                        <td>${item.price.toLocaleString()} FG</td>
+                                        <td>${(item.price * item.quantity).toLocaleString()} FG</td>
+                                    </tr>
+                                `).join('')}
+                            </tbody>
+                        </table>
+
+                        <div class="totals">
+                            <div class="total-line">
+                                <span>Sous-total:</span>
+                                <span>${order.subtotal.toLocaleString()} FG</span>
+                            </div>
+                            <div class="total-line">
+                                <span>Livraison:</span>
+                                <span style="color: #28a745;">Gratuite</span>
+                            </div>
+                            <div class="total-line">
+                                <span>Taxes:</span>
+                                <span>${order.tax.toLocaleString()} FG</span>
+                            </div>
+                            <div class="total-line total-final">
+                                <span>Total:</span>
+                                <span style="color: #007bff;">${order.total.toLocaleString()} FG</span>
+                            </div>
+                        </div>
+
+                        ${order.adminNotes ? `
+                            <div style="background: #d4edda; padding: 15px; border-radius: 6px; margin-top: 20px; border-left: 4px solid #28a745;">
+                                <h4 style="margin: 0 0 10px 0; color: #155724;">Notes d'Approbation</h4>
+                                <p style="margin: 0; color: #155724; font-size: 14px;">${order.adminNotes}</p>
+                            </div>
+                        ` : ''}
+
+                        <div style="text-align: center; margin-top: 30px; padding-top: 20px; border-top: 1px solid #ddd; color: #666; font-size: 12px;">
+                            <p>Merci pour votre confiance !</p>
+                            <p>Bowoye Multi Services - Votre partenaire de confiance</p>
+                        </div>
+                    </div>
+                `;
+            }
+
+            generateInvoiceForOrder(orderId) {
+                const order = this.orders.find(o => o._id === orderId);
+                if (order) {
+                    this.displayInvoicePreview(order);
+                    showSuccess(`✅ Facture générée pour la commande #${order.trackingNumber}`);
+                    this.addTestResult('Génération facture', 'SUCCESS', `Facture pour #${order.trackingNumber}`);
+                } else {
+                    showError('❌ Commande non trouvée');
+                    this.addTestResult('Génération facture', 'ERROR', 'Commande non trouvée');
+                }
+            }
+
+            testPrintFunction() {
+                try {
+                    // Simuler la fonction d'impression
+                    const printContent = document.getElementById('invoicePreview').innerHTML;
+                    if (printContent && printContent.includes('Bowoye Multi Services')) {
+                        showSuccess('✅ Fonction d\'impression testée avec succès');
+                        this.addTestResult('Test impression', 'SUCCESS', 'Fonction d\'impression opérationnelle');
+                        
+                        // Ouvrir une nouvelle fenêtre pour l'impression
+                        const printWindow = window.open('', '_blank');
+                        printWindow.document.write(`
+                            <html>
+                                <head>
+                                    <title>Facture - Test</title>
+                                    <style>
+                                        body { font-family: Arial, sans-serif; margin: 20px; }
+                                        .invoice-preview { border: none; box-shadow: none; }
+                                    </style>
+                                </head>
+                                <body>
+                                    ${printContent}
+                                    <script>window.print();</script>
+                                </body>
+                            </html>
+                        `);
+                        printWindow.document.close();
+                    } else {
+                        showWarning('⚠️ Aucune facture à imprimer. Générez d\'abord une facture.');
+                        this.addTestResult('Test impression', 'WARNING', 'Aucune facture générée');
+                    }
+                } catch (error) {
+                    showError('❌ Erreur lors du test d\'impression: ' + error.message);
+                    this.addTestResult('Test impression', 'ERROR', error.message);
+                }
+            }
+
+            testDownloadFunction() {
+                try {
+                    const downloadContent = document.getElementById('invoicePreview').innerHTML;
+                    if (downloadContent && downloadContent.includes('Bowoye Multi Services')) {
+                        const blob = new Blob([`
+                            <!DOCTYPE html>
+                            <html>
+                                <head>
+                                    <title>Facture - Bowoye Multi Services</title>
+                                    <style>
+                                        body { font-family: Arial, sans-serif; margin: 20px; }
+                                        .invoice-preview { border: none; box-shadow: none; }
+                                    </style>
+                                </head>
+                                <body>
+                                    ${downloadContent}
+                                </body>
+                            </html>
+                        `], { type: 'text/html' });
+                        
+                        const url = URL.createObjectURL(blob);
+                        const a = document.createElement('a');
+                        a.href = url;
+                        a.download = `facture-test-${Date.now()}.html`;
+                        document.body.appendChild(a);
+                        a.click();
+                        document.body.removeChild(a);
+                        URL.revokeObjectURL(url);
+                        
+                        showSuccess('✅ Téléchargement testé avec succès');
+                        this.addTestResult('Test téléchargement', 'SUCCESS', 'Fichier HTML téléchargé');
+                    } else {
+                        showWarning('⚠️ Aucune facture à télécharger. Générez d\'abord une facture.');
+                        this.addTestResult('Test téléchargement', 'WARNING', 'Aucune facture générée');
+                    }
+                } catch (error) {
+                    showError('❌ Erreur lors du test de téléchargement: ' + error.message);
+                    this.addTestResult('Test téléchargement', 'ERROR', error.message);
+                }
+            }
+
+            addTestResult(test, status, message) {
+                this.testResults.push({
+                    test,
+                    status,
+                    message,
+                    timestamp: new Date().toLocaleString('fr-FR')
+                });
+                this.displayTestResults();
+            }
+
+            displayTestResults() {
+                const resultsDiv = document.getElementById('testResults');
+                
+                if (this.testResults.length === 0) {
+                    resultsDiv.innerHTML = '<p>Aucun test exécuté pour le moment.</p>';
+                    return;
+                }
+
+                const successCount = this.testResults.filter(r => r.status === 'SUCCESS').length;
+                const warningCount = this.testResults.filter(r => r.status === 'WARNING').length;
+                const errorCount = this.testResults.filter(r => r.status === 'ERROR').length;
+
+                resultsDiv.innerHTML = `
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px; margin-bottom: 20px;">
+                        <div style="background: #d4edda; padding: 15px; border-radius: 6px; text-align: center;">
+                            <div style="font-size: 24px; font-weight: bold; color: #155724;">${successCount}</div>
+                            <div style="color: #155724;">Succès</div>
+                        </div>
+                        <div style="background: #fff3cd; padding: 15px; border-radius: 6px; text-align: center;">
+                            <div style="font-size: 24px; font-weight: bold; color: #856404;">${warningCount}</div>
+                            <div style="color: #856404;">Avertissements</div>
+                        </div>
+                        <div style="background: #f8d7da; padding: 15px; border-radius: 6px; text-align: center;">
+                            <div style="font-size: 24px; font-weight: bold; color: #721c24;">${errorCount}</div>
+                            <div style="color: #721c24;">Erreurs</div>
+                        </div>
+                    </div>
+                    <div style="border: 1px solid #ddd; border-radius: 4px; max-height: 300px; overflow-y: auto;">
+                        ${this.testResults.map(result => `
+                            <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px; border-bottom: 1px solid #eee;">
+                                <div>
+                                    <div style="font-weight: bold;">${result.test}</div>
+                                    <div style="font-size: 12px; color: #666;">${result.message} - ${result.timestamp}</div>
+                                </div>
+                                <div style="padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: bold; 
+                                     background: ${result.status === 'SUCCESS' ? '#d4edda' : result.status === 'WARNING' ? '#fff3cd' : '#f8d7da'};
+                                     color: ${result.status === 'SUCCESS' ? '#155724' : result.status === 'WARNING' ? '#856404' : '#721c24'};">
+                                    ${result.status}
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+            }
+
+            getStatusText(status) {
+                const texts = {
+                    pending_approval: 'En Attente',
+                    approved: 'Approuvée',
+                    rejected: 'Rejetée',
+                    pending: 'En Attente',
+                    confirmed: 'Confirmée',
+                    processing: 'En Cours',
+                    shipped: 'Expédiée',
+                    delivered: 'Livrée',
+                    cancelled: 'Annulée'
+                };
+                return texts[status] || status;
+            }
+        }
+
+        // Initialiser le testeur
+        const tester = new InvoiceTester();
+
+        // Fonctions globales
+        function loadOrders() {
+            tester.loadOrders();
+        }
+
+        function createTestOrder() {
+            tester.createTestOrder();
+        }
+
+        function generateSampleInvoice() {
+            tester.generateSampleInvoice();
+        }
+
+        function generateInvoiceForOrder(orderId) {
+            tester.generateInvoiceForOrder(orderId);
+        }
+
+        function testPrintFunction() {
+            tester.testPrintFunction();
+        }
+
+        function testDownloadFunction() {
+            tester.testDownloadFunction();
+        }
+
+        function showSuccess(message) {
+            const div = document.createElement('div');
+            div.className = 'success';
+            div.textContent = message;
+            document.querySelector('.container').appendChild(div);
+            setTimeout(() => div.remove(), 5000);
+        }
+
+        function showError(message) {
+            const div = document.createElement('div');
+            div.className = 'error';
+            div.textContent = message;
+            document.querySelector('.container').appendChild(div);
+            setTimeout(() => div.remove(), 5000);
+        }
+
+        function showWarning(message) {
+            const div = document.createElement('div');
+            div.className = 'warning';
+            div.textContent = message;
+            document.querySelector('.container').appendChild(div);
+            setTimeout(() => div.remove(), 5000);
+        }
+    </script>
+</body>
+</html>

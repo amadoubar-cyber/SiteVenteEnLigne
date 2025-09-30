@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Images Page d'Accueil</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        .header {
+            background: linear-gradient(135deg, #ff6b6b, #ffa500);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 2.5em;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        .content {
+            padding: 30px;
+        }
+        .test-section {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 25px;
+            margin: 20px 0;
+            border-left: 5px solid #ff6b6b;
+        }
+        .test-section h2 {
+            color: #ff6b6b;
+            margin-top: 0;
+            display: flex;
+            align-items: center;
+        }
+        .test-section h2::before {
+            content: "🖼️";
+            margin-right: 10px;
+            font-size: 1.2em;
+        }
+        .image-test {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+        .image-card {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            border: 2px solid #e9ecef;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+        .image-card img {
+            max-width: 100%;
+            height: 200px;
+            object-fit: cover;
+            border-radius: 8px;
+            margin-bottom: 15px;
+        }
+        .success {
+            background: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 10px 0;
+        }
+        .success::before {
+            content: "✅ ";
+            font-weight: bold;
+        }
+        .error {
+            background: #f8d7da;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 10px 0;
+        }
+        .error::before {
+            content: "❌ ";
+            font-weight: bold;
+        }
+        .info {
+            background: #d1ecf1;
+            border: 1px solid #bee5eb;
+            color: #0c5460;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 10px 0;
+        }
+        .info::before {
+            content: "ℹ️ ";
+            font-weight: bold;
+        }
+        .warning {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            color: #856404;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 10px 0;
+        }
+        .warning::before {
+            content: "⚠️ ";
+            font-weight: bold;
+        }
+        .btn {
+            background: linear-gradient(135deg, #ff6b6b, #ffa500);
+            color: white;
+            padding: 12px 25px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 10px 5px;
+            text-decoration: none;
+            display: inline-block;
+            transition: transform 0.2s;
+        }
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        .code-block {
+            background: #2d3748;
+            color: #e2e8f0;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            margin: 10px 0;
+            overflow-x: auto;
+        }
+        .footer {
+            background: #343a40;
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🖼️ Test Images Page d'Accueil</h1>
+            <p>Diagnostic du problème d'affichage des images du carrousel</p>
+        </div>
+
+        <div class="content">
+            <!-- Problème identifié -->
+            <div class="test-section">
+                <h2>Problème Identifié</h2>
+                
+                <div class="warning">
+                    ⚠️ <strong>Problème :</strong> Les images du carrousel ne s'affichent pas sur la page d'accueil.
+                </div>
+
+                <div class="info">
+                    ℹ️ <strong>Images attendues :</strong> A3.jpeg, A4.jpeg, A5.jpeg, A6.jpeg dans le dossier construction
+                </div>
+
+                <div class="info">
+                    ℹ️ <strong>Chemins utilisés :</strong> /images/products/construction/[nom_image].jpeg
+                </div>
+            </div>
+
+            <!-- Test des images -->
+            <div class="test-section">
+                <h2>Test des Images du Carrousel</h2>
+                
+                <div class="image-test">
+                    <div class="image-card">
+                        <h3>A3.jpeg</h3>
+                        <img src="/images/products/construction/A3.jpeg" 
+                             alt="Matériaux de construction - Ciment et briques"
+                             onload="this.style.border='3px solid green'"
+                             onerror="this.style.border='3px solid red'; this.alt='Image non trouvée'">
+                        <p><strong>Chemin :</strong> /images/products/construction/A3.jpeg</p>
+                        <p><strong>Description :</strong> Matériaux de construction - Ciment et briques</p>
+                    </div>
+
+                    <div class="image-card">
+                        <h3>A4.jpeg</h3>
+                        <img src="/images/products/construction/A4.jpeg" 
+                             alt="Matériaux de construction - Fer à béton"
+                             onload="this.style.border='3px solid green'"
+                             onerror="this.style.border='3px solid red'; this.alt='Image non trouvée'">
+                        <p><strong>Chemin :</strong> /images/products/construction/A4.jpeg</p>
+                        <p><strong>Description :</strong> Matériaux de construction - Fer à béton</p>
+                    </div>
+
+                    <div class="image-card">
+                        <h3>A5.jpeg</h3>
+                        <img src="/images/products/construction/A5.jpeg" 
+                             alt="Matériaux de construction - Outils"
+                             onload="this.style.border='3px solid green'"
+                             onerror="this.style.border='3px solid red'; this.alt='Image non trouvée'">
+                        <p><strong>Chemin :</strong> /images/products/construction/A5.jpeg</p>
+                        <p><strong>Description :</strong> Matériaux de construction - Outils</p>
+                    </div>
+
+                    <div class="image-card">
+                        <h3>A6.jpeg</h3>
+                        <img src="/images/products/construction/A6.jpeg" 
+                             alt="Matériaux de construction - Peinture"
+                             onload="this.style.border='3px solid green'"
+                             onerror="this.style.border='3px solid red'; this.alt='Image non trouvée'">
+                        <p><strong>Chemin :</strong> /images/products/construction/A6.jpeg</p>
+                        <p><strong>Description :</strong> Matériaux de construction - Peinture</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Solutions possibles -->
+            <div class="test-section">
+                <h2>Solutions Possibles</h2>
+                
+                <div class="info">
+                    ℹ️ <strong>Vérifications à effectuer :</strong>
+                </div>
+                <ul>
+                    <li>Vérifier que le serveur de développement est démarré</li>
+                    <li>Vérifier que les fichiers existent dans le bon dossier</li>
+                    <li>Vérifier la configuration du serveur pour les fichiers statiques</li>
+                    <li>Vérifier les chemins dans le code React</li>
+                </ul>
+
+                <div class="warning">
+                    ⚠️ <strong>Causes possibles :</strong>
+                </div>
+                <ul>
+                    <li>Serveur de développement non démarré</li>
+                    <li>Chemin incorrect vers les images</li>
+                    <li>Configuration du serveur statique incorrecte</li>
+                    <li>Problème de cache du navigateur</li>
+                </ul>
+            </div>
+
+            <!-- Actions de diagnostic -->
+            <div class="test-section">
+                <h2>Actions de Diagnostic</h2>
+                
+                <div class="code-block">
+                    # Vérifier que les serveurs sont démarrés
+                    # Frontend (port 3000)
+                    http://localhost:3000
+                    
+                    # Backend (port 3001)  
+                    http://localhost:3001
+                    
+                    # Tester directement une image
+                    http://localhost:3000/images/products/construction/A3.jpeg
+                </div>
+
+                <div class="info">
+                    ℹ️ <strong>Test direct des images :</strong>
+                </div>
+                <p>Cliquez sur les liens ci-dessous pour tester directement les images :</p>
+                <a href="http://localhost:3000/images/products/construction/A3.jpeg" target="_blank" class="btn">
+                    🖼️ Tester A3.jpeg
+                </a>
+                <a href="http://localhost:3000/images/products/construction/A4.jpeg" target="_blank" class="btn">
+                    🖼️ Tester A4.jpeg
+                </a>
+                <a href="http://localhost:3000/images/products/construction/A5.jpeg" target="_blank" class="btn">
+                    🖼️ Tester A5.jpeg
+                </a>
+                <a href="http://localhost:3000/images/products/construction/A6.jpeg" target="_blank" class="btn">
+                    🖼️ Tester A6.jpeg
+                </a>
+            </div>
+
+            <!-- Actions de correction -->
+            <div class="test-section">
+                <h2>Actions de Correction</h2>
+                
+                <div class="success">
+                    ✅ <strong>Étape 1 :</strong> Vérifier que les serveurs sont démarrés
+                </div>
+                
+                <div class="success">
+                    ✅ <strong>Étape 2 :</strong> Vider le cache du navigateur (Ctrl+F5)
+                </div>
+                
+                <div class="success">
+                    ✅ <strong>Étape 3 :</strong> Tester les liens directs des images
+                </div>
+                
+                <div class="success">
+                    ✅ <strong>Étape 4 :</strong> Vérifier la console du navigateur pour les erreurs
+                </div>
+            </div>
+
+            <!-- Liens utiles -->
+            <div class="test-section">
+                <h2>Liens Utiles</h2>
+                <a href="http://localhost:3000" class="btn" target="_blank">
+                    🏠 Page d'accueil
+                </a>
+                <a href="http://localhost:3000/images/products/construction/" class="btn" target="_blank">
+                    📁 Dossier images construction
+                </a>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p><strong>Test Images Page d'Accueil</strong> - Bowoye Multi Services</p>
+            <p>Diagnostic du problème d'affichage des images du carrousel</p>
+        </div>
+    </div>
+
+    <script>
+        // Test automatique des images
+        function testImages() {
+            const images = [
+                '/images/products/construction/A3.jpeg',
+                '/images/products/construction/A4.jpeg',
+                '/images/products/construction/A5.jpeg',
+                '/images/products/construction/A6.jpeg'
+            ];
+
+            images.forEach((src, index) => {
+                const img = new Image();
+                img.onload = function() {
+                    console.log(`✅ Image ${index + 1} chargée avec succès: ${src}`);
+                };
+                img.onerror = function() {
+                    console.log(`❌ Erreur de chargement image ${index + 1}: ${src}`);
+                };
+                img.src = src;
+            });
+        }
+
+        // Test au chargement de la page
+        window.addEventListener('load', testImages);
+
+        // Test de connectivité
+        function testConnectivity() {
+            fetch('http://localhost:3001/api/health')
+                .then(response => {
+                    if (response.ok) {
+                        console.log('✅ Serveur backend accessible');
+                    } else {
+                        console.log('⚠️ Serveur backend avec problèmes');
+                    }
+                })
+                .catch(error => {
+                    console.log('❌ Serveur backend inaccessible:', error);
+                });
+        }
+
+        testConnectivity();
+    </script>
+</body>
+</html>

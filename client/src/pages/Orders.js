@@ -1,11 +1,15 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useQuery } from 'react-query';
 import { ordersAPI } from '../services/api';
 import { localOrdersAPI } from '../services/localOrdersAPI';
-import { Package, Eye, Calendar, MapPin, Phone, Mail, ShoppingCart, CreditCard, User } from 'lucide-react';
+import { Package, Eye, Calendar, MapPin, Phone, Mail, ShoppingCart, CreditCard, User, FileText } from 'lucide-react';
+import Invoice from '../components/Invoice';
 
 const Orders = () => {
+  const [selectedOrder, setSelectedOrder] = useState(null);
+  const [showInvoice, setShowInvoice] = useState(false);
+
   const { data: ordersData, isLoading } = useQuery(
     'my-orders',
     async () => {
@@ -33,6 +37,16 @@ const Orders = () => {
   );
 
   const orders = ordersData || [];
+
+  const handleShowInvoice = (order) => {
+    setSelectedOrder(order);
+    setShowInvoice(true);
+  };
+
+  const handleCloseInvoice = () => {
+    setSelectedOrder(null);
+    setShowInvoice(false);
+  };
 
   const formatPrice = (price) => {
     return new Intl.NumberFormat('fr-FR', {
@@ -136,13 +150,22 @@ const Orders = () => {
                     <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(order.orderStatus)}`}>
                       {getStatusText(order.orderStatus)}
                     </span>
-                    <Link
-                      to={`/orders/${order._id}`}
-                      className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors flex items-center text-sm"
-                    >
-                      <Eye className="h-4 w-4 mr-2" />
-                      Voir les détails
-                    </Link>
+                    <div className="flex space-x-2">
+                      <Link
+                        to={`/orders/${order._id}`}
+                        className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors flex items-center text-sm"
+                      >
+                        <Eye className="h-4 w-4 mr-2" />
+                        Voir les détails
+                      </Link>
+                      <button
+                        onClick={() => handleShowInvoice(order)}
+                        className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors flex items-center text-sm"
+                      >
+                        <FileText className="h-4 w-4 mr-2" />
+                        Facture
+                      </button>
+                    </div>
                   </div>
                 </div>
 
@@ -249,6 +272,18 @@ const Orders = () => {
           </div>
         )}
       </div>
+
+      {/* Modal de facture */}
+      {showInvoice && selectedOrder && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 z-50 overflow-y-auto">
+          <div className="relative">
+            <Invoice 
+              order={selectedOrder} 
+              onClose={handleCloseInvoice} 
+            />
+          </div>
+        </div>
+      )}
     </div>
   );
 };

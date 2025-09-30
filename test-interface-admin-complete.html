@@ -1,0 +1,762 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Interface Admin Complète - Bowoye Multi Services</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        .header {
+            background: linear-gradient(135deg, #ff6b6b, #ffa500);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 2.5em;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        .content {
+            padding: 30px;
+        }
+        .test-section {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 25px;
+            margin: 20px 0;
+            border-left: 5px solid #ff6b6b;
+        }
+        .test-section h2 {
+            color: #ff6b6b;
+            margin-top: 0;
+            display: flex;
+            align-items: center;
+        }
+        .test-section h2::before {
+            content: "⚙️";
+            margin-right: 10px;
+            font-size: 1.2em;
+        }
+        .success {
+            background: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 10px 0;
+        }
+        .success::before {
+            content: "✅ ";
+            font-weight: bold;
+        }
+        .error {
+            background: #f8d7da;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 10px 0;
+        }
+        .error::before {
+            content: "❌ ";
+            font-weight: bold;
+        }
+        .info {
+            background: #d1ecf1;
+            border: 1px solid #bee5eb;
+            color: #0c5460;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 10px 0;
+        }
+        .info::before {
+            content: "ℹ️ ";
+            font-weight: bold;
+        }
+        .warning {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            color: #856404;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 10px 0;
+        }
+        .warning::before {
+            content: "⚠️ ";
+            font-weight: bold;
+        }
+        .btn {
+            background: linear-gradient(135deg, #ff6b6b, #ffa500);
+            color: white;
+            padding: 12px 25px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 10px 5px;
+            text-decoration: none;
+            display: inline-block;
+            transition: transform 0.2s;
+        }
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        .btn-success {
+            background: linear-gradient(135deg, #28a745, #20c997);
+        }
+        .btn-danger {
+            background: linear-gradient(135deg, #dc3545, #e74c3c);
+        }
+        .btn-info {
+            background: linear-gradient(135deg, #17a2b8, #6f42c1);
+        }
+        .checklist {
+            list-style: none;
+            padding: 0;
+        }
+        .checklist li {
+            padding: 8px 0;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            align-items: center;
+        }
+        .checklist li::before {
+            content: "☐";
+            margin-right: 10px;
+            font-size: 1.2em;
+        }
+        .checklist li.checked::before {
+            content: "☑️";
+        }
+        .step {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 15px 0;
+            border: 1px solid #e9ecef;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+        .step h3 {
+            color: #495057;
+            margin-top: 0;
+            display: flex;
+            align-items: center;
+        }
+        .step h3::before {
+            content: "📋";
+            margin-right: 8px;
+        }
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+        .feature-card {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            border: 2px solid #e9ecef;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        .feature-card h3 {
+            color: #495057;
+            margin-top: 0;
+            display: flex;
+            align-items: center;
+        }
+        .feature-card h3::before {
+            content: "🔧";
+            margin-right: 8px;
+        }
+        .footer {
+            background: #343a40;
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+        .admin-credentials {
+            background: #fff3cd;
+            border: 2px solid #ffc107;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        .admin-credentials h3 {
+            color: #856404;
+            margin-top: 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>⚙️ Test Interface Admin Complète</h1>
+            <p>Vérification de toutes les fonctionnalités du back-office</p>
+        </div>
+
+        <div class="content">
+            <!-- Credentials admin -->
+            <div class="admin-credentials">
+                <h3>🔑 Identifiants Admin</h3>
+                <div class="info">
+                    ℹ️ <strong>Utilisez ces identifiants pour accéder à l'interface admin :</strong>
+                </div>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px; margin: 15px 0;">
+                    <div style="background: #e8f5e8; padding: 15px; border-radius: 8px; border: 2px solid #4caf50;">
+                        <h4 style="margin-top: 0; color: #2e7d32;">👑 Admin Principal</h4>
+                        <p><strong>Email :</strong> amadou@bowoye.gn</p>
+                        <p><strong>Mot de passe :</strong> password123</p>
+                        <p><strong>Rôle :</strong> Administrateur</p>
+                    </div>
+                    
+                    <div style="background: #e8f5e8; padding: 15px; border-radius: 8px; border: 2px solid #4caf50;">
+                        <h4 style="margin-top: 0; color: #2e7d32;">🔧 Admin Technique</h4>
+                        <p><strong>Email :</strong> admin@koula.gn</p>
+                        <p><strong>Mot de passe :</strong> admin123</p>
+                        <p><strong>Rôle :</strong> Administrateur</p>
+                    </div>
+                    
+                    <div style="background: #e8f5e8; padding: 15px; border-radius: 8px; border: 2px solid #4caf50;">
+                        <h4 style="margin-top: 0; color: #2e7d32;">🌟 Super Admin</h4>
+                        <p><strong>Email :</strong> superadmin@koula.gn</p>
+                        <p><strong>Mot de passe :</strong> superadmin123</p>
+                        <p><strong>Rôle :</strong> Super Administrateur</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Vue d'ensemble -->
+            <div class="test-section">
+                <h2>Vue d'Ensemble des Fonctionnalités Admin</h2>
+                
+                <div class="info">
+                    ℹ️ <strong>Objectif :</strong> Vérifier que toutes les fonctionnalités de l'interface admin fonctionnent correctement.
+                </div>
+
+                <div class="feature-grid">
+                    <div class="feature-card">
+                        <h3>1. Gestion des Produits</h3>
+                        <ul class="checklist">
+                            <li>☐ Ajouter un produit</li>
+                            <li>☐ Modifier un produit</li>
+                            <li>☐ Supprimer un produit</li>
+                            <li>☐ Gestion des catégories</li>
+                            <li>☐ Gestion du stock</li>
+                            <li>☐ Alertes stock bas</li>
+                        </ul>
+                    </div>
+
+                    <div class="feature-card">
+                        <h3>2. Gestion des Utilisateurs</h3>
+                        <ul class="checklist">
+                            <li>☐ Liste des clients</li>
+                            <li>☐ Fiches clients</li>
+                            <li>☐ Gestion des rôles</li>
+                            <li>☐ Blocage/déblocage</li>
+                            <li>☐ Suppression de comptes</li>
+                        </ul>
+                    </div>
+
+                    <div class="feature-card">
+                        <h3>3. Gestion des Commandes</h3>
+                        <ul class="checklist">
+                            <li>☐ Liste des commandes</li>
+                            <li>☐ Statuts des commandes</li>
+                            <li>☐ Détails des commandes</li>
+                            <li>☐ Suivi logistique</li>
+                            <li>☐ Mise à jour statuts</li>
+                        </ul>
+                    </div>
+
+                    <div class="feature-card">
+                        <h3>4. Gestion des Paiements</h3>
+                        <ul class="checklist">
+                            <li>☐ Historique des paiements</li>
+                            <li>☐ Modes de paiement</li>
+                            <li>☐ Vérification paiements</li>
+                            <li>☐ Rapports financiers</li>
+                            <li>☐ Statistiques de vente</li>
+                        </ul>
+                    </div>
+
+                    <div class="feature-card">
+                        <h3>5. Gestion du Contenu</h3>
+                        <ul class="checklist">
+                            <li>☐ Pages du site</li>
+                            <li>☐ Promotions/réductions</li>
+                            <li>☐ Bannières publicitaires</li>
+                            <li>☐ Contenu dynamique</li>
+                        </ul>
+                    </div>
+
+                    <div class="feature-card">
+                        <h3>6. Tableaux de Bord</h3>
+                        <ul class="checklist">
+                            <li>☐ Vue d'ensemble ventes</li>
+                            <li>☐ Produits les plus vendus</li>
+                            <li>☐ Clients fidèles</li>
+                            <li>☐ Graphiques statistiques</li>
+                            <li>☐ KPIs principaux</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Test 1: Gestion des Produits -->
+            <div class="test-section">
+                <h2>1. Test Gestion des Produits</h2>
+                
+                <div class="step">
+                    <h3>Ajouter un Produit</h3>
+                    <div class="info">
+                        ℹ️ <strong>Étapes :</strong>
+                    </div>
+                    <ul class="checklist">
+                        <li>☐ Accéder à la section "Produits"</li>
+                        <li>☐ Cliquer sur "Ajouter un produit"</li>
+                        <li>☐ Remplir le formulaire (nom, description, prix)</li>
+                        <li>☐ Uploader des photos</li>
+                        <li>☐ Définir la quantité en stock</li>
+                        <li>☐ Sélectionner la catégorie</li>
+                        <li>☐ Sauvegarder le produit</li>
+                        <li>☐ Vérifier l'affichage dans la liste</li>
+                    </ul>
+                </div>
+
+                <div class="step">
+                    <h3>Modifier un Produit</h3>
+                    <ul class="checklist">
+                        <li>☐ Sélectionner un produit existant</li>
+                        <li>☐ Cliquer sur "Modifier"</li>
+                        <li>☐ Changer le prix</li>
+                        <li>☐ Modifier la description</li>
+                        <li>☐ Remplacer les images</li>
+                        <li>☐ Ajuster la quantité</li>
+                        <li>☐ Sauvegarder les modifications</li>
+                    </ul>
+                </div>
+
+                <div class="step">
+                    <h3>Supprimer un Produit</h3>
+                    <ul class="checklist">
+                        <li>☐ Sélectionner un produit à supprimer</li>
+                        <li>☐ Cliquer sur "Supprimer"</li>
+                        <li>☐ Confirmer la suppression</li>
+                        <li>☐ Vérifier la disparition du produit</li>
+                    </ul>
+                </div>
+
+                <div class="step">
+                    <h3>Gestion des Catégories</h3>
+                    <ul class="checklist">
+                        <li>☐ Accéder à la section "Catégories"</li>
+                        <li>☐ Créer une nouvelle catégorie</li>
+                        <li>☐ Modifier une catégorie existante</li>
+                        <li>☐ Supprimer une catégorie</li>
+                        <li>☐ Organiser les produits par catégorie</li>
+                    </ul>
+                </div>
+
+                <div class="step">
+                    <h3>Gestion du Stock</h3>
+                    <ul class="checklist">
+                        <li>☐ Voir la liste des stocks</li>
+                        <li>☐ Identifier les produits en rupture</li>
+                        <li>☐ Recevoir des alertes stock bas</li>
+                        <li>☐ Mettre à jour les quantités</li>
+                        <li>☐ Historique des mouvements</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Test 2: Gestion des Utilisateurs -->
+            <div class="test-section">
+                <h2>2. Test Gestion des Utilisateurs</h2>
+                
+                <div class="step">
+                    <h3>Liste des Clients</h3>
+                    <ul class="checklist">
+                        <li>☐ Accéder à la section "Utilisateurs"</li>
+                        <li>☐ Voir la liste des clients inscrits</li>
+                        <li>☐ Filtrer par statut/date</li>
+                        <li>☐ Rechercher un client</li>
+                        <li>☐ Pagination des résultats</li>
+                    </ul>
+                </div>
+
+                <div class="step">
+                    <h3>Fiches Clients</h3>
+                    <ul class="checklist">
+                        <li>☐ Cliquer sur un client</li>
+                        <li>☐ Voir les informations personnelles</li>
+                        <li>☐ Voir l'historique d'achats</li>
+                        <li>☐ Voir les adresses</li>
+                        <li>☐ Voir les commandes passées</li>
+                    </ul>
+                </div>
+
+                <div class="step">
+                    <h3>Gestion des Rôles</h3>
+                    <ul class="checklist">
+                        <li>☐ Modifier le rôle d'un utilisateur</li>
+                        <li>☐ Créer des sous-admins</li>
+                        <li>☐ Définir les permissions</li>
+                        <li>☐ Tester les accès</li>
+                    </ul>
+                </div>
+
+                <div class="step">
+                    <h3>Blocage/Suppression</h3>
+                    <ul class="checklist">
+                        <li>☐ Bloquer un compte client</li>
+                        <li>☐ Débloquer un compte</li>
+                        <li>☐ Supprimer un compte</li>
+                        <li>☐ Vérifier les restrictions</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Test 3: Gestion des Commandes -->
+            <div class="test-section">
+                <h2>3. Test Gestion des Commandes</h2>
+                
+                <div class="step">
+                    <h3>Liste des Commandes</h3>
+                    <ul class="checklist">
+                        <li>☐ Accéder à la section "Commandes"</li>
+                        <li>☐ Voir toutes les commandes</li>
+                        <li>☐ Filtrer par statut/date</li>
+                        <li>☐ Rechercher une commande</li>
+                        <li>☐ Tri par colonnes</li>
+                    </ul>
+                </div>
+
+                <div class="step">
+                    <h3>Statuts des Commandes</h3>
+                    <ul class="checklist">
+                        <li>☐ Voir les statuts : En attente, Payée, Expédiée, Livrée, Annulée</li>
+                        <li>☐ Modifier le statut d'une commande</li>
+                        <li>☐ Notifier le client du changement</li>
+                        <li>☐ Historique des changements</li>
+                    </ul>
+                </div>
+
+                <div class="step">
+                    <h3>Détails de Commande</h3>
+                    <ul class="checklist">
+                        <li>☐ Cliquer sur une commande</li>
+                        <li>☐ Voir les produits commandés</li>
+                        <li>☐ Voir les quantités et prix</li>
+                        <li>☐ Voir les informations client</li>
+                        <li>☐ Voir l'adresse de livraison</li>
+                    </ul>
+                </div>
+
+                <div class="step">
+                    <h3>Suivi Logistique</h3>
+                    <ul class="checklist">
+                        <li>☐ Ajouter un numéro de suivi</li>
+                        <li>☐ Mettre à jour le statut d'expédition</li>
+                        <li>☐ Notifier le client</li>
+                        <li>☐ Suivre la progression</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Test 4: Gestion des Paiements -->
+            <div class="test-section">
+                <h2>4. Test Gestion des Paiements</h2>
+                
+                <div class="step">
+                    <h3>Historique des Paiements</h3>
+                    <ul class="checklist">
+                        <li>☐ Accéder à la section "Paiements"</li>
+                        <li>☐ Voir l'historique complet</li>
+                        <li>☐ Filtrer par client/date/mode</li>
+                        <li>☐ Rechercher un paiement</li>
+                        <li>☐ Export des données</li>
+                    </ul>
+                </div>
+
+                <div class="step">
+                    <h3>Modes de Paiement</h3>
+                    <ul class="checklist">
+                        <li>☐ Voir les modes disponibles (Espèces, Mobile Money, Carte)</li>
+                        <li>☐ Configurer les modes de paiement</li>
+                        <li>☐ Gérer les commissions</li>
+                        <li>☐ Activer/désactiver des modes</li>
+                    </ul>
+                </div>
+
+                <div class="step">
+                    <h3>Vérification des Paiements</h3>
+                    <ul class="checklist">
+                        <li>☐ Marquer une commande comme "payée"</li>
+                        <li>☐ Marquer comme "en attente"</li>
+                        <li>☐ Gérer les remboursements</li>
+                        <li>☐ Traiter les litiges</li>
+                    </ul>
+                </div>
+
+                <div class="step">
+                    <h3>Rapports Financiers</h3>
+                    <ul class="checklist">
+                        <li>☐ Voir les ventes par jour/semaine/mois</li>
+                        <li>☐ Calculer les revenus</li>
+                        <li>☐ Analyser les tendances</li>
+                        <li>☐ Générer des rapports</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Test 5: Gestion du Contenu -->
+            <div class="test-section">
+                <h2>5. Test Gestion du Contenu</h2>
+                
+                <div class="step">
+                    <h3>Gestion des Pages</h3>
+                    <ul class="checklist">
+                        <li>☐ Modifier la page d'accueil</li>
+                        <li>☐ Modifier la page "À propos"</li>
+                        <li>☐ Modifier les conditions d'utilisation</li>
+                        <li>☐ Gérer le contenu dynamique</li>
+                        <li>☐ Prévisualiser les changements</li>
+                    </ul>
+                </div>
+
+                <div class="step">
+                    <h3>Promotions/Réductions</h3>
+                    <ul class="checklist">
+                        <li>☐ Créer des coupons de réduction</li>
+                        <li>☐ Gérer les soldes</li>
+                        <li>☐ Définir les conditions</li>
+                        <li>☐ Limiter dans le temps</li>
+                        <li>☐ Suivre l'utilisation</li>
+                    </ul>
+                </div>
+
+                <div class="step">
+                    <h3>Bannières Publicitaires</h3>
+                    <ul class="checklist">
+                        <li>☐ Uploader des bannières</li>
+                        <li>☐ Définir les positions</li>
+                        <li>☐ Gérer la rotation</li>
+                        <li>☐ Programmer l'affichage</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Test 6: Tableaux de Bord -->
+            <div class="test-section">
+                <h2>6. Test Tableaux de Bord & Statistiques</h2>
+                
+                <div class="step">
+                    <h3>Vue d'Ensemble des Ventes</h3>
+                    <ul class="checklist">
+                        <li>☐ Commandes aujourd'hui</li>
+                        <li>☐ Commandes cette semaine</li>
+                        <li>☐ Commandes ce mois</li>
+                        <li>☐ Comparaisons avec périodes précédentes</li>
+                    </ul>
+                </div>
+
+                <div class="step">
+                    <h3>Produits les Plus Vendus</h3>
+                    <ul class="checklist">
+                        <li>☐ Top 10 des produits</li>
+                        <li>☐ Quantités vendues</li>
+                        <li>☐ Revenus par produit</li>
+                        <li>☐ Tendances de vente</li>
+                    </ul>
+                </div>
+
+                <div class="step">
+                    <h3>Clients Fidèles</h3>
+                    <ul class="checklist">
+                        <li>☐ Clients les plus actifs</li>
+                        <li>☐ Montant des achats</li>
+                        <li>☐ Fréquence d'achat</li>
+                        <li>☐ Segmentation client</li>
+                    </ul>
+                </div>
+
+                <div class="step">
+                    <h3>Graphiques Statistiques</h3>
+                    <ul class="checklist">
+                        <li>☐ Graphique des ventes</li>
+                        <li>☐ Graphique des revenus</li>
+                        <li>☐ Graphique des stocks</li>
+                        <li>☐ Graphique des clients</li>
+                        <li>☐ Export des graphiques</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Actions de test -->
+            <div class="test-section">
+                <h2>Actions de Test</h2>
+                
+                <div class="success">
+                    ✅ <strong>Liens de test disponibles :</strong>
+                </div>
+                
+                <a href="http://localhost:3000/login" class="btn" target="_blank">
+                    🔑 Connexion Admin
+                </a>
+                <a href="http://localhost:3000/admin-simple-complete" class="btn" target="_blank">
+                    ⚙️ Interface Admin
+                </a>
+                <a href="http://localhost:3000/admin/products" class="btn" target="_blank">
+                    📦 Gestion Produits
+                </a>
+                <a href="http://localhost:3000/admin/users" class="btn" target="_blank">
+                    👥 Gestion Utilisateurs
+                </a>
+                <a href="http://localhost:3000/admin/orders" class="btn" target="_blank">
+                    📋 Gestion Commandes
+                </a>
+                <a href="http://localhost:3000/admin/dashboard" class="btn" target="_blank">
+                    📊 Tableau de Bord
+                </a>
+            </div>
+
+            <!-- Checklist de validation -->
+            <div class="test-section">
+                <h2>Checklist de Validation Complète</h2>
+                
+                <div class="warning">
+                    ⚠️ <strong>Marquez chaque étape comme terminée :</strong>
+                </div>
+                
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 20px;">
+                    <div>
+                        <h4>📦 Gestion Produits</h4>
+                        <ul class="checklist">
+                            <li>☐ CRUD produits fonctionnel</li>
+                            <li>☐ Gestion catégories</li>
+                            <li>☐ Gestion stock</li>
+                            <li>☐ Alertes stock bas</li>
+                        </ul>
+                    </div>
+                    
+                    <div>
+                        <h4>👥 Gestion Utilisateurs</h4>
+                        <ul class="checklist">
+                            <li>☐ Liste clients</li>
+                            <li>☐ Fiches clients</li>
+                            <li>☐ Gestion rôles</li>
+                            <li>☐ Blocage/suppression</li>
+                        </ul>
+                    </div>
+                    
+                    <div>
+                        <h4>📋 Gestion Commandes</h4>
+                        <ul class="checklist">
+                            <li>☐ Liste commandes</li>
+                            <li>☐ Statuts commandes</li>
+                            <li>☐ Détails commandes</li>
+                            <li>☐ Suivi logistique</li>
+                        </ul>
+                    </div>
+                    
+                    <div>
+                        <h4>💳 Gestion Paiements</h4>
+                        <ul class="checklist">
+                            <li>☐ Historique paiements</li>
+                            <li>☐ Modes paiement</li>
+                            <li>☐ Vérification paiements</li>
+                            <li>☐ Rapports financiers</li>
+                        </ul>
+                    </div>
+                    
+                    <div>
+                        <h4>📰 Gestion Contenu</h4>
+                        <ul class="checklist">
+                            <li>☐ Pages du site</li>
+                            <li>☐ Promotions/réductions</li>
+                            <li>☐ Bannières publicitaires</li>
+                        </ul>
+                    </div>
+                    
+                    <div>
+                        <h4>📊 Tableaux de Bord</h4>
+                        <ul class="checklist">
+                            <li>☐ Vue d'ensemble ventes</li>
+                            <li>☐ Produits plus vendus</li>
+                            <li>☐ Clients fidèles</li>
+                            <li>☐ Graphiques statistiques</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p><strong>Test Interface Admin Complète</strong> - Bowoye Multi Services</p>
+            <p>Vérification de toutes les fonctionnalités du back-office</p>
+        </div>
+    </div>
+
+    <script>
+        // Animation des cartes
+        document.addEventListener('DOMContentLoaded', function() {
+            const cards = document.querySelectorAll('.feature-card, .step, .test-section');
+            cards.forEach((card, index) => {
+                card.style.opacity = '0';
+                card.style.transform = 'translateY(20px)';
+                setTimeout(() => {
+                    card.style.transition = 'all 0.5s ease';
+                    card.style.opacity = '1';
+                    card.style.transform = 'translateY(0)';
+                }, index * 100);
+            });
+        });
+
+        // Test de connectivité
+        function testConnectivity() {
+            fetch('http://localhost:3001/api/health')
+                .then(response => {
+                    if (response.ok) {
+                        console.log('✅ Serveur backend accessible');
+                        updateStatus('Backend: ✅ Connecté');
+                    } else {
+                        console.log('⚠️ Serveur backend avec problèmes');
+                        updateStatus('Backend: ⚠️ Problème');
+                    }
+                })
+                .catch(error => {
+                    console.log('❌ Serveur backend inaccessible:', error);
+                    updateStatus('Backend: ❌ Hors ligne');
+                });
+        }
+
+        function updateStatus(message) {
+            const footer = document.querySelector('.footer p:last-child');
+            if (footer) {
+                footer.innerHTML = `Vérification de toutes les fonctionnalités du back-office | ${message}`;
+            }
+        }
+
+        // Test de connectivité au chargement
+        testConnectivity();
+    </script>
+</body>
+</html>

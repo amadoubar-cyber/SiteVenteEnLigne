@@ -1,0 +1,46 @@
+{
+  "products": [
+    {
+      "_id": "prod-1",
+      "name": "Ciment Portland 50kg",
+      "price": 8500,
+      "stock": 100,
+      "productType": "construction",
+      "category": "matériaux",
+      "description": "Ciment Portland de qualité supérieure pour tous vos projets de construction",
+      "images": [
+        "/images/products/construction/A3.jpeg"
+      ],
+      "featured": true,
+      "createdAt": "2025-09-29T21:35:14.562Z"
+    },
+    {
+      "_id": "prod-2",
+      "name": "Fer à Béton 12mm",
+      "price": 4500,
+      "stock": 50,
+      "productType": "construction",
+      "category": "armature",
+      "description": "Fer à béton de 12mm pour renforcement des structures",
+      "images": [
+        "/images/products/construction/A4.jpeg"
+      ],
+      "featured": true,
+      "createdAt": "2025-09-29T21:35:14.564Z"
+    },
+    {
+      "_id": "prod-3",
+      "name": "Téléphone Samsung Galaxy",
+      "price": 250000,
+      "stock": 10,
+      "productType": "electronics",
+      "category": "téléphones",
+      "description": "Téléphone intelligent Samsung Galaxy dernière génération",
+      "images": [
+        "/images/products/electronics/samsung.jpg"
+      ],
+      "featured": true,
+      "createdAt": "2025-09-29T21:35:14.564Z"
+    }
+  ]
+}

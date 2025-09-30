@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test - Système de Notifications</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+        }
+        .success {
+            background: #d4edda;
+            color: #155724;
+            padding: 10px;
+            border-radius: 4px;
+            margin: 10px 0;
+        }
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 10px;
+            border-radius: 4px;
+            margin: 10px 0;
+        }
+        .warning {
+            background: #fff3cd;
+            color: #856404;
+            padding: 10px;
+            border-radius: 4px;
+            margin: 10px 0;
+        }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+        .danger {
+            background: #dc3545;
+        }
+        .danger:hover {
+            background: #c82333;
+        }
+        .success-btn {
+            background: #28a745;
+        }
+        .success-btn:hover {
+            background: #218838;
+        }
+        .notification-demo {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            width: 300px;
+            z-index: 1000;
+        }
+        .notification {
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            padding: 15px;
+            margin-bottom: 10px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            animation: slideIn 0.3s ease-out;
+        }
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+        .notification-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+        .notification-title {
+            font-weight: bold;
+            color: #333;
+        }
+        .notification-close {
+            background: none;
+            border: none;
+            color: #999;
+            cursor: pointer;
+            font-size: 18px;
+        }
+        .notification-message {
+            color: #666;
+            font-size: 14px;
+        }
+        .notification-order {
+            border-left: 4px solid #007bff;
+        }
+        .notification-success {
+            border-left: 4px solid #28a745;
+        }
+        .notification-warning {
+            border-left: 4px solid #ffc107;
+        }
+        .notification-error {
+            border-left: 4px solid #dc3545;
+        }
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        .stat-card {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 6px;
+            border-left: 4px solid #007bff;
+        }
+        .stat-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: #333;
+        }
+        .stat-label {
+            color: #666;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔔 Test - Système de Notifications</h1>
+        <p>Ce script teste le système de notifications pour les nouvelles commandes.</p>
+        
+        <div class="test-section">
+            <h3>📊 État Actuel</h3>
+            <div id="currentState"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>🧪 Tests de Notifications</h3>
+            <button onclick="testNewOrderNotification()" class="success-btn">
+                📦 Simuler Nouvelle Commande
+            </button>
+            <button onclick="testMultipleOrders()" class="success-btn">
+                📦 Simuler Plusieurs Commandes
+            </button>
+            <button onclick="testStatusUpdate()">
+                🔄 Simuler Mise à Jour Statut
+            </button>
+            <button onclick="clearAllNotifications()" class="danger">
+                🗑️ Vider Notifications
+            </button>
+        </div>
+
+        <div class="test-section">
+            <h3>📋 Commandes de Test</h3>
+            <button onclick="createTestOrder('Mamadou', 'Diallo', 150000)">
+                Créer Commande Mamadou (150,000 FG)
+            </button>
+            <button onclick="createTestOrder('Fatou', 'Camara', 250000)">
+                Créer Commande Fatou (250,000 FG)
+            </button>
+            <button onclick="createTestOrder('Ibrahima', 'Bah', 75000)">
+                Créer Commande Ibrahima (75,000 FG)
+            </button>
+        </div>
+
+        <div class="test-section">
+            <h3>🔧 Outils de Debug</h3>
+            <button onclick="showNotifications()">
+                👁️ Voir Notifications
+            </button>
+            <button onclick="showOrders()">
+                📦 Voir Commandes
+            </button>
+            <button onclick="resetAllData()" class="danger">
+                🔄 Réinitialiser Tout
+            </button>
+        </div>
+    </div>
+
+    <!-- Zone de démonstration des notifications -->
+    <div class="notification-demo" id="notificationDemo"></div>
+
+    <script>
+        // Simuler le système de notifications
+        class NotificationSystem {
+            constructor() {
+                this.notifications = JSON.parse(localStorage.getItem('admin_notifications') || '[]');
+                this.orders = JSON.parse(localStorage.getItem('clientOrders') || '[]');
+                this.updateDisplay();
+            }
+
+            addNotification(notification) {
+                const newNotification = {
+                    id: Date.now() + Math.random(),
+                    type: notification.type || 'info',
+                    title: notification.title,
+                    message: notification.message,
+                    timestamp: new Date().toISOString(),
+                    read: false,
+                    ...notification
+                };
+
+                this.notifications.unshift(newNotification);
+                this.notifications = this.notifications.slice(0, 50); // Garder seulement les 50 dernières
+                localStorage.setItem('admin_notifications', JSON.stringify(this.notifications));
+                
+                this.showToastNotification(newNotification);
+                this.updateDisplay();
+            }
+
+            showToastNotification(notification) {
+                const demo = document.getElementById('notificationDemo');
+                const notificationEl = document.createElement('div');
+                notificationEl.className = `notification notification-${notification.type}`;
+                
+                notificationEl.innerHTML = `
+                    <div class="notification-header">
+                        <div class="notification-title">${notification.title}</div>
+                        <button class="notification-close" onclick="this.parentElement.parentElement.remove()">×</button>
+                    </div>
+                    <div class="notification-message">${notification.message}</div>
+                `;
+                
+                demo.appendChild(notificationEl);
+                
+                // Supprimer automatiquement après 5 secondes
+                setTimeout(() => {
+                    if (notificationEl.parentElement) {
+                        notificationEl.remove();
+                    }
+                }, 5000);
+            }
+
+            notifyNewOrder(order) {
+                const customerName = `${order.user?.firstName || ''} ${order.user?.lastName || ''}`.trim() || 'Client';
+                const orderTotal = order.items?.reduce((sum, item) => 
+                    sum + (item.price * item.quantity), 0) || 0;
+                
+                this.addNotification({
+                    type: 'order',
+                    title: 'Nouvelle Commande !',
+                    message: `${customerName} a passé une commande de ${orderTotal.toLocaleString('fr-FR')} FG`,
+                    orderId: order._id,
+                    orderData: order
+                });
+            }
+
+            updateDisplay() {
+                const stateDiv = document.getElementById('currentState');
+                const unreadCount = this.notifications.filter(n => !n.read).length;
+                
+                stateDiv.innerHTML = `
+                    <div class="stats">
+                        <div class="stat-card">
+                            <div class="stat-value">${this.orders.length}</div>
+                            <div class="stat-label">Commandes Total</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value">${this.notifications.length}</div>
+                            <div class="stat-label">Notifications Total</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value">${unreadCount}</div>
+                            <div class="stat-label">Non Lues</div>
+                        </div>
+                    </div>
+                `;
+            }
+
+            clearAll() {
+                this.notifications = [];
+                localStorage.removeItem('admin_notifications');
+                this.updateDisplay();
+            }
+        }
+
+        // Initialiser le système
+        const notificationSystem = new NotificationSystem();
+
+        // Fonctions de test
+        function testNewOrderNotification() {
+            const testOrder = {
+                _id: 'test-' + Date.now(),
+                user: {
+                    firstName: 'Test',
+                    lastName: 'Client',
+                    phone: '+224 123 456 789'
+                },
+                items: [
+                    {
+                        product: 'prod-1',
+                        name: 'Produit Test',
+                        price: 50000,
+                        quantity: 2
+                    }
+                ],
+                orderStatus: 'pending',
+                createdAt: new Date().toISOString()
+            };
+
+            // Ajouter la commande
+            notificationSystem.orders.unshift(testOrder);
+            localStorage.setItem('clientOrders', JSON.stringify(notificationSystem.orders));
+
+            // Déclencher la notification
+            notificationSystem.notifyNewOrder(testOrder);
+
+            // Déclencher l'événement personnalisé
+            const event = new CustomEvent('newOrderCreated', {
+                detail: { order: testOrder }
+            });
+            window.dispatchEvent(event);
+
+            showSuccess('Notification de nouvelle commande testée !');
+        }
+
+        function testMultipleOrders() {
+            const orders = [
+                {
+                    _id: 'test-multi-1-' + Date.now(),
+                    user: { firstName: 'Client', lastName: '1' },
+                    items: [{ product: 'prod-1', name: 'Produit 1', price: 100000, quantity: 1 }],
+                    orderStatus: 'pending',
+                    createdAt: new Date().toISOString()
+                },
+                {
+                    _id: 'test-multi-2-' + Date.now(),
+                    user: { firstName: 'Client', lastName: '2' },
+                    items: [{ product: 'prod-2', name: 'Produit 2', price: 75000, quantity: 2 }],
+                    orderStatus: 'pending',
+                    createdAt: new Date().toISOString()
+                }
+            ];
+
+            orders.forEach((order, index) => {
+                setTimeout(() => {
+                    notificationSystem.orders.unshift(order);
+                    localStorage.setItem('clientOrders', JSON.stringify(notificationSystem.orders));
+                    notificationSystem.notifyNewOrder(order);
+                }, index * 1000);
+            });
+
+            showSuccess('Test de plusieurs commandes lancé !');
+        }
+
+        function testStatusUpdate() {
+            notificationSystem.addNotification({
+                type: 'info',
+                title: 'Statut de Commande Mis à Jour',
+                message: 'Commande #CMD-123 : Livrée'
+            });
+            showSuccess('Notification de mise à jour de statut testée !');
+        }
+
+        function createTestOrder(firstName, lastName, total) {
+            const testOrder = {
+                _id: 'test-' + Date.now(),
+                user: {
+                    firstName: firstName,
+                    lastName: lastName,
+                    phone: '+224 123 456 789'
+                },
+                items: [
+                    {
+                        product: 'prod-test',
+                        name: 'Produit Test',
+                        price: total,
+                        quantity: 1
+                    }
+                ],
+                orderStatus: 'pending',
+                createdAt: new Date().toISOString()
+            };
+
+            // Ajouter la commande
+            notificationSystem.orders.unshift(testOrder);
+            localStorage.setItem('clientOrders', JSON.stringify(notificationSystem.orders));
+
+            // Déclencher la notification
+            notificationSystem.notifyNewOrder(testOrder);
+
+            showSuccess(`Commande de ${firstName} ${lastName} créée !`);
+        }
+
+        function clearAllNotifications() {
+            notificationSystem.clearAll();
+            showSuccess('Toutes les notifications ont été supprimées !');
+        }
+
+        function showNotifications() {
+            const notifications = JSON.parse(localStorage.getItem('admin_notifications') || '[]');
+            console.log('Notifications:', notifications);
+            alert(`Notifications: ${notifications.length}\nNon lues: ${notifications.filter(n => !n.read).length}`);
+        }
+
+        function showOrders() {
+            const orders = JSON.parse(localStorage.getItem('clientOrders') || '[]');
+            console.log('Commandes:', orders);
+            alert(`Commandes: ${orders.length}`);
+        }
+
+        function resetAllData() {
+            if (confirm('Êtes-vous sûr de vouloir réinitialiser toutes les données ?')) {
+                localStorage.clear();
+                notificationSystem.notifications = [];
+                notificationSystem.orders = [];
+                notificationSystem.updateDisplay();
+                showSuccess('Toutes les données ont été réinitialisées !');
+            }
+        }
+
+        function showSuccess(message) {
+            const successDiv = document.createElement('div');
+            successDiv.className = 'success';
+            successDiv.textContent = message;
+            document.querySelector('.container').appendChild(successDiv);
+            setTimeout(() => successDiv.remove(), 3000);
+        }
+
+        // Écouter les événements de nouvelle commande
+        window.addEventListener('newOrderCreated', (event) => {
+            console.log('Événement de nouvelle commande reçu:', event.detail);
+            notificationSystem.notifyNewOrder(event.detail.order);
+        });
+
+        // Mettre à jour l'affichage toutes les 2 secondes
+        setInterval(() => {
+            notificationSystem.updateDisplay();
+        }, 2000);
+    </script>
+</body>
+</html>

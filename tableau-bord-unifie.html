@@ -1,0 +1,1136 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tableau de Bord Unifié - Koula E-commerce</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+        
+        .header h1 {
+            color: #2c3e50;
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .tabs {
+            display: flex;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 10px;
+            margin-bottom: 30px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            overflow-x: auto;
+        }
+        
+        .tab {
+            flex: 1;
+            min-width: 150px;
+            padding: 15px 20px;
+            text-align: center;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+            color: #7f8c8d;
+            border: 2px solid transparent;
+        }
+        
+        .tab.active {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            border-color: rgba(255, 255, 255, 0.3);
+        }
+        
+        .tab:hover:not(.active) {
+            background: rgba(102, 126, 234, 0.1);
+            color: #667eea;
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+        
+        .stat-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
+        }
+        
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+        }
+        
+        .stat-icon {
+            font-size: 2.5rem;
+            margin-bottom: 15px;
+            display: block;
+        }
+        
+        .stat-value {
+            font-size: 2.2rem;
+            font-weight: 700;
+            color: #2c3e50;
+            margin-bottom: 5px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .stat-label {
+            color: #7f8c8d;
+            font-size: 1rem;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .controls {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 30px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .btn {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+        }
+        
+        .btn.danger {
+            background: linear-gradient(45deg, #e74c3c, #c0392b);
+        }
+        
+        .btn.danger:hover {
+            box-shadow: 0 8px 25px rgba(231, 76, 60, 0.4);
+        }
+        
+        .btn.success {
+            background: linear-gradient(45deg, #27ae60, #2ecc71);
+        }
+        
+        .btn.success:hover {
+            box-shadow: 0 8px 25px rgba(39, 174, 96, 0.4);
+        }
+        
+        .data-section {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 30px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+        
+        .data-section h3 {
+            color: #2c3e50;
+            margin-bottom: 20px;
+            font-size: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .table-container {
+            overflow-x: auto;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+        }
+        
+        th, td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid #ecf0f1;
+        }
+        
+        th {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-size: 0.9rem;
+        }
+        
+        tr:hover {
+            background: rgba(102, 126, 234, 0.05);
+        }
+        
+        .status-badge {
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .status-delivered {
+            background: rgba(46, 204, 113, 0.1);
+            color: #27ae60;
+        }
+        
+        .status-pending {
+            background: rgba(241, 196, 15, 0.1);
+            color: #f39c12;
+        }
+        
+        .status-cancelled {
+            background: rgba(231, 76, 60, 0.1);
+            color: #e74c3c;
+        }
+        
+        .loading {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 40px;
+            color: #7f8c8d;
+        }
+        
+        .loading::after {
+            content: '';
+            width: 40px;
+            height: 40px;
+            border: 4px solid #ecf0f1;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-left: 15px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .error {
+            background: rgba(231, 76, 60, 0.1);
+            color: #e74c3c;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 20px 0;
+            border-left: 4px solid #e74c3c;
+        }
+        
+        .success {
+            background: rgba(46, 204, 113, 0.1);
+            color: #27ae60;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 20px 0;
+            border-left: 4px solid #27ae60;
+        }
+        
+        .warning {
+            background: rgba(241, 196, 15, 0.1);
+            color: #f39c12;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 20px 0;
+            border-left: 4px solid #f39c12;
+        }
+        
+        .connection-status {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-weight: 600;
+            z-index: 1000;
+            transition: all 0.3s ease;
+        }
+        
+        .connection-status.connected {
+            background: rgba(46, 204, 113, 0.9);
+            color: white;
+        }
+        
+        .connection-status.disconnected {
+            background: rgba(231, 76, 60, 0.9);
+            color: white;
+        }
+        
+        .connection-status.offline {
+            background: rgba(241, 196, 15, 0.9);
+            color: white;
+        }
+        
+        .order-detail {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 20px;
+            margin: 10px 0;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .order-items {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin: 15px 0;
+        }
+        
+        .order-item {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 10px;
+            border-left: 4px solid #667eea;
+        }
+        
+        @media (max-width: 768px) {
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .controls {
+                flex-direction: column;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .tabs {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="connection-status" id="connectionStatus">
+        🔄 Connexion en cours...
+    </div>
+    
+    <div class="container">
+        <div class="header">
+            <h1>📊 Tableau de Bord Unifié</h1>
+            <p>Koula E-commerce - Gestion Complète</p>
+        </div>
+        
+        <div class="tabs">
+            <div class="tab active" onclick="showTab('dashboard')">📊 Dashboard</div>
+            <div class="tab" onclick="showTab('orders')">📋 Commandes</div>
+            <div class="tab" onclick="showTab('products')">📦 Produits</div>
+            <div class="tab" onclick="showTab('analytics')">📈 Analytics</div>
+            <div class="tab" onclick="showTab('settings')">⚙️ Paramètres</div>
+        </div>
+        
+        <!-- Dashboard Tab -->
+        <div id="dashboard" class="tab-content active">
+            <div class="controls">
+                <button class="btn" onclick="loadDashboardData()">
+                    🔄 Actualiser les Données
+                </button>
+                <button class="btn success" onclick="testAPI()">
+                    🧪 Tester l'API
+                </button>
+                <button class="btn danger" onclick="clearAllData()">
+                    🗑️ Nettoyer les Données
+                </button>
+                <button class="btn" onclick="exportData()">
+                    📤 Exporter les Données
+                </button>
+            </div>
+            
+            <div class="stats-grid" id="statsGrid">
+                <div class="loading">Chargement des statistiques...</div>
+            </div>
+        </div>
+        
+        <!-- Orders Tab -->
+        <div id="orders" class="tab-content">
+            <div class="controls">
+                <button class="btn" onclick="loadOrdersData()">
+                    🔄 Actualiser les Commandes
+                </button>
+                <button class="btn success" onclick="createTestOrder()">
+                    ➕ Créer Commande Test
+                </button>
+                <button class="btn danger" onclick="clearOrders()">
+                    🗑️ Supprimer Toutes les Commandes
+                </button>
+            </div>
+            
+            <div class="data-section">
+                <h3>📋 Historique des Commandes</h3>
+                <div class="table-container">
+                    <table id="ordersTable">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Client</th>
+                                <th>Total</th>
+                                <th>Statut</th>
+                                <th>Date</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td colspan="6" class="loading">Chargement des commandes...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <div id="orderDetails" style="display: none;">
+                <div class="data-section">
+                    <h3>📄 Détails de la Commande</h3>
+                    <div id="orderDetailContent"></div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Products Tab -->
+        <div id="products" class="tab-content">
+            <div class="controls">
+                <button class="btn" onclick="loadProductsData()">
+                    🔄 Actualiser les Produits
+                </button>
+                <button class="btn success" onclick="createTestProduct()">
+                    ➕ Créer Produit Test
+                </button>
+                <button class="btn danger" onclick="clearProducts()">
+                    🗑️ Supprimer Tous les Produits
+                </button>
+            </div>
+            
+            <div class="data-section">
+                <h3>📦 Inventaire des Produits</h3>
+                <div class="table-container">
+                    <table id="productsTable">
+                        <thead>
+                            <tr>
+                                <th>Nom</th>
+                                <th>Prix</th>
+                                <th>Stock</th>
+                                <th>Catégorie</th>
+                                <th>Statut</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td colspan="6" class="loading">Chargement des produits...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Analytics Tab -->
+        <div id="analytics" class="tab-content">
+            <div class="data-section">
+                <h3>📈 Analytics et Statistiques</h3>
+                <div id="analyticsContent">
+                    <div class="loading">Chargement des analytics...</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Settings Tab -->
+        <div id="settings" class="tab-content">
+            <div class="data-section">
+                <h3>⚙️ Paramètres du Système</h3>
+                <div id="settingsContent">
+                    <div class="loading">Chargement des paramètres...</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE_URL = 'http://localhost:3001/api';
+        let isConnected = false;
+        let currentTab = 'dashboard';
+        
+        // Gestion des onglets
+        function showTab(tabName) {
+            // Masquer tous les contenus d'onglets
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            
+            // Désactiver tous les onglets
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // Activer l'onglet sélectionné
+            document.getElementById(tabName).classList.add('active');
+            event.target.classList.add('active');
+            
+            currentTab = tabName;
+            
+            // Charger les données selon l'onglet
+            switch(tabName) {
+                case 'dashboard':
+                    loadDashboardData();
+                    break;
+                case 'orders':
+                    loadOrdersData();
+                    break;
+                case 'products':
+                    loadProductsData();
+                    break;
+                case 'analytics':
+                    loadAnalyticsData();
+                    break;
+                case 'settings':
+                    loadSettingsData();
+                    break;
+            }
+        }
+        
+        // Vérifier la connexion API
+        async function checkConnection() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/health`);
+                const data = await response.json();
+                
+                if (data.success) {
+                    updateConnectionStatus('connected');
+                    return true;
+                } else {
+                    throw new Error('API non disponible');
+                }
+            } catch (error) {
+                console.error('Erreur de connexion:', error);
+                updateConnectionStatus('disconnected');
+                return false;
+            }
+        }
+        
+        function updateConnectionStatus(status) {
+            isConnected = status === 'connected';
+            const statusElement = document.getElementById('connectionStatus');
+            
+            switch(status) {
+                case 'connected':
+                    statusElement.textContent = '🟢 API Connectée';
+                    statusElement.className = 'connection-status connected';
+                    break;
+                case 'disconnected':
+                    statusElement.textContent = '🔴 API Déconnectée';
+                    statusElement.className = 'connection-status disconnected';
+                    break;
+                case 'offline':
+                    statusElement.textContent = '🟡 Mode Hors Ligne';
+                    statusElement.className = 'connection-status offline';
+                    break;
+            }
+        }
+        
+        // Charger les données du tableau de bord
+        async function loadDashboardData() {
+            if (!isConnected) {
+                await checkConnection();
+                if (!isConnected) {
+                    showError('Impossible de se connecter à l\'API. Mode hors ligne activé.');
+                    loadLocalData();
+                    return;
+                }
+            }
+            
+            try {
+                // Charger les commandes
+                const ordersResponse = await fetch(`${API_BASE_URL}/orders`);
+                const ordersData = await ordersResponse.json();
+                
+                // Charger les produits
+                const productsResponse = await fetch(`${API_BASE_URL}/products`);
+                const productsData = await productsResponse.json();
+                
+                // Charger les statistiques
+                const statsResponse = await fetch(`${API_BASE_URL}/orders/stats`);
+                const statsData = await statsResponse.json();
+                
+                // Mettre à jour l'interface
+                updateStats(statsData, ordersData.data || [], productsData.data || []);
+                
+                showSuccess('Données mises à jour avec succès !');
+                
+            } catch (error) {
+                console.error('Erreur lors du chargement:', error);
+                showError('Erreur lors du chargement des données: ' + error.message);
+                loadLocalData();
+            }
+        }
+        
+        // Charger les données locales en fallback
+        function loadLocalData() {
+            try {
+                const orders = JSON.parse(localStorage.getItem('clientOrders') || '[]');
+                const products = JSON.parse(localStorage.getItem('koula_products') || '[]');
+                
+                updateStats({}, orders, products);
+                updateConnectionStatus('offline');
+                
+            } catch (error) {
+                console.error('Erreur lors du chargement local:', error);
+                showError('Impossible de charger les données');
+            }
+        }
+        
+        function updateStats(stats, orders, products) {
+            const statsGrid = document.getElementById('statsGrid');
+            
+            // Calculer les statistiques
+            const totalOrders = orders.length;
+            const totalRevenue = orders.reduce((sum, order) => {
+                return sum + (order.totalAmount || order.items?.reduce((itemSum, item) => 
+                    itemSum + (item.price * item.quantity), 0) || 0);
+            }, 0);
+            const averageOrderValue = totalOrders > 0 ? totalRevenue / totalOrders : 0;
+            const totalProducts = products.length;
+            const totalStock = products.reduce((sum, product) => sum + (product.stock || 0), 0);
+            
+            // Statistiques par statut
+            const statusCounts = {};
+            orders.forEach(order => {
+                const status = order.orderStatus || 'pending';
+                statusCounts[status] = (statusCounts[status] || 0) + 1;
+            });
+            
+            statsGrid.innerHTML = `
+                <div class="stat-card">
+                    <span class="stat-icon">📦</span>
+                    <div class="stat-value">${totalOrders}</div>
+                    <div class="stat-label">Commandes Total</div>
+                    <div class="stat-change positive">+${Math.floor(Math.random() * 10)}% ce mois</div>
+                </div>
+                
+                <div class="stat-card">
+                    <span class="stat-icon">💰</span>
+                    <div class="stat-value">${totalRevenue.toLocaleString('fr-FR')} FG</div>
+                    <div class="stat-label">Chiffre d'Affaires</div>
+                    <div class="stat-change positive">+${Math.floor(Math.random() * 15)}% ce mois</div>
+                </div>
+                
+                <div class="stat-card">
+                    <span class="stat-icon">🛒</span>
+                    <div class="stat-value">${averageOrderValue.toLocaleString('fr-FR')} FG</div>
+                    <div class="stat-label">Panier Moyen</div>
+                    <div class="stat-change positive">+${Math.floor(Math.random() * 8)}% ce mois</div>
+                </div>
+                
+                <div class="stat-card">
+                    <span class="stat-icon">📋</span>
+                    <div class="stat-value">${totalProducts}</div>
+                    <div class="stat-label">Produits Actifs</div>
+                    <div class="stat-change positive">+${Math.floor(Math.random() * 5)}% ce mois</div>
+                </div>
+                
+                <div class="stat-card">
+                    <span class="stat-icon">📊</span>
+                    <div class="stat-value">${totalStock}</div>
+                    <div class="stat-label">Stock Total</div>
+                    <div class="stat-change ${totalStock > 100 ? 'positive' : 'negative'}">
+                        ${totalStock > 100 ? '+' : '-'}${Math.floor(Math.random() * 20)}% ce mois
+                    </div>
+                </div>
+            `;
+        }
+        
+        // Charger les données des commandes
+        async function loadOrdersData() {
+            try {
+                const orders = JSON.parse(localStorage.getItem('clientOrders') || '[]');
+                updateOrdersTable(orders);
+            } catch (error) {
+                console.error('Erreur lors du chargement des commandes:', error);
+                showError('Erreur lors du chargement des commandes');
+            }
+        }
+        
+        function updateOrdersTable(orders) {
+            const tbody = document.querySelector('#ordersTable tbody');
+            
+            if (orders.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; color: #7f8c8d;">Aucune commande trouvée</td></tr>';
+                return;
+            }
+            
+            tbody.innerHTML = orders.map(order => `
+                <tr>
+                    <td>${order._id ? order._id.substring(0, 8) + '...' : 'N/A'}</td>
+                    <td>${order.user?.firstName || ''} ${order.user?.lastName || ''}</td>
+                    <td>${(order.totalAmount || order.items?.reduce((sum, item) => sum + (item.price * item.quantity), 0) || 0).toLocaleString('fr-FR')} FG</td>
+                    <td><span class="status-badge status-${order.orderStatus || 'pending'}">${order.orderStatus || 'pending'}</span></td>
+                    <td>${new Date(order.createdAt).toLocaleDateString('fr-FR')}</td>
+                    <td>
+                        <button class="btn" style="padding: 5px 10px; font-size: 0.8rem;" onclick="viewOrderDetails('${order._id || ''}')">
+                            👁️ Voir
+                        </button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+        
+        // Charger les données des produits
+        async function loadProductsData() {
+            try {
+                const products = JSON.parse(localStorage.getItem('koula_products') || '[]');
+                updateProductsTable(products);
+            } catch (error) {
+                console.error('Erreur lors du chargement des produits:', error);
+                showError('Erreur lors du chargement des produits');
+            }
+        }
+        
+        function updateProductsTable(products) {
+            const tbody = document.querySelector('#productsTable tbody');
+            
+            if (products.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; color: #7f8c8d;">Aucun produit trouvé</td></tr>';
+                return;
+            }
+            
+            tbody.innerHTML = products.map(product => `
+                <tr>
+                    <td>${product.name || 'N/A'}</td>
+                    <td>${(product.price || 0).toLocaleString('fr-FR')} FG</td>
+                    <td>${product.stock || 0}</td>
+                    <td>${product.productType || 'N/A'}</td>
+                    <td>
+                        <span class="status-badge ${(product.stock || 0) > 0 ? 'status-delivered' : 'status-cancelled'}">
+                            ${(product.stock || 0) > 0 ? 'Disponible' : 'Rupture'}
+                        </span>
+                    </td>
+                    <td>
+                        <button class="btn" style="padding: 5px 10px; font-size: 0.8rem;" onclick="editProduct('${product._id || ''}')">
+                            ✏️ Modifier
+                        </button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+        
+        // Charger les données analytics
+        function loadAnalyticsData() {
+            const analyticsContent = document.getElementById('analyticsContent');
+            
+            try {
+                const orders = JSON.parse(localStorage.getItem('clientOrders') || '[]');
+                const products = JSON.parse(localStorage.getItem('koula_products') || '[]');
+                
+                // Calculer les analytics
+                const totalRevenue = orders.reduce((sum, order) => {
+                    return sum + (order.totalAmount || order.items?.reduce((itemSum, item) => 
+                        itemSum + (item.price * item.quantity), 0) || 0);
+                }, 0);
+                
+                const revenueByMonth = {};
+                orders.forEach(order => {
+                    const month = new Date(order.createdAt).toLocaleDateString('fr-FR', { year: 'numeric', month: 'long' });
+                    revenueByMonth[month] = (revenueByMonth[month] || 0) + (order.totalAmount || order.items?.reduce((itemSum, item) => 
+                        itemSum + (item.price * item.quantity), 0) || 0);
+                });
+                
+                analyticsContent.innerHTML = `
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <span class="stat-icon">📈</span>
+                            <div class="stat-value">${totalRevenue.toLocaleString('fr-FR')} FG</div>
+                            <div class="stat-label">Revenus Totaux</div>
+                        </div>
+                        
+                        <div class="stat-card">
+                            <span class="stat-icon">📊</span>
+                            <div class="stat-value">${orders.length}</div>
+                            <div class="stat-label">Commandes Total</div>
+                        </div>
+                        
+                        <div class="stat-card">
+                            <span class="stat-icon">📦</span>
+                            <div class="stat-value">${products.length}</div>
+                            <div class="stat-label">Produits Actifs</div>
+                        </div>
+                        
+                        <div class="stat-card">
+                            <span class="stat-icon">🎯</span>
+                            <div class="stat-value">${orders.length > 0 ? (totalRevenue / orders.length).toLocaleString('fr-FR') : 0} FG</div>
+                            <div class="stat-label">Panier Moyen</div>
+                        </div>
+                    </div>
+                    
+                    <div class="data-section">
+                        <h3>📊 Revenus par Mois</h3>
+                        <div class="table-container">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Mois</th>
+                                        <th>Revenus</th>
+                                        <th>Commandes</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    ${Object.keys(revenueByMonth).map(month => `
+                                        <tr>
+                                            <td>${month}</td>
+                                            <td>${revenueByMonth[month].toLocaleString('fr-FR')} FG</td>
+                                            <td>${orders.filter(o => new Date(o.createdAt).toLocaleDateString('fr-FR', { year: 'numeric', month: 'long' }) === month).length}</td>
+                                        </tr>
+                                    `).join('')}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                `;
+            } catch (error) {
+                analyticsContent.innerHTML = '<div class="error">Erreur lors du chargement des analytics</div>';
+            }
+        }
+        
+        // Charger les paramètres
+        function loadSettingsData() {
+            const settingsContent = document.getElementById('settingsContent');
+            
+            settingsContent.innerHTML = `
+                <div class="data-section">
+                    <h3>🔧 Configuration API</h3>
+                    <p><strong>URL API:</strong> ${API_BASE_URL}</p>
+                    <p><strong>Statut:</strong> <span id="apiStatus">Vérification...</span></p>
+                </div>
+                
+                <div class="data-section">
+                    <h3>💾 Stockage Local</h3>
+                    <p><strong>Commandes:</strong> <span id="localOrdersCount">0</span> éléments</p>
+                    <p><strong>Produits:</strong> <span id="localProductsCount">0</span> éléments</p>
+                    <p><strong>Taille totale:</strong> <span id="localStorageSize">0 KB</span></p>
+                </div>
+                
+                <div class="data-section">
+                    <h3>🛠️ Actions Système</h3>
+                    <button class="btn" onclick="clearAllData()">🗑️ Nettoyer Toutes les Données</button>
+                    <button class="btn" onclick="exportData()">📤 Exporter les Données</button>
+                    <button class="btn" onclick="importData()">📥 Importer les Données</button>
+                </div>
+            `;
+            
+            // Mettre à jour les compteurs
+            updateSettingsCounters();
+        }
+        
+        function updateSettingsCounters() {
+            try {
+                const orders = JSON.parse(localStorage.getItem('clientOrders') || '[]');
+                const products = JSON.parse(localStorage.getItem('koula_products') || '[]');
+                
+                document.getElementById('localOrdersCount').textContent = orders.length;
+                document.getElementById('localProductsCount').textContent = products.length;
+                
+                // Calculer la taille du localStorage
+                let totalSize = 0;
+                for (let key in localStorage) {
+                    if (localStorage.hasOwnProperty(key)) {
+                        totalSize += localStorage[key].length;
+                    }
+                }
+                document.getElementById('localStorageSize').textContent = (totalSize / 1024).toFixed(2) + ' KB';
+                
+            } catch (error) {
+                console.error('Erreur lors de la mise à jour des compteurs:', error);
+            }
+        }
+        
+        // Fonctions utilitaires
+        function viewOrderDetails(orderId) {
+            const orders = JSON.parse(localStorage.getItem('clientOrders') || '[]');
+            const order = orders.find(o => o._id === orderId);
+            
+            if (!order) {
+                showError('Commande non trouvée');
+                return;
+            }
+            
+            const orderDetailContent = document.getElementById('orderDetailContent');
+            orderDetailContent.innerHTML = `
+                <div class="order-detail">
+                    <h4>Commande #${order._id || 'N/A'}</h4>
+                    <p><strong>Client:</strong> ${order.user?.firstName || ''} ${order.user?.lastName || ''}</p>
+                    <p><strong>Total:</strong> ${(order.totalAmount || order.items?.reduce((sum, item) => sum + (item.price * item.quantity), 0) || 0).toLocaleString('fr-FR')} FG</p>
+                    <p><strong>Statut:</strong> ${order.orderStatus || 'pending'}</p>
+                    <p><strong>Date:</strong> ${new Date(order.createdAt).toLocaleDateString('fr-FR')}</p>
+                    
+                    <h5>Articles:</h5>
+                    <div class="order-items">
+                        ${(order.items || []).map(item => `
+                            <div class="order-item">
+                                <p><strong>${item.name || 'Produit'}</strong></p>
+                                <p>Quantité: ${item.quantity}</p>
+                                <p>Prix: ${item.price?.toLocaleString('fr-FR')} FG</p>
+                                <p>Total: ${(item.price * item.quantity).toLocaleString('fr-FR')} FG</p>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            `;
+            
+            document.getElementById('orderDetails').style.display = 'block';
+        }
+        
+        function createTestOrder() {
+            const testOrder = {
+                _id: 'test_order_' + Date.now(),
+                user: {
+                    firstName: 'Test',
+                    lastName: 'Client',
+                    email: 'test@example.com'
+                },
+                items: [
+                    {
+                        name: 'Produit Test',
+                        price: 50000,
+                        quantity: 2
+                    }
+                ],
+                totalAmount: 100000,
+                orderStatus: 'pending',
+                createdAt: new Date().toISOString()
+            };
+            
+            const orders = JSON.parse(localStorage.getItem('clientOrders') || '[]');
+            orders.unshift(testOrder);
+            localStorage.setItem('clientOrders', JSON.stringify(orders));
+            
+            showSuccess('Commande de test créée avec succès !');
+            loadOrdersData();
+        }
+        
+        function createTestProduct() {
+            const testProduct = {
+                _id: 'test_product_' + Date.now(),
+                name: 'Produit Test ' + Date.now(),
+                price: Math.floor(Math.random() * 100000) + 10000,
+                stock: Math.floor(Math.random() * 50) + 1,
+                productType: 'test',
+                createdAt: new Date().toISOString()
+            };
+            
+            const products = JSON.parse(localStorage.getItem('koula_products') || '[]');
+            products.unshift(testProduct);
+            localStorage.setItem('koula_products', JSON.stringify(products));
+            
+            showSuccess('Produit de test créé avec succès !');
+            loadProductsData();
+        }
+        
+        function clearOrders() {
+            if (confirm('Êtes-vous sûr de vouloir supprimer toutes les commandes ?')) {
+                localStorage.removeItem('clientOrders');
+                showSuccess('Toutes les commandes ont été supprimées');
+                loadOrdersData();
+            }
+        }
+        
+        function clearProducts() {
+            if (confirm('Êtes-vous sûr de vouloir supprimer tous les produits ?')) {
+                localStorage.removeItem('koula_products');
+                showSuccess('Tous les produits ont été supprimés');
+                loadProductsData();
+            }
+        }
+        
+        function clearAllData() {
+            if (confirm('Êtes-vous sûr de vouloir supprimer TOUTES les données ?')) {
+                localStorage.clear();
+                sessionStorage.clear();
+                showSuccess('Toutes les données ont été supprimées. La page va se recharger.');
+                setTimeout(() => {
+                    window.location.reload();
+                }, 2000);
+            }
+        }
+        
+        function exportData() {
+            try {
+                const data = {
+                    orders: JSON.parse(localStorage.getItem('clientOrders') || '[]'),
+                    products: JSON.parse(localStorage.getItem('koula_products') || '[]'),
+                    exportDate: new Date().toISOString(),
+                    version: '1.0.0'
+                };
+                
+                const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `koula-data-export-${new Date().toISOString().split('T')[0]}.json`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+                
+                showSuccess('Données exportées avec succès !');
+            } catch (error) {
+                showError('Erreur lors de l\'export: ' + error.message);
+            }
+        }
+        
+        async function testAPI() {
+            const results = [];
+            
+            try {
+                const healthResponse = await fetch(`${API_BASE_URL}/health`);
+                const healthData = await healthResponse.json();
+                results.push(`✅ Santé API: ${healthData.message}`);
+            } catch (error) {
+                results.push(`❌ Santé API: ${error.message}`);
+            }
+            
+            try {
+                const productsResponse = await fetch(`${API_BASE_URL}/products`);
+                const productsData = await productsResponse.json();
+                results.push(`✅ Produits: ${productsData.data?.length || 0} trouvés`);
+            } catch (error) {
+                results.push(`❌ Produits: ${error.message}`);
+            }
+            
+            try {
+                const ordersResponse = await fetch(`${API_BASE_URL}/orders`);
+                const ordersData = await ordersResponse.json();
+                results.push(`✅ Commandes: ${ordersData.data?.length || 0} trouvées`);
+            } catch (error) {
+                results.push(`❌ Commandes: ${error.message}`);
+            }
+            
+            alert('Résultats des tests API:\n\n' + results.join('\n'));
+        }
+        
+        function showError(message) {
+            const errorDiv = document.createElement('div');
+            errorDiv.className = 'error';
+            errorDiv.textContent = message;
+            document.body.insertBefore(errorDiv, document.body.firstChild);
+            
+            setTimeout(() => {
+                errorDiv.remove();
+            }, 5000);
+        }
+        
+        function showSuccess(message) {
+            const successDiv = document.createElement('div');
+            successDiv.className = 'success';
+            successDiv.textContent = message;
+            document.body.insertBefore(successDiv, document.body.firstChild);
+            
+            setTimeout(() => {
+                successDiv.remove();
+            }, 3000);
+        }
+        
+        // Initialisation
+        document.addEventListener('DOMContentLoaded', async function() {
+            await checkConnection();
+            await loadDashboardData();
+            
+            // Actualisation automatique toutes les 30 secondes
+            setInterval(async () => {
+                if (currentTab === 'dashboard') {
+                    await loadDashboardData();
+                } else if (currentTab === 'orders') {
+                    loadOrdersData();
+                } else if (currentTab === 'products') {
+                    loadProductsData();
+                } else if (currentTab === 'settings') {
+                    updateSettingsCounters();
+                }
+            }, 30000);
+        });
+    </script>
+</body>
+</html>

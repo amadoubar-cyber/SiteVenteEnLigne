@@ -92,41 +92,4 @@ export const getCategories = () => {
   };
 };
 
-// Initialiser avec des données de test si aucun produit n'existe
-export const initializeWithTestData = () => {
-  const products = getAllProducts();
-  if (products.length === 0) {
-    const testProducts = [
-      {
-        _id: '1',
-        name: 'Ciment Portland',
-        description: 'Ciment de haute qualité pour construction',
-        price: 15000,
-        stock: 50,
-        productType: 'construction',
-        category: { _id: '1', name: 'Matériaux de Construction' },
-        featured: true,
-        images: [{ url: '/test-image-1.jpg', alt: 'Ciment' }],
-        isPublished: true,
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString()
-      },
-      {
-        _id: '2',
-        name: 'Tôle Galvanisée',
-        description: 'Tôle galvanisée 2mm d\'épaisseur',
-        price: 25000,
-        stock: 30,
-        productType: 'construction',
-        category: { _id: '1', name: 'Matériaux de Construction' },
-        featured: false,
-        images: [{ url: '/test-image-2.jpg', alt: 'Tôle' }],
-        isPublished: true,
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString()
-      }
-    ];
-    
-    saveProducts(testProducts);
-  }
-};
+// Fonction supprimée - plus de données de test automatiques

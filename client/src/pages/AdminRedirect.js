@@ -18,16 +18,16 @@ const AdminRedirect = () => {
           // Session valide, rediriger vers l'admin
           navigate('/admin-simple-complete');
         } else {
-          // Session expirée, rediriger vers la connexion
-          navigate('/admin-login');
+          // Session expirée, rediriger vers la connexion unifiée
+          navigate('/login?admin=true');
         }
       } catch (error) {
-        // Erreur de parsing, rediriger vers la connexion
-        navigate('/admin-login');
+        // Erreur de parsing, rediriger vers la connexion unifiée
+        navigate('/login?admin=true');
       }
     } else {
-      // Pas de session, rediriger vers la connexion
-      navigate('/admin-login');
+      // Pas de session, rediriger vers la connexion unifiée
+      navigate('/login?admin=true');
     }
   }, [navigate]);
 

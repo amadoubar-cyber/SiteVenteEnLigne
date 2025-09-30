@@ -31,15 +31,77 @@ const AdminDashboardComplete = () => {
   const [recentProducts, setRecentProducts] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  // Simuler le chargement des données
+  // Charger les données réelles depuis localStorage
   useEffect(() => {
     const loadDashboardData = async () => {
       setLoading(true);
       
-      // Simuler un délai de chargement
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      // Données vides pour commencer
+      try {
+        // Charger les données réelles depuis localStorage
+        const users = JSON.parse(localStorage.getItem('users') || '[]');
+        const products = JSON.parse(localStorage.getItem('adminProducts') || '[]');
+        const orders = JSON.parse(localStorage.getItem('clientOrders') || '[]');
+        
+        // Calculer les statistiques réelles
+        const today = new Date().toISOString().split('T')[0];
+        const todayOrders = orders.filter(order => 
+          new Date(order.createdAt).toISOString().split('T')[0] === today
+        );
+        
+        const totalRevenue = orders.reduce((sum, order) => sum + (order.total || order.totalAmount || 0), 0);
+        const todayRevenue = todayOrders.reduce((sum, order) => sum + (order.total || order.totalAmount || 0), 0);
+        
+        const pendingOrders = orders.filter(order => 
+          (order.status || order.orderStatus) === 'pending' || 
+          (order.status || order.orderStatus) === 'En attente'
+        ).length;
+        
+        const completedOrders = orders.filter(order => 
+          (order.status || order.orderStatus) === 'delivered' || 
+          (order.status || order.orderStatus) === 'Livré'
+        ).length;
+
+        setStats({
+          totalUsers: users.length,
+          totalProducts: products.length,
+          totalOrders: orders.length,
+          totalRevenue: totalRevenue,
+          todayOrders: todayOrders.length,
+          todayRevenue: todayRevenue,
+          pendingOrders: pendingOrders,
+          completedOrders: completedOrders
+        });
+
+        // Commandes récentes (5 dernières)
+        const recentOrdersData = orders
+          .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+          .slice(0, 5)
+          .map(order => ({
+            id: order._id || order.id,
+            customer: order.user?.firstName || order.customerName || 'Client',
+            amount: order.total || order.totalAmount || 0,
+            date: new Date(order.createdAt).toLocaleDateString('fr-FR'),
+            status: order.status || order.orderStatus || 'En attente'
+          }));
+
+        // Produits récents (5 derniers)
+        const recentProductsData = products
+          .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+          .slice(0, 5)
+          .map(product => ({
+            id: product._id,
+            name: product.name,
+            category: product.category,
+            price: product.price,
+            stock: product.stock || 0
+          }));
+
+        setRecentOrders(recentOrdersData);
+        setRecentProducts(recentProductsData);
+
+      } catch (error) {
+        console.error('Erreur lors du chargement des données:', error);
+        // En cas d'erreur, garder les valeurs par défaut à 0
       setStats({
         totalUsers: 0,
         totalProducts: 0,
@@ -50,10 +112,9 @@ const AdminDashboardComplete = () => {
         pendingOrders: 0,
         completedOrders: 0
       });
-
-      // Données vides pour commencer
       setRecentOrders([]);
       setRecentProducts([]);
+      }
 
       setLoading(false);
     };
@@ -62,10 +123,7 @@ const AdminDashboardComplete = () => {
   }, []);
 
   const formatCurrency = (amount) => {
-    return new Intl.NumberFormat('fr-FR', {
-      style: 'currency',
-      currency: 'GNF'
-    }).format(amount);
+    return `${(amount || 0).toLocaleString('fr-FR')} FG`;
   };
 
   const getStatusColor = (status) => {
@@ -114,7 +172,9 @@ const AdminDashboardComplete = () => {
             </div>
             <div className="mt-4 flex items-center">
               <TrendingUp className="h-4 w-4 text-green-500" />
-              <span className="text-sm text-green-600 ml-1">+12% ce mois</span>
+              <span className="text-sm text-green-600 ml-1">
+                {stats.totalUsers > 0 ? `${stats.totalUsers} utilisateur${stats.totalUsers > 1 ? 's' : ''}` : 'Aucun utilisateur'}
+              </span>
             </div>
           </div>
 
@@ -131,7 +191,9 @@ const AdminDashboardComplete = () => {
             </div>
             <div className="mt-4 flex items-center">
               <TrendingUp className="h-4 w-4 text-green-500" />
-              <span className="text-sm text-green-600 ml-1">+3 nouveaux</span>
+              <span className="text-sm text-green-600 ml-1">
+                {stats.totalProducts > 0 ? `${stats.totalProducts} produit${stats.totalProducts > 1 ? 's' : ''}` : 'Aucun produit'}
+              </span>
             </div>
           </div>
 
@@ -148,7 +210,9 @@ const AdminDashboardComplete = () => {
             </div>
             <div className="mt-4 flex items-center">
               <TrendingUp className="h-4 w-4 text-green-500" />
-              <span className="text-sm text-green-600 ml-1">+8% ce mois</span>
+              <span className="text-sm text-green-600 ml-1">
+                {stats.totalOrders > 0 ? `${stats.totalOrders} commande${stats.totalOrders > 1 ? 's' : ''}` : 'Aucune commande'}
+              </span>
             </div>
           </div>
 
@@ -165,7 +229,9 @@ const AdminDashboardComplete = () => {
             </div>
             <div className="mt-4 flex items-center">
               <TrendingUp className="h-4 w-4 text-green-500" />
-              <span className="text-sm text-green-600 ml-1">+15% ce mois</span>
+              <span className="text-sm text-green-600 ml-1">
+                {stats.totalRevenue > 0 ? formatCurrency(stats.totalRevenue) : 'Aucun chiffre d\'affaires'}
+              </span>
             </div>
           </div>
         </div>

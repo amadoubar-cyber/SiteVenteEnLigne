@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test - Synchronisation Ventes</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1000px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .button {
+            background: #007bff;
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 10px 5px;
+        }
+        .button:hover {
+            background: #0056b3;
+        }
+        .success {
+            background: #28a745;
+        }
+        .success:hover {
+            background: #218838;
+        }
+        .warning {
+            background: #ffc107;
+            color: #212529;
+        }
+        .warning:hover {
+            background: #e0a800;
+        }
+        .log {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 5px;
+            padding: 15px;
+            margin: 20px 0;
+            font-family: monospace;
+            white-space: pre-wrap;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        .section {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 5px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+        .status {
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+        .status.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .status.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .status.warning {
+            background: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeaa7;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔄 Test - Synchronisation Ventes</h1>
+        <p><strong>Vérification que les commandes sont correctement synchronisées avec la page "Gestion des Ventes".</strong></p>
+        
+        <div id="status" class="status warning">
+            Prêt à tester la synchronisation...
+        </div>
+        
+        <div class="section">
+            <h2>🔍 Diagnostic</h2>
+            <button class="button" onclick="checkDataSources()">Vérifier les sources de données</button>
+            <button class="button" onclick="checkOrders()">Vérifier les commandes</button>
+            <button class="button" onclick="checkSales()">Vérifier les ventes</button>
+            <div id="diagnostic" class="log"></div>
+        </div>
+        
+        <div class="section">
+            <h2>🧪 Test de Synchronisation</h2>
+            <button class="button success" onclick="createTestOrder()">Créer une commande de test</button>
+            <button class="button" onclick="simulateSalesSync()">Simuler la synchronisation</button>
+            <button class="button" onclick="verifySync()">Vérifier la synchronisation</button>
+            <div id="sync" class="log"></div>
+        </div>
+        
+        <div class="section">
+            <h2>🔧 Correction</h2>
+            <button class="button warning" onclick="fixSalesSync()">Corriger la synchronisation</button>
+            <button class="button" onclick="clearTestData()">Nettoyer les données de test</button>
+            <div id="fix" class="log"></div>
+        </div>
+        
+        <div class="section">
+            <h2>✅ Test Final</h2>
+            <button class="button success" onclick="finalTest()">Test final</button>
+            <button class="button" onclick="goToSalesManagement()">Aller à la Gestion des Ventes</button>
+            <div id="test" class="log"></div>
+        </div>
+    </div>
+
+    <script>
+        function log(message, targetId = 'diagnostic') {
+            const logElement = document.getElementById(targetId);
+            const timestamp = new Date().toLocaleTimeString();
+            logElement.textContent += `[${timestamp}] ${message}\n`;
+            logElement.scrollTop = logElement.scrollHeight;
+        }
+
+        function updateStatus(message, type = 'warning') {
+            const statusElement = document.getElementById('status');
+            statusElement.textContent = message;
+            statusElement.className = `status ${type}`;
+        }
+
+        function checkDataSources() {
+            log('🔍 VÉRIFICATION DES SOURCES DE DONNÉES');
+            log('='.repeat(45));
+            
+            // Vérifier les clés localStorage
+            const keys = [
+                'clientOrders',
+                'salesData',
+                'ordersData',
+                'adminOrders',
+                'revenueData',
+                'salesStats'
+            ];
+            
+            log('\n📊 CLÉS LOCALSTORAGE:');
+            keys.forEach(key => {
+                const value = localStorage.getItem(key);
+                if (value) {
+                    try {
+                        const parsed = JSON.parse(value);
+                        const count = Array.isArray(parsed) ? parsed.length : 'N/A';
+                        log(`✅ ${key}: ${count} éléments`);
+                    } catch (e) {
+                        log(`❌ ${key}: Données corrompues`);
+                    }
+                } else {
+                    log(`❌ ${key}: Aucune donnée`);
+                }
+            });
+            
+            log('\n💡 DIAGNOSTIC:');
+            const hasOrders = localStorage.getItem('clientOrders');
+            const hasSales = localStorage.getItem('salesData');
+            
+            if (hasOrders && !hasSales) {
+                log('⚠️  PROBLÈME DÉTECTÉ: Commandes présentes mais pas de ventes');
+                log('   → Les commandes ne sont pas synchronisées avec les ventes');
+                updateStatus('Problème de synchronisation détecté', 'error');
+            } else if (!hasOrders && !hasSales) {
+                log('ℹ️  Aucune donnée - État normal pour un nouveau système');
+                updateStatus('Aucune donnée - État normal', 'warning');
+            } else if (hasOrders && hasSales) {
+                log('✅ Données présentes dans les deux systèmes');
+                updateStatus('Données synchronisées', 'success');
+            }
+        }
+
+        function checkOrders() {
+            log('📦 VÉRIFICATION DES COMMANDES:', 'diagnostic');
+            log('='.repeat(35), 'diagnostic');
+            
+            const ordersData = JSON.parse(localStorage.getItem('clientOrders') || '[]');
+            
+            if (ordersData.length === 0) {
+                log('❌ Aucune commande trouvée', 'diagnostic');
+                return;
+            }
+            
+            log(`✅ ${ordersData.length} commandes trouvées:`, 'diagnostic');
+            ordersData.forEach((order, index) => {
+                log(`   ${index + 1}. Commande ${order._id}`, 'diagnostic');
+                log(`      - Client: ${order.user.firstName} ${order.user.lastName}`, 'diagnostic');
+                log(`      - Statut: ${order.orderStatus}`, 'diagnostic');
+                log(`      - Total: ${order.total.toLocaleString()} FG`, 'diagnostic');
+                log(`      - Produits: ${order.items.length}`, 'diagnostic');
+                log('', 'diagnostic');
+            });
+        }
+
+        function checkSales() {
+            log('💰 VÉRIFICATION DES VENTES:', 'diagnostic');
+            log('='.repeat(35), 'diagnostic');
+            
+            const salesData = JSON.parse(localStorage.getItem('salesData') || '[]');
+            
+            if (salesData.length === 0) {
+                log('❌ Aucune vente trouvée dans salesData', 'diagnostic');
+                log('💡 Les ventes devraient être générées à partir des commandes', 'diagnostic');
+                return;
+            }
+            
+            log(`✅ ${salesData.length} ventes trouvées:`, 'diagnostic');
+            salesData.forEach((sale, index) => {
+                log(`   ${index + 1}. Vente ${sale._id}`, 'diagnostic');
+                log(`      - Produit: ${sale.productName}`, 'diagnostic');
+                log(`      - Client: ${sale.customerName}`, 'diagnostic');
+                log(`      - Total: ${sale.totalPrice.toLocaleString()} FG`, 'diagnostic');
+                log('', 'diagnostic');
+            });
+        }
+
+        function createTestOrder() {
+            log('🧪 CRÉATION D\'UNE COMMANDE DE TEST:', 'sync');
+            log('='.repeat(40), 'sync');
+            
+            const testOrder = {
+                _id: 'test_order_' + Date.now(),
+                user: {
+                    id: 'test-user',
+                    firstName: 'Test',
+                    lastName: 'Client',
+                    email: 'test@example.com',
+                    phone: '+224 123 456 789'
+                },
+                items: [
+                    {
+                        product: 'test_product_1',
+                        quantity: 2,
+                        price: 50000,
+                        name: 'Ciment Portland',
+                        image: ''
+                    },
+                    {
+                        product: 'test_product_2',
+                        quantity: 1,
+                        price: 75000,
+                        name: 'Téléphone Samsung',
+                        image: ''
+                    }
+                ],
+                shippingAddress: {
+                    firstName: 'Test',
+                    lastName: 'Client',
+                    street: 'Rue de la Paix',
+                    city: 'Conakry',
+                    postalCode: '001',
+                    phone: '+224 123 456 789'
+                },
+                paymentMethod: 'mobile_money',
+                notes: 'Commande de test',
+                subtotal: 175000,
+                shippingCost: 5000,
+                tax: 0,
+                total: 180000,
+                orderStatus: 'pending',
+                trackingNumber: 'TK' + Math.random().toString(36).substr(2, 8).toUpperCase(),
+                createdAt: new Date().toISOString(),
+                updatedAt: new Date().toISOString()
+            };
+            
+            // Charger les commandes existantes
+            const existingOrders = JSON.parse(localStorage.getItem('clientOrders') || '[]');
+            existingOrders.unshift(testOrder);
+            
+            // Sauvegarder
+            localStorage.setItem('clientOrders', JSON.stringify(existingOrders));
+            
+            log('✅ Commande de test créée:', 'sync');
+            log(`   - ID: ${testOrder._id}`, 'sync');
+            log(`   - Client: ${testOrder.user.firstName} ${testOrder.user.lastName}`, 'sync');
+            log(`   - Total: ${testOrder.total.toLocaleString()} FG`, 'sync');
+            log(`   - Produits: ${testOrder.items.length}`, 'sync');
+            
+            updateStatus('Commande de test créée', 'success');
+        }
+
+        function simulateSalesSync() {
+            log('🔄 SIMULATION DE LA SYNCHRONISATION:', 'sync');
+            log('='.repeat(40), 'sync');
+            
+            // Charger les commandes
+            const ordersData = JSON.parse(localStorage.getItem('clientOrders') || '[]');
+            
+            if (ordersData.length === 0) {
+                log('❌ Aucune commande à synchroniser', 'sync');
+                return;
+            }
+            
+            // Convertir les commandes en ventes (comme dans SalesManagement.js)
+            let salesData = ordersData.map(order => {
+                return order.items.map(item => ({
+                    _id: `${order._id}_${item.product}`,
+                    productName: item.name || 'Produit non spécifié',
+                    customerName: `${order.user.firstName} ${order.user.lastName}`,
+                    customerPhone: order.user.phone || 'Non spécifié',
+                    customerAddress: `${order.shippingAddress.street}, ${order.shippingAddress.city}`,
+                    quantity: item.quantity,
+                    unitPrice: item.price,
+                    totalPrice: item.price * item.quantity,
+                    productCategory: 'construction',
+                    status: order.orderStatus === 'pending' ? 'pending' : 
+                           order.orderStatus === 'confirmed' ? 'confirmed' :
+                           order.orderStatus === 'shipped' ? 'shipped' :
+                           order.orderStatus === 'delivered' ? 'delivered' : 'pending',
+                    soldAt: order.createdAt,
+                    createdAt: order.createdAt,
+                    orderNumber: order.trackingNumber,
+                    delivery: {
+                        address: `${order.shippingAddress.street}, ${order.shippingAddress.city}`,
+                        city: order.shippingAddress.city,
+                        deliveryPrice: order.shippingCost || 0,
+                        status: order.orderStatus === 'shipped' ? 'shipped' :
+                               order.orderStatus === 'delivered' ? 'delivered' : 'pending'
+                    },
+                    payment: {
+                        method: order.paymentMethod || 'mobile_money',
+                        status: order.orderStatus === 'delivered' ? 'paid' : 'pending',
+                        amount: item.price * item.quantity
+                    },
+                    notes: order.notes || '',
+                    orderId: order._id
+                }));
+            }).flat();
+            
+            // Sauvegarder les ventes
+            localStorage.setItem('salesData', JSON.stringify(salesData));
+            
+            log('✅ Synchronisation simulée:', 'sync');
+            log(`   - Commandes: ${ordersData.length}`, 'sync');
+            log(`   - Ventes générées: ${salesData.length}`, 'sync');
+            log(`   - Chiffre d'affaires: ${salesData.reduce((sum, sale) => sum + sale.totalPrice, 0).toLocaleString()} FG`, 'sync');
+            
+            updateStatus('Synchronisation simulée', 'success');
+        }
+
+        function verifySync() {
+            log('✅ VÉRIFICATION DE LA SYNCHRONISATION:', 'sync');
+            log('='.repeat(45), 'sync');
+            
+            const ordersData = JSON.parse(localStorage.getItem('clientOrders') || '[]');
+            const salesData = JSON.parse(localStorage.getItem('salesData') || '[]');
+            
+            log(`📦 Commandes: ${ordersData.length}`, 'sync');
+            log(`💰 Ventes: ${salesData.length}`, 'sync');
+            
+            if (ordersData.length > 0 && salesData.length > 0) {
+                const totalOrderValue = ordersData.reduce((sum, order) => sum + order.total, 0);
+                const totalSalesValue = salesData.reduce((sum, sale) => sum + sale.totalPrice, 0);
+                
+                log(`💵 Valeur des commandes: ${totalOrderValue.toLocaleString()} FG`, 'sync');
+                log(`💵 Valeur des ventes: ${totalSalesValue.toLocaleString()} FG`, 'sync');
+                
+                if (Math.abs(totalOrderValue - totalSalesValue) < 1000) {
+                    log('✅ Synchronisation correcte - Les valeurs correspondent', 'sync');
+                    updateStatus('Synchronisation correcte', 'success');
+                } else {
+                    log('⚠️  Désynchronisation détectée - Les valeurs ne correspondent pas', 'sync');
+                    updateStatus('Désynchronisation détectée', 'warning');
+                }
+            } else {
+                log('❌ Données manquantes pour la vérification', 'sync');
+                updateStatus('Données manquantes', 'error');
+            }
+        }
+
+        function fixSalesSync() {
+            log('🔧 CORRECTION DE LA SYNCHRONISATION:', 'fix');
+            log('='.repeat(40), 'fix');
+            
+            // Supprimer les anciennes données de ventes
+            localStorage.removeItem('salesData');
+            localStorage.removeItem('ordersData');
+            localStorage.removeItem('adminOrders');
+            localStorage.removeItem('revenueData');
+            localStorage.removeItem('salesStats');
+            
+            log('✅ Anciennes données de ventes supprimées', 'fix');
+            
+            // Re-synchroniser
+            simulateSalesSync();
+            
+            log('✅ Synchronisation corrigée', 'fix');
+            updateStatus('Synchronisation corrigée', 'success');
+        }
+
+        function clearTestData() {
+            log('🧹 NETTOYAGE DES DONNÉES DE TEST:', 'fix');
+            log('='.repeat(35), 'fix');
+            
+            // Supprimer les données de test
+            const ordersData = JSON.parse(localStorage.getItem('clientOrders') || '[]');
+            const filteredOrders = ordersData.filter(order => !order._id.startsWith('test_order_'));
+            localStorage.setItem('clientOrders', JSON.stringify(filteredOrders));
+            
+            // Re-synchroniser les ventes
+            simulateSalesSync();
+            
+            log('✅ Données de test supprimées', 'fix');
+            updateStatus('Données de test supprimées', 'success');
+        }
+
+        function finalTest() {
+            log('🧪 TEST FINAL:', 'test');
+            log('='.repeat(20), 'test');
+            
+            const ordersData = JSON.parse(localStorage.getItem('clientOrders') || '[]');
+            const salesData = JSON.parse(localStorage.getItem('salesData') || '[]');
+            
+            if (ordersData.length > 0 && salesData.length > 0) {
+                log('✅ Synchronisation fonctionnelle', 'test');
+                log(`   - ${ordersData.length} commandes → ${salesData.length} ventes`, 'test');
+                log('✅ La page "Gestion des Ventes" devrait maintenant afficher les données', 'test');
+                updateStatus('✅ Test final réussi', 'success');
+            } else {
+                log('❌ Synchronisation non fonctionnelle', 'test');
+                log('💡 Créez d\'abord une commande de test', 'test');
+                updateStatus('❌ Test final échoué', 'error');
+            }
+        }
+
+        function goToSalesManagement() {
+            window.location.href = 'http://localhost:3002/admin';
+        }
+
+        // Vérification automatique au chargement
+        window.onload = function() {
+            log('🚀 Test de synchronisation des ventes chargé');
+            checkDataSources();
+        };
+    </script>
+</body>
+</html>

@@ -2,28 +2,23 @@ import React, { useState } from 'react';
 import { 
   LayoutDashboard, 
   Package, 
-  ShoppingCart, 
   Users, 
   Settings, 
-  Image as ImageIcon,
   LogOut, 
   Menu, 
   X,
   Home,
   ChevronLeft,
   BarChart3,
-  Tag,
-  FileImage
+  MessageCircle,
 } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 
 // Import des pages complètes
 import AdminDashboardComplete from './AdminDashboardComplete';
 import AdminProductsComplete from './AdminProductsComplete';
-import AdminOrdersComplete from './AdminOrdersComplete';
 import AdminUsersComplete from './AdminUsersComplete';
-import AdminCategoriesComplete from './AdminCategoriesComplete';
-import AdminImagesComplete from './AdminImagesComplete';
+import AdminCommentManagement from './AdminCommentManagement';
 
 const AdminComplete = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -60,20 +55,16 @@ const AdminComplete = () => {
   const navigation = [
     { name: 'Tableau de bord', tab: 'dashboard', icon: LayoutDashboard },
     { name: 'Produits', tab: 'products', icon: Package },
-    { name: 'Commandes', tab: 'orders', icon: ShoppingCart },
-    { name: 'Galerie d\'Images', tab: 'images', icon: ImageIcon },
     { name: 'Utilisateurs', tab: 'users', icon: Users },
-    { name: 'Catégories', tab: 'categories', icon: Tag },
+    { name: 'Commentaires', tab: 'comments', icon: MessageCircle },
   ];
 
   const renderContent = () => {
     switch (activeTab) {
       case 'dashboard': return <AdminDashboardComplete />;
       case 'products': return <AdminProductsComplete />;
-      case 'orders': return <AdminOrdersComplete />;
-      case 'images': return <AdminImagesComplete />;
       case 'users': return <AdminUsersComplete />;
-      case 'categories': return <AdminCategoriesComplete />;
+      case 'comments': return <AdminCommentManagement />;
       default: return <AdminDashboardComplete />;
     }
   };

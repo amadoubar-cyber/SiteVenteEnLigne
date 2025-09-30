@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from 'react-query';
 import { productsAPI } from '../../services/api';
 import * as localStorageAPI from '../../services/localStorageAPI';
+import { initializeProductSystem } from '../../utils/productPersistenceFix';
 import ImageUpload from '../../components/admin/ImageUpload';
 import ConfirmationModal from '../../components/ConfirmationModal';
 import ConfirmationMessage from '../../components/ConfirmationMessage';
@@ -26,6 +27,7 @@ import {
   EyeOff,
   CheckCircle
 } from 'lucide-react';
+import ResetButton from '../../components/ResetButton';
 
 const ProductManagement = () => {
   const [showForm, setShowForm] = useState(false);
@@ -43,7 +45,7 @@ const ProductManagement = () => {
     category: '',
     featured: false,
     images: [],
-    published: true
+    isPublished: true
   });
   const { confirmation, showConfirmation, hideConfirmation, handleConfirm } = useConfirmation();
   const { message, showSuccess, showError, showWarning, showInfo, hideMessage } = useConfirmationMessage();
@@ -56,16 +58,25 @@ const ProductManagement = () => {
 
   const queryClient = useQueryClient();
 
-  // Initialiser les données de test au chargement
+  // Initialiser et corriger le système de persistance des produits
   useEffect(() => {
-    localStorageAPI.initializeWithTestData();
+    console.log('🔧 Initialisation du système de produits...');
+    const initResult = initializeProductSystem();
+    if (initResult.success) {
+      console.log(`✅ ${initResult.productCount} produits chargés`);
+    } else {
+      console.error('❌ Erreur d\'initialisation:', initResult.error);
+    }
   }, []);
 
   // Récupérer les produits depuis localStorage
   const { data: products, isLoading } = useQuery(
     ['products', searchTerm, filterType],
     () => {
+      console.log('🔄 Chargement des produits...');
       const allProducts = localStorageAPI.getAllProducts();
+      console.log(`📊 ${allProducts.length} produits chargés depuis localStorage`);
+      
       let filteredProducts = allProducts;
       
       // Filtrer par terme de recherche
@@ -74,6 +85,7 @@ const ProductManagement = () => {
           product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
           product.description.toLowerCase().includes(searchTerm.toLowerCase())
         );
+        console.log(`🔍 ${filteredProducts.length} produits après filtrage par recherche`);
       }
       
       // Filtrer par type de produit
@@ -81,9 +93,17 @@ const ProductManagement = () => {
         filteredProducts = filteredProducts.filter(product =>
           product.productType === filterType
         );
+        console.log(`🔍 ${filteredProducts.length} produits après filtrage par type`);
       }
       
+      console.log(`✅ ${filteredProducts.length} produits retournés`);
       return { data: filteredProducts };
+    },
+    {
+      staleTime: 5 * 60 * 1000, // 5 minutes
+      cacheTime: 10 * 60 * 1000, // 10 minutes
+      refetchOnWindowFocus: false,
+      refetchOnMount: false
     }
   );
 
@@ -93,6 +113,7 @@ const ProductManagement = () => {
   // Mutation pour créer/modifier un produit
   const createProductMutation = useMutation(localStorageAPI.createProduct, {
     onSuccess: (response) => {
+      console.log('✅ Produit créé avec succès:', response.data.product);
       queryClient.invalidateQueries('products');
       resetForm();
       showSuccessModal(
@@ -102,6 +123,7 @@ const ProductManagement = () => {
       );
     },
     onError: (error) => {
+      console.error('❌ Erreur lors de la création du produit:', error);
       showError(error.message || 'Une erreur est survenue lors de la création du produit. Veuillez réessayer.');
     }
   });
@@ -156,7 +178,7 @@ const ProductManagement = () => {
       category: '',
       featured: false,
       images: [],
-      published: true
+      isPublished: true
     });
     setEditingProduct(null);
     setShowForm(false);
@@ -230,6 +252,24 @@ const ProductManagement = () => {
     setIsGalleryOpen(true);
   };
 
+  // Fonction de réinitialisation des produits
+  const handleResetProducts = async () => {
+    try {
+      // Vider toutes les données de produits
+      localStorage.removeItem('koula_products');
+      localStorage.removeItem('adminProducts');
+      localStorage.removeItem('productsData');
+      
+      // Invalider le cache des requêtes
+      queryClient.invalidateQueries('products');
+      
+      console.log('✅ Données de produits réinitialisées avec succès');
+    } catch (error) {
+      console.error('❌ Erreur lors de la réinitialisation des produits:', error);
+      throw error;
+    }
+  };
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center h-64">
@@ -266,6 +306,7 @@ const ProductManagement = () => {
         <h1 className="text-3xl font-bold text-gray-900">Gestion des Produits</h1>
           <p className="text-gray-600 mt-1">Gérez votre inventaire de produits</p>
         </div>
+        <div className="flex gap-3">
         <button
           onClick={() => setShowForm(true)}
           className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 flex items-center gap-2"
@@ -273,6 +314,13 @@ const ProductManagement = () => {
           <Plus className="w-5 h-5" />
           Ajouter un produit
         </button>
+          <ResetButton
+            onReset={handleResetProducts}
+            resetType="produits"
+            confirmMessage="Êtes-vous sûr de vouloir réinitialiser tous les produits ? Cette action supprimera définitivement tous les produits, images et données associées."
+            variant="danger"
+          />
+        </div>
       </div>
 
       {/* Filtres et recherche */}

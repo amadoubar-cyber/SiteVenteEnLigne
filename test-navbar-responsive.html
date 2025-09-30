@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Navbar Responsive - Bowoye Multi Services</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        .header {
+            background: linear-gradient(135deg, #ff6b6b, #ffa500);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 2.5em;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        .content {
+            padding: 30px;
+        }
+        .test-section {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 25px;
+            margin: 20px 0;
+            border-left: 5px solid #ff6b6b;
+        }
+        .test-section h2 {
+            color: #ff6b6b;
+            margin-top: 0;
+            display: flex;
+            align-items: center;
+        }
+        .test-section h2::before {
+            content: "📱";
+            margin-right: 10px;
+            font-size: 1.2em;
+        }
+        .responsive-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+        .device-test {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            border: 2px solid #e9ecef;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        .device-test h3 {
+            color: #495057;
+            margin-top: 0;
+            display: flex;
+            align-items: center;
+        }
+        .device-test h3::before {
+            content: "💻";
+            margin-right: 8px;
+        }
+        .mobile-test h3::before {
+            content: "📱";
+        }
+        .tablet-test h3::before {
+            content: "📟";
+        }
+        .desktop-test h3::before {
+            content: "🖥️";
+        }
+        .success {
+            background: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 10px 0;
+        }
+        .success::before {
+            content: "✅ ";
+            font-weight: bold;
+        }
+        .info {
+            background: #d1ecf1;
+            border: 1px solid #bee5eb;
+            color: #0c5460;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 10px 0;
+        }
+        .info::before {
+            content: "ℹ️ ";
+            font-weight: bold;
+        }
+        .warning {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            color: #856404;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 10px 0;
+        }
+        .warning::before {
+            content: "⚠️ ";
+            font-weight: bold;
+        }
+        .btn {
+            background: linear-gradient(135deg, #ff6b6b, #ffa500);
+            color: white;
+            padding: 12px 25px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 10px 5px;
+            text-decoration: none;
+            display: inline-block;
+            transition: transform 0.2s;
+        }
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        .checklist {
+            list-style: none;
+            padding: 0;
+        }
+        .checklist li {
+            padding: 8px 0;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            align-items: center;
+        }
+        .checklist li::before {
+            content: "☐";
+            margin-right: 10px;
+            font-size: 1.2em;
+        }
+        .checklist li.checked::before {
+            content: "☑️";
+        }
+        .navbar-preview {
+            background: #2563eb;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 8px;
+            margin: 15px 0;
+            font-family: monospace;
+            font-size: 12px;
+            overflow-x: auto;
+        }
+        .footer {
+            background: #343a40;
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📱 Test Navbar Responsive</h1>
+            <p>Vérification de la correction du problème de débordement de la navbar</p>
+        </div>
+
+        <div class="content">
+            <!-- Problème identifié -->
+            <div class="test-section">
+                <h2>Problème Identifié et Corrigé</h2>
+                
+                <div class="warning">
+                    ⚠️ <strong>Problème initial :</strong> La navbar débordait de l'écran, notamment le bouton "S'inscrire" qui était coupé.
+                </div>
+
+                <div class="success">
+                    ✅ <strong>Correction appliquée :</strong> Optimisation de la responsivité avec des breakpoints adaptatifs.
+                </div>
+
+                <h3>Modifications apportées :</h3>
+                <ul class="checklist">
+                    <li class="checked">✅ Réduction des espaces entre les éléments</li>
+                    <li class="checked">✅ Texte adaptatif selon la taille d'écran</li>
+                    <li class="checked">✅ Logo raccourci sur petits écrans (BMS)</li>
+                    <li class="checked">✅ Recherche masquée sur tablettes</li>
+                    <li class="checked">✅ Boutons plus compacts</li>
+                    <li class="checked">✅ Tailles de police réduites</li>
+                </ul>
+            </div>
+
+            <!-- Tests par taille d'écran -->
+            <div class="test-section">
+                <h2>Tests par Taille d'Écran</h2>
+                
+                <div class="responsive-grid">
+                    <!-- Mobile -->
+                    <div class="device-test mobile-test">
+                        <h3>Mobile (< 768px)</h3>
+                        <div class="navbar-preview">
+                            [B] BMS [☰]
+                        </div>
+                        <ul class="checklist">
+                            <li>☐ Logo "BMS" affiché</li>
+                            <li>☐ Menu hamburger visible</li>
+                            <li>☐ Recherche masquée</li>
+                            <li>☐ Boutons compacts</li>
+                        </ul>
+                    </div>
+
+                    <!-- Tablet -->
+                    <div class="device-test tablet-test">
+                        <h3>Tablet (768px - 1024px)</h3>
+                        <div class="navbar-preview">
+                            [B] Bowoye Multi Services | Construction | Électronique | Produits | Panier | Connexion | S'inscrire
+                        </div>
+                        <ul class="checklist">
+                            <li>☐ Logo complet affiché</li>
+                            <li>☐ Navigation visible</li>
+                            <li>☐ Recherche masquée</li>
+                            <li>☐ Boutons adaptés</li>
+                        </ul>
+                    </div>
+
+                    <!-- Desktop -->
+                    <div class="device-test desktop-test">
+                        <h3>Desktop (> 1024px)</h3>
+                        <div class="navbar-preview">
+                            [B] Bowoye Multi Services | [Rechercher...] | Construction | Électronique | Tous les produits | Panier | Connexion | S'inscrire
+                        </div>
+                        <ul class="checklist">
+                            <li>☐ Logo complet affiché</li>
+                            <li>☐ Barre de recherche visible</li>
+                            <li>☐ Navigation complète</li>
+                            <li>☐ Tous les éléments visibles</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Instructions de test -->
+            <div class="test-section">
+                <h2>Instructions de Test</h2>
+                
+                <div class="info">
+                    ℹ️ <strong>Comment tester :</strong> Redimensionnez votre navigateur ou utilisez les outils de développement pour simuler différentes tailles d'écran.
+                </div>
+
+                <h3>Étapes de test :</h3>
+                <ul class="checklist">
+                    <li>☐ Ouvrez l'application dans votre navigateur</li>
+                    <li>☐ Redimensionnez la fenêtre (mobile, tablet, desktop)</li>
+                    <li>☐ Vérifiez que tous les éléments sont visibles</li>
+                    <li>☐ Testez le bouton "S'inscrire" sur toutes les tailles</li>
+                    <li>☐ Vérifiez que rien ne déborde</li>
+                    <li>☐ Testez la navigation mobile (menu hamburger)</li>
+                </ul>
+
+                <h3>Points à vérifier :</h3>
+                <ul>
+                    <li><strong>Mobile :</strong> Menu hamburger, logo "BMS", pas de débordement</li>
+                    <li><strong>Tablet :</strong> Navigation visible, logo complet, recherche masquée</li>
+                    <li><strong>Desktop :</strong> Tous les éléments visibles, recherche active</li>
+                </ul>
+            </div>
+
+            <!-- Résultats attendus -->
+            <div class="test-section">
+                <h2>Résultats Attendus</h2>
+                
+                <div class="success">
+                    ✅ <strong>Mobile :</strong> Logo "BMS", menu hamburger, aucun débordement
+                </div>
+
+                <div class="success">
+                    ✅ <strong>Tablet :</strong> Navigation compacte, logo complet, boutons adaptés
+                </div>
+
+                <div class="success">
+                    ✅ <strong>Desktop :</strong> Interface complète avec recherche et tous les éléments
+                </div>
+
+                <div class="success">
+                    ✅ <strong>Bouton "S'inscrire" :</strong> Toujours visible et cliquable sur toutes les tailles
+                </div>
+            </div>
+
+            <!-- Actions rapides -->
+            <div class="test-section">
+                <h2>Actions Rapides</h2>
+                <a href="http://localhost:3000" class="btn" target="_blank">
+                    🏠 Tester l'application
+                </a>
+                <a href="http://localhost:3000/login" class="btn" target="_blank">
+                    🔑 Page de connexion
+                </a>
+                <a href="http://localhost:3000/register" class="btn" target="_blank">
+                    📝 Page d'inscription
+                </a>
+            </div>
+
+            <!-- Résolution de problèmes -->
+            <div class="test-section">
+                <h2>Résolution de Problèmes</h2>
+                
+                <div class="warning">
+                    ⚠️ <strong>Si le problème persiste :</strong>
+                </div>
+                <ul>
+                    <li>Videz le cache du navigateur (Ctrl+F5)</li>
+                    <li>Vérifiez que les serveurs sont démarrés</li>
+                    <li>Testez sur différents navigateurs</li>
+                    <li>Vérifiez la console pour les erreurs CSS</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p><strong>Test Navbar Responsive</strong> - Bowoye Multi Services</p>
+            <p>Correction du problème de débordement de la navbar ✅</p>
+        </div>
+    </div>
+
+    <script>
+        // Animation des cartes
+        document.addEventListener('DOMContentLoaded', function() {
+            const cards = document.querySelectorAll('.device-test, .test-section');
+            cards.forEach((card, index) => {
+                card.style.opacity = '0';
+                card.style.transform = 'translateY(20px)';
+                setTimeout(() => {
+                    card.style.transition = 'all 0.5s ease';
+                    card.style.opacity = '1';
+                    card.style.transform = 'translateY(0)';
+                }, index * 100);
+            });
+        });
+
+        // Test de connectivité
+        function testConnectivity() {
+            fetch('http://localhost:3001/api/health')
+                .then(response => {
+                    if (response.ok) {
+                        console.log('✅ Serveur backend accessible');
+                        updateStatus('Backend: ✅ Connecté');
+                    } else {
+                        console.log('⚠️ Serveur backend avec problèmes');
+                        updateStatus('Backend: ⚠️ Problème');
+                    }
+                })
+                .catch(error => {
+                    console.log('❌ Serveur backend inaccessible:', error);
+                    updateStatus('Backend: ❌ Hors ligne');
+                });
+        }
+
+        function updateStatus(message) {
+            const footer = document.querySelector('.footer p:last-child');
+            if (footer) {
+                footer.innerHTML = `Correction du problème de débordement de la navbar ✅ | ${message}`;
+            }
+        }
+
+        // Test de connectivité au chargement
+        testConnectivity();
+    </script>
+</body>
+</html>

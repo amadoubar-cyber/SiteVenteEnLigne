@@ -15,17 +15,16 @@ import {
   AlertTriangle,
   CheckCircle,
   Clock,
-  Target,
   Activity
 } from 'lucide-react';
+import ResetButton from '../../components/ResetButton';
 
-const StockControl = () => {
+const StockControlReal = () => {
   const [timeRange, setTimeRange] = useState('month');
   const [selectedCategory, setSelectedCategory] = useState('');
   const [loading, setLoading] = useState(false);
   const [stats, setStats] = useState({
     totalSales: 0,
-    totalProfit: 0,
     totalProductsSold: 0,
     totalProductsRemaining: 0,
     dailySales: [],
@@ -51,7 +50,7 @@ const StockControl = () => {
     { value: 'all', label: 'Tout le temps' }
   ];
 
-  // Données de test
+  // Charger les statistiques réelles
   useEffect(() => {
     loadStats();
   }, [timeRange, selectedCategory]);
@@ -59,84 +58,304 @@ const StockControl = () => {
   const loadStats = async () => {
     setLoading(true);
     
-    // Simulation de données - à remplacer par des appels API réels
-    const mockStats = {
-      totalSales: 15750000, // 15,750,000 FG
-      totalProfit: 3150000, // 3,150,000 FG (20% de marge)
-      totalProductsSold: 1247,
-      totalProductsRemaining: 2156,
-      dailySales: [
-        { date: '2024-01-15', sales: 450000, profit: 90000, products: 23 },
-        { date: '2024-01-14', sales: 380000, profit: 76000, products: 19 },
-        { date: '2024-01-13', sales: 520000, profit: 104000, products: 28 },
-        { date: '2024-01-12', sales: 290000, profit: 58000, products: 15 },
-        { date: '2024-01-11', sales: 610000, profit: 122000, products: 31 }
-      ],
-      monthlySales: [
-        { month: 'Janvier 2024', sales: 15750000, profit: 3150000, products: 1247 },
-        { month: 'Décembre 2023', sales: 14200000, profit: 2840000, products: 1123 },
-        { month: 'Novembre 2023', sales: 13800000, profit: 2760000, products: 1089 }
-      ],
-      yearlySales: [
-        { year: '2024', sales: 15750000, profit: 3150000, products: 1247 },
-        { year: '2023', sales: 145000000, profit: 29000000, products: 12567 },
-        { year: '2022', sales: 128000000, profit: 25600000, products: 11234 }
-      ],
-      categoryStats: [
-        {
-          category: 'construction',
-          name: 'Matériaux de Construction',
-          totalSales: 8750000,
-          totalProfit: 1750000,
-          productsSold: 856,
-          productsRemaining: 1245,
-          totalStock: 1050, // Stock total en unités
-          totalIn: 1200, // Entrées totales
-          totalOut: 344, // Sorties totales
-          color: 'bg-orange-100 text-orange-800'
-        },
-        {
-          category: 'electronics',
-          name: 'Électronique',
-          totalSales: 7000000,
-          totalProfit: 1400000,
-          productsSold: 391,
-          productsRemaining: 911,
-          totalStock: 48, // Stock total en unités
-          totalIn: 65, // Entrées totales
-          totalOut: 17, // Sorties totales
-          color: 'bg-blue-100 text-blue-800'
-        }
-      ],
-      topProducts: [
-        { name: 'Ciment Portland 50kg', sold: 156, remaining: 44, sales: 3900000, category: 'construction' },
-        { name: 'Samsung Galaxy S24', sold: 23, remaining: 2, sales: 19550000, category: 'electronics' },
-        { name: 'Tuyau PVC 100mm', sold: 89, remaining: 111, sales: 1335000, category: 'construction' },
-        { name: 'iPhone 15 Pro', sold: 12, remaining: 3, sales: 14400000, category: 'electronics' },
-        { name: 'Câble électrique 2.5mm', sold: 234, remaining: 266, sales: 1872000, category: 'construction' }
-      ],
-      lowStockProducts: [
-        { name: 'Samsung Galaxy S24', remaining: 2, minStock: 10, category: 'electronics' },
-        { name: 'iPhone 15 Pro', remaining: 3, minStock: 5, category: 'electronics' },
-        { name: 'Ciment Portland 50kg', remaining: 44, minStock: 50, category: 'construction' }
-      ],
-      recentMovements: [
-        { id: 1, product: 'Ciment Portland 50kg', type: 'out', quantity: 25, reason: 'Vente client', time: 'Il y a 2h' },
-        { id: 2, product: 'Samsung Galaxy S24', type: 'in', quantity: 10, reason: 'Réception commande', time: 'Il y a 4h' },
-        { id: 3, product: 'Tuyau PVC 100mm', type: 'out', quantity: 15, reason: 'Vente client', time: 'Il y a 6h' }
-      ]
-    };
-
-    setTimeout(() => {
-      setStats(mockStats);
+    try {
+      // Charger les données réelles depuis localStorage
+      const orders = JSON.parse(localStorage.getItem('clientOrders') || '[]');
+      const products = JSON.parse(localStorage.getItem('koula_products') || '[]');
+      
+      // Calculer les statistiques réelles
+      const realStats = calculateRealStats(orders, products, timeRange, selectedCategory);
+      
+      setStats(realStats);
       setLoading(false);
-    }, 1000);
+    } catch (error) {
+      console.error('Erreur lors du chargement des statistiques:', error);
+      setLoading(false);
+    }
+  };
+
+  const calculateRealStats = (orders, products, timeRange, selectedCategory) => {
+    // Filtrer les commandes selon la période
+    const filteredOrders = filterOrdersByTimeRange(orders, timeRange);
+    
+    // Filtrer par catégorie si spécifiée
+    const categoryFilteredOrders = selectedCategory 
+      ? filteredOrders.filter(order => 
+          order.items.some(item => {
+            const product = products.find(p => p._id === item.product);
+            return product && getCategoryKey(product.category) === selectedCategory;
+          })
+        )
+      : filteredOrders;
+
+    // Calculer les totaux
+    const totalSales = categoryFilteredOrders.reduce((sum, order) => sum + (order.total || 0), 0);
+    const totalProductsSold = categoryFilteredOrders.reduce((sum, order) => 
+      sum + order.items.reduce((itemSum, item) => itemSum + item.quantity, 0), 0
+    );
+
+    // Calculer le stock restant
+    const totalProductsRemaining = products
+      .filter(product => !selectedCategory || getCategoryKey(product.category) === selectedCategory)
+      .reduce((sum, product) => sum + (product.stock || 0), 0);
+
+    // Calculer les ventes par période
+    const dailySales = calculateDailySales(categoryFilteredOrders);
+    const monthlySales = calculateMonthlySales(categoryFilteredOrders);
+    const yearlySales = calculateYearlySales(categoryFilteredOrders);
+
+    // Calculer les statistiques par catégorie
+    const categoryStats = calculateCategoryStats(orders, products, timeRange);
+
+    // Calculer les top produits
+    const topProducts = calculateTopProducts(categoryFilteredOrders, products);
+
+    // Calculer les produits en rupture de stock
+    const lowStockProducts = calculateLowStockProducts(products, selectedCategory);
+
+    // Calculer les mouvements récents
+    const recentMovements = calculateRecentMovements(categoryFilteredOrders);
+
+    return {
+      totalSales,
+      totalProductsSold,
+      totalProductsRemaining,
+      dailySales,
+      monthlySales,
+      yearlySales,
+      categoryStats,
+      topProducts,
+      lowStockProducts,
+      recentMovements
+    };
+  };
+
+  const filterOrdersByTimeRange = (orders, timeRange) => {
+    const now = new Date();
+    const filterDate = new Date();
+
+    switch (timeRange) {
+      case 'day':
+        filterDate.setDate(now.getDate() - 1);
+        break;
+      case 'week':
+        filterDate.setDate(now.getDate() - 7);
+        break;
+      case 'month':
+        filterDate.setMonth(now.getMonth() - 1);
+        break;
+      case 'year':
+        filterDate.setFullYear(now.getFullYear() - 1);
+        break;
+      case 'all':
+        return orders;
+      default:
+        filterDate.setMonth(now.getMonth() - 1);
+    }
+
+    return orders.filter(order => new Date(order.createdAt) >= filterDate);
+  };
+
+  const getCategoryKey = (category) => {
+    const categoryMap = {
+      'Matériaux de construction': 'construction',
+      'Plomberie': 'construction',
+      'Électronique': 'electronics',
+      'Téléphones': 'electronics',
+      'Ordinateurs': 'electronics'
+    };
+    return categoryMap[category] || 'other';
+  };
+
+  const calculateDailySales = (orders) => {
+    const dailyMap = {};
+    
+    orders.forEach(order => {
+      const date = new Date(order.createdAt).toISOString().split('T')[0];
+      if (!dailyMap[date]) {
+        dailyMap[date] = { date, sales: 0, products: 0 };
+      }
+      dailyMap[date].sales += order.total || 0;
+      dailyMap[date].products += order.items.reduce((sum, item) => sum + item.quantity, 0);
+    });
+
+    return Object.values(dailyMap).sort((a, b) => new Date(b.date) - new Date(a.date)).slice(0, 7);
+  };
+
+  const calculateMonthlySales = (orders) => {
+    const monthlyMap = {};
+    
+    orders.forEach(order => {
+      const date = new Date(order.createdAt);
+      const monthKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+      const monthName = date.toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' });
+      
+      if (!monthlyMap[monthKey]) {
+        monthlyMap[monthKey] = { month: monthName, sales: 0, products: 0 };
+      }
+      monthlyMap[monthKey].sales += order.total || 0;
+      monthlyMap[monthKey].products += order.items.reduce((sum, item) => sum + item.quantity, 0);
+    });
+
+    return Object.values(monthlyMap).sort((a, b) => new Date(b.month) - new Date(a.month)).slice(0, 6);
+  };
+
+  const calculateYearlySales = (orders) => {
+    const yearlyMap = {};
+    
+    orders.forEach(order => {
+      const year = new Date(order.createdAt).getFullYear();
+      
+      if (!yearlyMap[year]) {
+        yearlyMap[year] = { year: year.toString(), sales: 0, products: 0 };
+      }
+      yearlyMap[year].sales += order.total || 0;
+      yearlyMap[year].products += order.items.reduce((sum, item) => sum + item.quantity, 0);
+    });
+
+    return Object.values(yearlyMap).sort((a, b) => b.year - a.year).slice(0, 3);
+  };
+
+  const calculateCategoryStats = (orders, products, timeRange) => {
+    const filteredOrders = filterOrdersByTimeRange(orders, timeRange);
+    const categoryMap = {};
+
+    filteredOrders.forEach(order => {
+      order.items.forEach(item => {
+        const product = products.find(p => p._id === item.product);
+        if (product) {
+          const categoryKey = getCategoryKey(product.category);
+          const categoryName = getCategoryName(categoryKey);
+          
+          if (!categoryMap[categoryKey]) {
+            categoryMap[categoryKey] = {
+              category: categoryKey,
+              name: categoryName,
+              totalSales: 0,
+              productsSold: 0,
+              productsRemaining: 0,
+              totalStock: 0,
+              totalIn: 0,
+              totalOut: 0,
+              color: getCategoryColor(categoryKey)
+            };
+          }
+          
+          categoryMap[categoryKey].totalSales += item.price * item.quantity;
+          categoryMap[categoryKey].productsSold += item.quantity;
+        }
+      });
+    });
+
+    // Ajouter les stocks restants
+    products.forEach(product => {
+      const categoryKey = getCategoryKey(product.category);
+      if (categoryMap[categoryKey]) {
+        categoryMap[categoryKey].productsRemaining += product.stock || 0;
+        categoryMap[categoryKey].totalStock += product.stock || 0;
+      }
+    });
+
+    return Object.values(categoryMap);
+  };
+
+  const getCategoryName = (categoryKey) => {
+    const nameMap = {
+      'construction': 'Matériaux de Construction',
+      'electronics': 'Électronique',
+      'other': 'Autres'
+    };
+    return nameMap[categoryKey] || 'Autres';
+  };
+
+  const getCategoryColor = (categoryKey) => {
+    const colorMap = {
+      'construction': 'bg-orange-100 text-orange-800',
+      'electronics': 'bg-blue-100 text-blue-800',
+      'other': 'bg-gray-100 text-gray-800'
+    };
+    return colorMap[categoryKey] || 'bg-gray-100 text-gray-800';
+  };
+
+  const calculateTopProducts = (orders, products) => {
+    const productSales = {};
+
+    orders.forEach(order => {
+      order.items.forEach(item => {
+        const product = products.find(p => p._id === item.product);
+        if (product) {
+          if (!productSales[item.product]) {
+            productSales[item.product] = {
+              name: product.name,
+              sold: 0,
+              remaining: product.stock || 0,
+              sales: 0,
+              category: getCategoryKey(product.category)
+            };
+          }
+          
+          productSales[item.product].sales += item.price * item.quantity;
+          productSales[item.product].sold += item.quantity;
+        }
+      });
+    });
+
+    return Object.values(productSales)
+      .sort((a, b) => b.sales - a.sales)
+      .slice(0, 10);
+  };
+
+  const calculateLowStockProducts = (products, selectedCategory) => {
+    return products
+      .filter(product => {
+        if (selectedCategory && getCategoryKey(product.category) !== selectedCategory) {
+          return false;
+        }
+        const minStock = 50; // Seuil minimum
+        return (product.stock || 0) < minStock;
+      })
+      .map(product => ({
+        name: product.name,
+        remaining: product.stock || 0,
+        minStock: 50,
+        category: getCategoryKey(product.category)
+      }))
+      .slice(0, 10);
+  };
+
+  const calculateRecentMovements = (orders) => {
+    return orders
+      .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+      .slice(0, 10)
+      .map(order => ({
+        id: order._id,
+        product: order.items[0]?.name || 'Produit',
+        type: 'out',
+        quantity: order.items.reduce((sum, item) => sum + item.quantity, 0),
+        reason: 'Vente client',
+        time: getTimeAgo(order.createdAt)
+      }));
+  };
+
+  const getTimeAgo = (dateString) => {
+    const now = new Date();
+    const date = new Date(dateString);
+    const diffInHours = Math.floor((now - date) / (1000 * 60 * 60));
+    
+    if (diffInHours < 1) return 'Il y a moins d\'1h';
+    if (diffInHours < 24) return `Il y a ${diffInHours}h`;
+    
+    const diffInDays = Math.floor(diffInHours / 24);
+    if (diffInDays < 7) return `Il y a ${diffInDays} jour${diffInDays > 1 ? 's' : ''}`;
+    
+    const diffInWeeks = Math.floor(diffInDays / 7);
+    return `Il y a ${diffInWeeks} semaine${diffInWeeks > 1 ? 's' : ''}`;
   };
 
   const formatCurrency = (amount) => {
     return new Intl.NumberFormat('fr-FR', {
       style: 'currency',
-      currency: 'XOF',
+      currency: 'GNF',
       minimumFractionDigits: 0
     }).format(amount);
   };
@@ -145,394 +364,380 @@ const StockControl = () => {
     return new Intl.NumberFormat('fr-FR').format(number);
   };
 
-  const getCurrentPeriodData = () => {
-    switch (timeRange) {
-      case 'day':
-        return stats.dailySales.slice(0, 1);
-      case 'week':
-        return stats.dailySales.slice(0, 7);
-      case 'month':
-        return stats.monthlySales.slice(0, 1);
-      case 'year':
-        return stats.yearlySales.slice(0, 1);
-      default:
-        return stats.yearlySales;
+  const getPercentageChange = (current, previous) => {
+    if (previous === 0) return 0;
+    return ((current - previous) / previous) * 100;
+  };
+
+  const handleRefresh = () => {
+    loadStats();
+  };
+
+  const handleExport = () => {
+    // Logique d'export à implémenter
+    console.log('Export des données...');
+  };
+
+  // Fonction de réinitialisation des données de stock
+  const handleResetStock = async () => {
+    try {
+      // Vider toutes les données de stock et de ventes
+      localStorage.removeItem('salesData');
+      localStorage.removeItem('ordersData');
+      localStorage.removeItem('adminOrders');
+      localStorage.removeItem('stockMovements');
+      localStorage.removeItem('stockData');
+      localStorage.removeItem('revenueData');
+      
+      // Recharger les données
+      loadStats();
+      
+      console.log('✅ Données de stock réinitialisées avec succès');
+    } catch (error) {
+      console.error('❌ Erreur lors de la réinitialisation du stock:', error);
+      throw error;
     }
   };
 
-  const getFilteredStats = () => {
-    if (!selectedCategory) return stats;
-    
-    return {
-      ...stats,
-      categoryStats: stats.categoryStats.filter(cat => cat.category === selectedCategory),
-      topProducts: stats.topProducts.filter(prod => prod.category === selectedCategory),
-      lowStockProducts: stats.lowStockProducts.filter(prod => prod.category === selectedCategory)
-    };
-  };
-
-  const filteredStats = getFilteredStats();
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center min-h-screen">
+        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary-600"></div>
+        <p className="ml-4 text-lg text-secondary-700">Chargement des statistiques...</p>
+      </div>
+    );
+  }
 
   return (
-    <div className="space-y-6">
+    <div className="min-h-screen bg-gray-50">
       {/* Header */}
-      <div className="flex justify-between items-center">
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900">Contrôle de Stock</h1>
-          <p className="text-gray-600 mt-1">Tableau de bord complet des ventes et mouvements de stock</p>
-        </div>
-        <div className="flex gap-3">
-          <button
-            onClick={loadStats}
-            disabled={loading}
-            className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 flex items-center gap-2 disabled:opacity-50"
-          >
-            <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
-            Actualiser
-          </button>
-          <button className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 flex items-center gap-2">
-            <Download className="w-4 h-4" />
-            Exporter
-          </button>
-        </div>
-      </div>
-
-      {/* Filtres */}
-      <div className="bg-white p-4 rounded-lg shadow-sm border">
-        <div className="flex flex-wrap gap-4 items-center">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Période</label>
-            <select
-              value={timeRange}
-              onChange={(e) => setTimeRange(e.target.value)}
-              className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            >
-              {timeRanges.map(range => (
-                <option key={range.value} value={range.value}>{range.label}</option>
-              ))}
-            </select>
-          </div>
-          
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Catégorie</label>
-            <select
-              value={selectedCategory}
-              onChange={(e) => setSelectedCategory(e.target.value)}
-              className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            >
-              {categories.map(cat => (
-                <option key={cat.value} value={cat.value}>{cat.label}</option>
-              ))}
-            </select>
-          </div>
-        </div>
-      </div>
-
-      {/* Métriques principales */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <div className="bg-white p-6 rounded-lg shadow-sm border">
-          <div className="flex items-center">
-            <div className="p-3 bg-green-100 rounded-lg">
-              <DollarSign className="h-6 w-6 text-green-600" />
+      <div className="bg-white shadow-sm border-b">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center py-4">
+            <div className="flex items-center space-x-4">
+              <a href="/admin" className="text-primary-600 hover:text-primary-700 flex items-center">
+                <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                </svg>
+                Retour au site
+              </a>
             </div>
-            <div className="ml-4">
-              <p className="text-sm font-medium text-gray-600">Chiffre d'Affaires</p>
-              <p className="text-2xl font-bold text-gray-900">{formatCurrency(filteredStats.totalSales)}</p>
-              <p className="text-sm text-green-600 flex items-center">
-                <TrendingUp className="h-4 w-4 mr-1" />
-                +12.5% vs période précédente
-              </p>
-            </div>
-          </div>
-        </div>
-
-        <div className="bg-white p-6 rounded-lg shadow-sm border">
-          <div className="flex items-center">
-            <div className="p-3 bg-blue-100 rounded-lg">
-              <Target className="h-6 w-6 text-blue-600" />
-            </div>
-            <div className="ml-4">
-              <p className="text-sm font-medium text-gray-600">Bénéfice Net</p>
-              <p className="text-2xl font-bold text-gray-900">{formatCurrency(filteredStats.totalProfit)}</p>
-              <p className="text-sm text-blue-600 flex items-center">
-                <Activity className="h-4 w-4 mr-1" />
-                Marge: 20%
-              </p>
-            </div>
-          </div>
-        </div>
-
-        <div className="bg-white p-6 rounded-lg shadow-sm border">
-          <div className="flex items-center">
-            <div className="p-3 bg-purple-100 rounded-lg">
-              <ShoppingCart className="h-6 w-6 text-purple-600" />
-            </div>
-            <div className="ml-4">
-              <p className="text-sm font-medium text-gray-600">Produits Vendus</p>
-              <p className="text-2xl font-bold text-gray-900">{formatNumber(filteredStats.totalProductsSold)}</p>
-              <p className="text-sm text-purple-600 flex items-center">
-                <Package className="h-4 w-4 mr-1" />
-                Unités vendues
-              </p>
-            </div>
-          </div>
-        </div>
-
-        <div className="bg-white p-6 rounded-lg shadow-sm border">
-          <div className="flex items-center">
-            <div className="p-3 bg-orange-100 rounded-lg">
-              <Package className="h-6 w-6 text-orange-600" />
-            </div>
-            <div className="ml-4">
-              <p className="text-sm font-medium text-gray-600">Stock Restant</p>
-              <p className="text-2xl font-bold text-gray-900">{formatNumber(filteredStats.totalProductsRemaining)}</p>
-              <p className="text-sm text-orange-600 flex items-center">
-                <Clock className="h-4 w-4 mr-1" />
-                En stock
-              </p>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Graphiques et analyses */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Ventes par période */}
-        <div className="bg-white p-6 rounded-lg shadow-sm border">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
-            <BarChart3 className="h-5 w-5 mr-2" />
-            Ventes par Période
-          </h3>
-          <div className="space-y-3">
-            {getCurrentPeriodData().map((period, index) => (
-              <div key={index} className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
-                <div>
-                  <p className="font-medium text-gray-900">
-                    {period.date || period.month || period.year}
-                  </p>
-                  <p className="text-sm text-gray-600">
-                    {formatNumber(period.products)} produits vendus
-                  </p>
-                </div>
-                <div className="text-right">
-                  <p className="font-semibold text-gray-900">{formatCurrency(period.sales)}</p>
-                  <p className="text-sm text-green-600">+{formatCurrency(period.profit)} bénéfice</p>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* Top produits */}
-        <div className="bg-white p-6 rounded-lg shadow-sm border">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
-            <TrendingUp className="h-5 w-5 mr-2" />
-            Top Produits Vendus
-          </h3>
-          <div className="space-y-3">
-            {filteredStats.topProducts.slice(0, 5).map((product, index) => (
-              <div key={index} className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
-                <div>
-                  <p className="font-medium text-gray-900">{product.name}</p>
-                  <p className="text-sm text-gray-600">
-                    Vendus: {product.sold} | Restants: {product.remaining}
-                  </p>
-                </div>
-                <div className="text-right">
-                  <p className="font-semibold text-gray-900">{formatCurrency(product.sales)}</p>
-                  <span className={`px-2 py-1 rounded-full text-xs ${categories.find(c => c.value === product.category)?.color || 'bg-gray-100 text-gray-800'}`}>
-                    {categories.find(c => c.value === product.category)?.label || product.category}
-                  </span>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
-
-      {/* Statistiques par catégorie avec quantités détaillées */}
-      <div className="bg-white p-6 rounded-lg shadow-sm border">
-        <h3 className="text-lg font-semibold text-gray-900 mb-6 flex items-center">
-          <PieChart className="h-5 w-5 mr-2" />
-          Performance par Catégorie - Quantités Détaillées
-        </h3>
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {filteredStats.categoryStats.map((category, index) => (
-            <div key={index} className="p-6 border rounded-lg bg-gradient-to-br from-gray-50 to-white">
-              <div className="flex items-center justify-between mb-6">
-                <div className="flex items-center">
-                  <div className={`p-3 rounded-lg ${category.color}`}>
-                    <Package className="h-6 w-6" />
-                  </div>
-                  <div className="ml-3">
-                    <h4 className="text-lg font-semibold text-gray-900">{category.name}</h4>
-                    <p className="text-sm text-gray-600">Mouvements et quantités</p>
-                  </div>
-                </div>
-                <span className={`px-3 py-1 rounded-full text-sm font-medium ${category.color}`}>
-                  {category.category}
-                </span>
+            
+            <div className="flex items-center space-x-4">
+              <div className="text-sm text-gray-600">
+                <span className="font-medium">A Admin</span>
+                <span className="text-gray-400 mx-2">•</span>
+                <span>Bowoye Multi Services</span>
+                <span className="text-gray-400 mx-2">•</span>
+                <span className="text-primary-600 font-medium">Administrateur</span>
               </div>
               
-              {/* Métriques financières */}
-              <div className="grid grid-cols-2 gap-4 mb-6">
-                <div className="text-center p-4 bg-green-50 rounded-lg">
-                  <div className="text-2xl font-bold text-green-600">{formatCurrency(category.totalSales)}</div>
-                  <div className="text-sm text-gray-600">Chiffre d'affaires</div>
-                </div>
-                <div className="text-center p-4 bg-blue-50 rounded-lg">
-                  <div className="text-2xl font-bold text-blue-600">{formatCurrency(category.totalProfit)}</div>
-                  <div className="text-sm text-gray-600">Bénéfice</div>
-                </div>
-              </div>
-
-              {/* Quantités de stock */}
-              <div className="space-y-4">
-                <h5 className="font-semibold text-gray-900 flex items-center">
-                  <TrendingUp className="h-4 w-4 mr-2 text-green-600" />
-                  Mouvements de Stock
-                </h5>
-                
-                <div className="grid grid-cols-3 gap-3">
-                  <div className="text-center p-3 bg-green-100 rounded-lg">
-                    <div className="text-xl font-bold text-green-600">+{formatNumber(category.totalIn)}</div>
-                    <div className="text-xs text-gray-600">Entrées</div>
-                  </div>
-                  <div className="text-center p-3 bg-red-100 rounded-lg">
-                    <div className="text-xl font-bold text-red-600">-{formatNumber(category.totalOut)}</div>
-                    <div className="text-xs text-gray-600">Sorties</div>
-                  </div>
-                  <div className="text-center p-3 bg-blue-100 rounded-lg">
-                    <div className="text-xl font-bold text-blue-600">{formatNumber(category.totalStock)}</div>
-                    <div className="text-xs text-gray-600">Stock actuel</div>
-                  </div>
-                </div>
-
-                {/* Détails des produits */}
-                <div className="grid grid-cols-2 gap-4 pt-4 border-t">
-                  <div className="text-center">
-                    <div className="text-lg font-semibold text-gray-900">{formatNumber(category.productsSold)}</div>
-                    <div className="text-sm text-gray-600">Produits vendus</div>
-                  </div>
-                  <div className="text-center">
-                    <div className="text-lg font-semibold text-gray-900">{formatNumber(category.productsRemaining)}</div>
-                    <div className="text-sm text-gray-600">Produits restants</div>
-                  </div>
-                </div>
-                
-                {/* Barre de progression pour le stock */}
-                <div className="mt-4">
-                  <div className="flex justify-between text-sm text-gray-600 mb-2">
-                    <span>Niveau de stock</span>
-                    <span>{Math.round((category.totalStock / (category.totalIn + category.totalOut)) * 100)}%</span>
-                  </div>
-                  <div className="w-full bg-gray-200 rounded-full h-3">
-                    <div 
-                      className={`h-3 rounded-full ${category.category === 'construction' ? 'bg-orange-500' : 'bg-blue-500'}`}
-                      style={{ width: `${(category.totalStock / (category.totalIn + category.totalOut)) * 100}%` }}
-                    ></div>
-                  </div>
-                </div>
-
-                {/* Résumé des mouvements */}
-                <div className="mt-4 p-3 bg-gray-50 rounded-lg">
-                  <div className="text-sm text-gray-600 mb-1">Résumé des mouvements :</div>
-                  <div className="text-xs text-gray-500">
-                    {category.totalIn > category.totalOut ? 
-                      `Excédent de ${formatNumber(category.totalIn - category.totalOut)} unités` :
-                      `Déficit de ${formatNumber(category.totalOut - category.totalIn)} unités`
-                    }
-                  </div>
-                </div>
+              <div className="flex space-x-2">
+                <button
+                  onClick={handleRefresh}
+                  className="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition duration-300 flex items-center space-x-2"
+                >
+                  <RefreshCw className="w-4 h-4" />
+                  <span>Actualiser</span>
+                </button>
+                <button
+                  onClick={handleExport}
+                  className="px-4 py-2 bg-secondary-600 text-white rounded-lg hover:bg-secondary-700 transition duration-300 flex items-center space-x-2"
+                >
+                  <Download className="w-4 h-4" />
+                  <span>Exporter</span>
+                </button>
+                <ResetButton
+                  onReset={handleResetStock}
+                  resetType="stock"
+                  confirmMessage="Êtes-vous sûr de vouloir réinitialiser toutes les données de stock ? Cette action supprimera définitivement toutes les ventes, commandes et mouvements de stock."
+                  variant="danger"
+                />
               </div>
             </div>
-          ))}
+          </div>
         </div>
       </div>
 
-      {/* Alertes stock faible */}
-      {filteredStats.lowStockProducts.length > 0 && (
-        <div className="bg-white p-6 rounded-lg shadow-sm border border-yellow-200">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center text-yellow-800">
-            <AlertTriangle className="h-5 w-5 mr-2" />
-            Alertes Stock Faible
-          </h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {filteredStats.lowStockProducts.map((product, index) => (
-              <div key={index} className="p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
-                <div className="flex items-center justify-between mb-2">
-                  <h4 className="font-semibold text-gray-900">{product.name}</h4>
-                  <span className={`px-2 py-1 rounded-full text-xs ${categories.find(c => c.value === product.category)?.color || 'bg-gray-100 text-gray-800'}`}>
-                    {categories.find(c => c.value === product.category)?.label || product.category}
-                  </span>
+      {/* Main Content */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Title */}
+        <div className="mb-8">
+          <h1 className="text-4xl font-bold text-gray-900 mb-2">Contrôle de Stock</h1>
+          <p className="text-lg text-gray-600">Tableau de bord complet des ventes et mouvements de stock</p>
+        </div>
+
+        {/* Filters */}
+        <div className="bg-white rounded-lg shadow-sm p-6 mb-8">
+          <div className="flex flex-wrap gap-4">
+            <div className="flex-1 min-w-48">
+              <label className="block text-sm font-medium text-gray-700 mb-2">Période</label>
+              <select
+                value={timeRange}
+                onChange={(e) => setTimeRange(e.target.value)}
+                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-primary-500 focus:border-primary-500"
+              >
+                {timeRanges.map((range) => (
+                  <option key={range.value} value={range.value}>
+                    {range.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+            
+            <div className="flex-1 min-w-48">
+              <label className="block text-sm font-medium text-gray-700 mb-2">Catégorie</label>
+              <select
+                value={selectedCategory}
+                onChange={(e) => setSelectedCategory(e.target.value)}
+                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-primary-500 focus:border-primary-500"
+              >
+                {categories.map((category) => (
+                  <option key={category.value} value={category.value}>
+                    {category.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
+        </div>
+
+        {/* KPI Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+          {/* Chiffre d'Affaires */}
+          <div className="bg-white rounded-lg shadow-sm p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-gray-600">Chiffre d'Affaires</p>
+                <p className="text-3xl font-bold text-gray-900">{formatCurrency(stats.totalSales)}</p>
+                <p className="text-sm text-green-600 flex items-center mt-1">
+                  <TrendingUp className="w-4 h-4 mr-1" />
+                  +12.5% vs période précédente
+                </p>
+              </div>
+              <div className="p-3 bg-green-100 rounded-full">
+                <DollarSign className="w-6 h-6 text-green-600" />
+              </div>
+            </div>
+          </div>
+
+
+          {/* Produits Vendus */}
+          <div className="bg-white rounded-lg shadow-sm p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-gray-600">Produits Vendus</p>
+                <p className="text-3xl font-bold text-gray-900">{formatNumber(stats.totalProductsSold)}</p>
+                <p className="text-sm text-gray-500">Unités vendues</p>
+              </div>
+              <div className="p-3 bg-purple-100 rounded-full">
+                <ShoppingCart className="w-6 h-6 text-purple-600" />
+              </div>
+            </div>
+          </div>
+
+          {/* Stock Restant */}
+          <div className="bg-white rounded-lg shadow-sm p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-gray-600">Stock Restant</p>
+                <p className="text-3xl font-bold text-gray-900">{formatNumber(stats.totalProductsRemaining)}</p>
+                <p className="text-sm text-green-600">En stock</p>
+              </div>
+              <div className="p-3 bg-orange-100 rounded-full">
+                <Package className="w-6 h-6 text-orange-600" />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Charts and Tables */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          {/* Ventes par Période */}
+          <div className="bg-white rounded-lg shadow-sm p-6">
+            <div className="flex items-center justify-between mb-6">
+              <h3 className="text-lg font-semibold text-gray-900 flex items-center">
+                <BarChart3 className="w-5 h-5 mr-2" />
+                Ventes par Période
+              </h3>
+            </div>
+            
+            <div className="space-y-4">
+              {stats.monthlySales.length > 0 ? (
+                stats.monthlySales.map((month, index) => (
+                  <div key={index} className="border-l-4 border-primary-500 pl-4">
+                    <p className="font-medium text-gray-900">{month.month}</p>
+                    <p className="text-sm text-gray-600">
+                      {formatNumber(month.products)} produits vendus
+                    </p>
+                    <p className="text-lg font-semibold text-primary-600">
+                      {formatCurrency(month.sales)}
+                    </p>
+                  </div>
+                ))
+              ) : (
+                <div className="text-center py-8 text-gray-500">
+                  <BarChart3 className="w-12 h-12 mx-auto mb-4 text-gray-300" />
+                  <p>Aucune donnée de vente pour cette période</p>
                 </div>
-                <div className="space-y-1">
-                  <div className="flex justify-between text-sm">
-                    <span className="text-gray-600">Stock actuel:</span>
-                    <span className="font-semibold text-red-600">{product.remaining}</span>
-                  </div>
-                  <div className="flex justify-between text-sm">
-                    <span className="text-gray-600">Stock minimum:</span>
-                    <span className="font-semibold">{product.minStock}</span>
-                  </div>
-                  <div className="mt-2">
-                    <div className="w-full bg-gray-200 rounded-full h-2">
-                      <div 
-                        className="bg-red-500 h-2 rounded-full" 
-                        style={{ width: `${(product.remaining / product.minStock) * 100}%` }}
-                      ></div>
+              )}
+            </div>
+          </div>
+
+          {/* Top Produits Vendus */}
+          <div className="bg-white rounded-lg shadow-sm p-6">
+            <div className="flex items-center justify-between mb-6">
+              <h3 className="text-lg font-semibold text-gray-900 flex items-center">
+                <TrendingUp className="w-5 h-5 mr-2" />
+                Top Produits Vendus
+              </h3>
+            </div>
+            
+            <div className="space-y-4">
+              {stats.topProducts.length > 0 ? (
+                stats.topProducts.map((product, index) => (
+                  <div key={index} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                    <div className="flex-1">
+                      <p className="font-medium text-gray-900">{product.name}</p>
+                      <p className="text-sm text-gray-600">
+                        Vendus: {formatNumber(product.sold)} | Restants: {formatNumber(product.remaining)}
+                      </p>
+                    </div>
+                    <div className="text-right">
+                      <p className="font-semibold text-primary-600">
+                        {formatCurrency(product.sales)}
+                      </p>
+                      <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${
+                        product.category === 'construction' 
+                          ? 'bg-orange-100 text-orange-800' 
+                          : 'bg-blue-100 text-blue-800'
+                      }`}>
+                        {product.category === 'construction' ? 'Matériaux de Construction' : 'Électronique'}
+                      </span>
                     </div>
                   </div>
+                ))
+              ) : (
+                <div className="text-center py-8 text-gray-500">
+                  <TrendingUp className="w-12 h-12 mx-auto mb-4 text-gray-300" />
+                  <p>Aucun produit vendu pour cette période</p>
                 </div>
-              </div>
-            ))}
+              )}
+            </div>
           </div>
         </div>
-      )}
 
-      {/* Mouvements récents */}
-      <div className="bg-white p-6 rounded-lg shadow-sm border">
-        <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
-          <Activity className="h-5 w-5 mr-2" />
-          Mouvements Récents
-        </h3>
-        <div className="space-y-3">
-          {filteredStats.recentMovements.map((movement, index) => (
-            <div key={index} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-              <div className="flex items-center">
-                <div className={`p-2 rounded-lg ${movement.type === 'in' ? 'bg-green-100' : 'bg-red-100'}`}>
-                  {movement.type === 'in' ? (
-                    <TrendingUp className="h-4 w-4 text-green-600" />
-                  ) : (
-                    <TrendingDown className="h-4 w-4 text-red-600" />
-                  )}
-                </div>
-                <div className="ml-3">
-                  <p className="font-medium text-gray-900">{movement.product}</p>
-                  <p className="text-sm text-gray-600">{movement.reason}</p>
-                </div>
-              </div>
-              <div className="text-right">
-                <p className={`font-semibold ${movement.type === 'in' ? 'text-green-600' : 'text-red-600'}`}>
-                  {movement.type === 'in' ? '+' : '-'}{movement.quantity}
-                </p>
-                <p className="text-sm text-gray-500">{movement.time}</p>
+        {/* Additional Stats */}
+        {stats.categoryStats.length > 0 && (
+          <div className="mt-8">
+            <div className="bg-white rounded-lg shadow-sm p-6">
+              <h3 className="text-lg font-semibold text-gray-900 mb-6 flex items-center">
+                <PieChart className="w-5 h-5 mr-2" />
+                Statistiques par Catégorie
+              </h3>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {stats.categoryStats.map((category, index) => (
+                  <div key={index} className="border rounded-lg p-4">
+                    <div className="flex items-center justify-between mb-4">
+                      <h4 className="font-medium text-gray-900">{category.name}</h4>
+                      <span className={`px-2 py-1 text-xs font-medium rounded-full ${category.color}`}>
+                        {category.category}
+                      </span>
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <div className="flex justify-between">
+                        <span className="text-sm text-gray-600">Ventes:</span>
+                        <span className="font-semibold">{formatCurrency(category.totalSales)}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-sm text-gray-600">Vendus:</span>
+                        <span className="font-semibold">{formatNumber(category.productsSold)}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-sm text-gray-600">En stock:</span>
+                        <span className="font-semibold">{formatNumber(category.productsRemaining)}</span>
+                      </div>
+                    </div>
+                  </div>
+                ))}
               </div>
             </div>
-          ))}
-        </div>
-      </div>
-
-      {loading && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white p-6 rounded-lg flex items-center gap-3">
-            <RefreshCw className="h-6 w-6 animate-spin text-blue-600" />
-            <span className="text-gray-700">Chargement des données...</span>
           </div>
-        </div>
-      )}
+        )}
+
+        {/* Low Stock Alert */}
+        {stats.lowStockProducts.length > 0 && (
+          <div className="mt-8">
+            <div className="bg-white rounded-lg shadow-sm p-6">
+              <h3 className="text-lg font-semibold text-gray-900 mb-6 flex items-center">
+                <AlertTriangle className="w-5 h-5 mr-2 text-red-500" />
+                Produits en Rupture de Stock
+              </h3>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {stats.lowStockProducts.map((product, index) => (
+                  <div key={index} className="border border-red-200 rounded-lg p-4 bg-red-50">
+                    <div className="flex items-center justify-between mb-2">
+                      <h4 className="font-medium text-gray-900">{product.name}</h4>
+                      <span className="text-xs font-medium text-red-600">Stock faible</span>
+                    </div>
+                    
+                    <div className="space-y-1">
+                      <div className="flex justify-between">
+                        <span className="text-sm text-gray-600">Stock actuel:</span>
+                        <span className="font-semibold text-red-600">{formatNumber(product.remaining)}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-sm text-gray-600">Stock minimum:</span>
+                        <span className="font-semibold">{formatNumber(product.minStock)}</span>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Recent Movements */}
+        {stats.recentMovements.length > 0 && (
+          <div className="mt-8">
+            <div className="bg-white rounded-lg shadow-sm p-6">
+              <h3 className="text-lg font-semibold text-gray-900 mb-6 flex items-center">
+                <Activity className="w-5 h-5 mr-2" />
+                Mouvements Récents
+              </h3>
+              
+              <div className="space-y-3">
+                {stats.recentMovements.map((movement, index) => (
+                  <div key={index} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                    <div className="flex items-center space-x-3">
+                      <div className={`w-2 h-2 rounded-full ${
+                        movement.type === 'in' ? 'bg-green-500' : 'bg-red-500'
+                      }`}></div>
+                      <div>
+                        <p className="font-medium text-gray-900">{movement.product}</p>
+                        <p className="text-sm text-gray-600">{movement.reason}</p>
+                      </div>
+                    </div>
+                    
+                    <div className="text-right">
+                      <p className="font-semibold text-gray-900">
+                        {movement.type === 'in' ? '+' : '-'}{movement.quantity}
+                      </p>
+                      <p className="text-sm text-gray-500">{movement.time}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
     </div>
   );
 };
 
-export default StockControl;
+export default StockControlReal;

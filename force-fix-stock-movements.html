@@ -1,0 +1,536 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Force Fix - Mouvements de Stock</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1000px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .button {
+            background: #007bff;
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 10px 5px;
+        }
+        .button:hover {
+            background: #0056b3;
+        }
+        .success {
+            background: #28a745;
+        }
+        .success:hover {
+            background: #218838;
+        }
+        .danger {
+            background: #dc3545;
+        }
+        .danger:hover {
+            background: #c82333;
+        }
+        .warning {
+            background: #ffc107;
+            color: #212529;
+        }
+        .warning:hover {
+            background: #e0a800;
+        }
+        .log {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 5px;
+            padding: 15px;
+            margin: 20px 0;
+            font-family: monospace;
+            white-space: pre-wrap;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        .section {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 5px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+        .status {
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+        .status.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .status.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .status.warning {
+            background: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeaa7;
+        }
+        .stats-display {
+            background: white;
+            border: 2px solid #dee2e6;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 15px 0;
+            text-align: center;
+        }
+        .stats-number {
+            font-size: 2em;
+            font-weight: bold;
+            color: #007bff;
+        }
+        .stats-label {
+            color: #6c757d;
+            margin-top: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔧 Force Fix - Mouvements de Stock</h1>
+        <p><strong>Solution directe pour corriger définitivement le problème des mouvements de stock qui affichent des zéros.</strong></p>
+        
+        <div id="status" class="status warning">
+            Prêt à forcer la correction...
+        </div>
+        
+        <div class="section">
+            <h2>📊 État Actuel</h2>
+            <button class="button" onclick="checkCurrentState()">Vérifier l'état actuel</button>
+            <button class="button" onclick="showProductsAndSales()">Afficher produits et ventes</button>
+            <div id="current" class="log"></div>
+        </div>
+        
+        <div class="section">
+            <h2>🔧 Correction Forcée</h2>
+            <button class="button success" onclick="forceFixStockMovements()">FORCER LA CORRECTION</button>
+            <button class="button warning" onclick="createAllMovements()">Créer tous les mouvements</button>
+            <button class="button" onclick="syncWithSales()">Synchroniser avec les ventes</button>
+            <div id="fix" class="log"></div>
+        </div>
+        
+        <div class="section">
+            <h2>📈 Statistiques Après Correction</h2>
+            <button class="button" onclick="showCorrectedStats()">Afficher les statistiques</button>
+            <div id="stats" class="log"></div>
+        </div>
+        
+        <div class="section">
+            <h2>🧪 Test Final</h2>
+            <button class="button success" onclick="finalTest()">Test final</button>
+            <button class="button" onclick="goToStockMovement()">Aller aux mouvements de stock</button>
+            <div id="test" class="log"></div>
+        </div>
+    </div>
+
+    <script>
+        function log(message, targetId = 'current') {
+            const logElement = document.getElementById(targetId);
+            const timestamp = new Date().toLocaleTimeString();
+            logElement.textContent += `[${timestamp}] ${message}\n`;
+            logElement.scrollTop = logElement.scrollHeight;
+        }
+
+        function updateStatus(message, type = 'warning') {
+            const statusElement = document.getElementById('status');
+            statusElement.textContent = message;
+            statusElement.className = `status ${type}`;
+        }
+
+        function checkCurrentState() {
+            log('🔍 VÉRIFICATION DE L\'ÉTAT ACTUEL');
+            log('='.repeat(40));
+            
+            const products = JSON.parse(localStorage.getItem('koula_products') || '[]');
+            const sales = JSON.parse(localStorage.getItem('salesData') || '[]');
+            const movements = JSON.parse(localStorage.getItem('stockMovements') || '[]');
+            
+            log(`📦 Produits: ${products.length}`);
+            log(`💰 Ventes: ${sales.length}`);
+            log(`📊 Mouvements: ${movements.length}`);
+            
+            if (products.length > 0) {
+                log('\nProduits trouvés:');
+                products.forEach((product, index) => {
+                    log(`  ${index + 1}. ${product.name} - Stock: ${product.stock || 0} - Type: ${product.productType || 'N/A'}`);
+                });
+            }
+            
+            if (sales.length > 0) {
+                log('\nVentes trouvées:');
+                sales.forEach((sale, index) => {
+                    log(`  ${index + 1}. ${sale.productName || 'Produit inconnu'} - Quantité: ${sale.quantity || 1} - Prix: ${sale.totalPrice || sale.amount || 'N/A'} FG`);
+                });
+            }
+            
+            if (movements.length > 0) {
+                log('\nMouvements trouvés:');
+                movements.forEach((movement, index) => {
+                    log(`  ${index + 1}. ${movement.productName || 'Produit inconnu'} - ${movement.type === 'in' ? 'Entrée' : 'Sortie'} - Quantité: ${movement.quantity}`);
+                });
+            } else {
+                log('\n❌ PROBLÈME: Aucun mouvement de stock trouvé!');
+                log('💡 SOLUTION: Créer des mouvements pour tous les produits et ventes');
+            }
+        }
+
+        function showProductsAndSales() {
+            log('📦 PRODUITS ET VENTES DÉTAILLÉS:', 'current');
+            log('='.repeat(40), 'current');
+            
+            const products = JSON.parse(localStorage.getItem('koula_products') || '[]');
+            const sales = JSON.parse(localStorage.getItem('salesData') || '[]');
+            
+            log(`\nPRODUITS (${products.length}):`, 'current');
+            products.forEach((product, index) => {
+                log(`\n${index + 1}. ${product.name}`, 'current');
+                log(`   ID: ${product._id}`, 'current');
+                log(`   Stock: ${product.stock || 0}`, 'current');
+                log(`   Prix: ${product.price || 0} FG`, 'current');
+                log(`   Type: ${product.productType || 'N/A'}`, 'current');
+                log(`   Catégorie: ${product.category || 'N/A'}`, 'current');
+                log(`   Créé: ${product.createdAt ? new Date(product.createdAt).toLocaleString() : 'N/A'}`, 'current');
+            });
+            
+            log(`\nVENTES (${sales.length}):`, 'current');
+            sales.forEach((sale, index) => {
+                log(`\n${index + 1}. ${sale.productName || 'Produit inconnu'}`, 'current');
+                log(`   Client: ${sale.customerName || 'N/A'}`, 'current');
+                log(`   Quantité: ${sale.quantity || 1}`, 'current');
+                log(`   Prix unitaire: ${sale.unitPrice || sale.price || 'N/A'} FG`, 'current');
+                log(`   Prix total: ${sale.totalPrice || sale.amount || 'N/A'} FG`, 'current');
+                log(`   Statut: ${sale.status || 'N/A'}`, 'current');
+                log(`   Date: ${sale.createdAt ? new Date(sale.createdAt).toLocaleString() : 'N/A'}`, 'current');
+            });
+        }
+
+        function forceFixStockMovements() {
+            log('🔧 CORRECTION FORCÉE DES MOUVEMENTS DE STOCK:', 'fix');
+            log('='.repeat(50), 'fix');
+            
+            try {
+                const products = JSON.parse(localStorage.getItem('koula_products') || '[]');
+                const sales = JSON.parse(localStorage.getItem('salesData') || '[]');
+                const existingMovements = JSON.parse(localStorage.getItem('stockMovements') || '[]');
+                
+                log(`📦 ${products.length} produits trouvés`, 'fix');
+                log(`💰 ${sales.length} ventes trouvées`, 'fix');
+                log(`📊 ${existingMovements.length} mouvements existants`, 'fix');
+                
+                // 1. Créer des mouvements initiaux pour tous les produits
+                const initialMovements = [];
+                products.forEach(product => {
+                    // Vérifier si le produit a déjà des mouvements
+                    const hasMovements = existingMovements.some(m => m.productId === product._id);
+                    
+                    if (!hasMovements && product.stock > 0) {
+                        const initialMovement = {
+                            _id: 'initial-' + product._id + '-' + Date.now(),
+                            productId: product._id,
+                            productName: product.name,
+                            type: 'in',
+                            quantity: product.stock,
+                            reason: 'Stock initial',
+                            category: product.productType || 'construction',
+                            notes: 'Mouvement initial créé automatiquement',
+                            date: product.createdAt || new Date().toISOString(),
+                            createdAt: new Date().toISOString(),
+                            reference: 'INIT-' + product._id.substring(0, 8).toUpperCase()
+                        };
+                        initialMovements.push(initialMovement);
+                    }
+                });
+                
+                log(`✅ ${initialMovements.length} mouvements initiaux créés`, 'fix');
+                
+                // 2. Créer des mouvements de sortie pour toutes les ventes
+                const salesMovements = [];
+                sales.forEach(sale => {
+                    // Trouver le produit correspondant
+                    const product = products.find(p => 
+                        p.name === sale.productName || 
+                        p._id === sale.productId ||
+                        p.name.toLowerCase().includes((sale.productName || '').toLowerCase())
+                    );
+                    
+                    if (product) {
+                        const salesMovement = {
+                            _id: 'sale-' + sale._id + '-' + Date.now(),
+                            productId: product._id,
+                            productName: product.name,
+                            type: 'out',
+                            quantity: sale.quantity || 1,
+                            reason: 'Vente client',
+                            category: product.productType || 'construction',
+                            notes: `Vente à ${sale.customerName || 'client inconnu'}`,
+                            date: sale.createdAt || new Date().toISOString(),
+                            createdAt: new Date().toISOString(),
+                            reference: 'SALE-' + sale._id.substring(0, 8).toUpperCase(),
+                            saleId: sale._id
+                        };
+                        salesMovements.push(salesMovement);
+                    } else {
+                        log(`⚠️  Produit non trouvé pour la vente: ${sale.productName}`, 'fix');
+                    }
+                });
+                
+                log(`✅ ${salesMovements.length} mouvements de vente créés`, 'fix');
+                
+                // 3. Combiner tous les mouvements
+                const allMovements = [...existingMovements, ...initialMovements, ...salesMovements];
+                
+                // 4. Nettoyer les doublons
+                const uniqueMovements = allMovements.filter((movement, index, self) => 
+                    index === self.findIndex(m => m._id === movement._id)
+                );
+                
+                // 5. Sauvegarder
+                localStorage.setItem('stockMovements', JSON.stringify(uniqueMovements));
+                
+                log(`✅ ${uniqueMovements.length} mouvements totaux sauvegardés`, 'fix');
+                log(`✅ Correction forcée terminée avec succès!`, 'fix');
+                
+                updateStatus('✅ Correction forcée appliquée', 'success');
+                
+            } catch (error) {
+                log(`❌ Erreur: ${error.message}`, 'fix');
+                updateStatus('❌ Erreur lors de la correction', 'error');
+            }
+        }
+
+        function createAllMovements() {
+            log('➕ CRÉATION DE TOUS LES MOUVEMENTS:', 'fix');
+            
+            const products = JSON.parse(localStorage.getItem('koula_products') || '[]');
+            const sales = JSON.parse(localStorage.getItem('salesData') || '[]');
+            
+            if (products.length === 0) {
+                log('❌ Aucun produit trouvé. Ajoutez des produits d\'abord.', 'fix');
+                return;
+            }
+            
+            const movements = [];
+            
+            // Créer un mouvement initial pour chaque produit
+            products.forEach(product => {
+                const initialMovement = {
+                    _id: 'initial-' + product._id + '-' + Date.now(),
+                    productId: product._id,
+                    productName: product.name,
+                    type: 'in',
+                    quantity: product.stock || 0,
+                    reason: 'Stock initial',
+                    category: product.productType || 'construction',
+                    notes: 'Mouvement initial créé automatiquement',
+                    date: product.createdAt || new Date().toISOString(),
+                    createdAt: new Date().toISOString()
+                };
+                movements.push(initialMovement);
+            });
+            
+            // Créer un mouvement de sortie pour chaque vente
+            sales.forEach(sale => {
+                const product = products.find(p => 
+                    p.name === sale.productName || 
+                    p._id === sale.productId
+                );
+                
+                if (product) {
+                    const salesMovement = {
+                        _id: 'sale-' + sale._id + '-' + Date.now(),
+                        productId: product._id,
+                        productName: product.name,
+                        type: 'out',
+                        quantity: sale.quantity || 1,
+                        reason: 'Vente client',
+                        category: product.productType || 'construction',
+                        notes: `Vente à ${sale.customerName || 'client inconnu'}`,
+                        date: sale.createdAt || new Date().toISOString(),
+                        createdAt: new Date().toISOString()
+                    };
+                    movements.push(salesMovement);
+                }
+            });
+            
+            localStorage.setItem('stockMovements', JSON.stringify(movements));
+            
+            log(`✅ ${movements.length} mouvements créés (${products.length} initiaux + ${sales.length} ventes)`, 'fix');
+            updateStatus('Mouvements créés', 'success');
+        }
+
+        function syncWithSales() {
+            log('🔄 SYNCHRONISATION AVEC LES VENTES:', 'fix');
+            
+            const products = JSON.parse(localStorage.getItem('koula_products') || '[]');
+            const sales = JSON.parse(localStorage.getItem('salesData') || '[]');
+            const movements = JSON.parse(localStorage.getItem('stockMovements') || '[]');
+            
+            // Vérifier quelles ventes n'ont pas de mouvements correspondants
+            const salesWithoutMovements = sales.filter(sale => 
+                !movements.some(m => m.saleId === sale._id || 
+                    (m.type === 'out' && m.reason === 'Vente client' && 
+                     m.productName === sale.productName && 
+                     m.quantity === (sale.quantity || 1)))
+            );
+            
+            if (salesWithoutMovements.length > 0) {
+                log(`📊 ${salesWithoutMovements.length} ventes sans mouvements trouvées`, 'fix');
+                
+                const newMovements = salesWithoutMovements.map(sale => {
+                    const product = products.find(p => 
+                        p.name === sale.productName || p._id === sale.productId
+                    );
+                    
+                    if (product) {
+                        return {
+                            _id: 'sync-sale-' + sale._id + '-' + Date.now(),
+                            productId: product._id,
+                            productName: product.name,
+                            type: 'out',
+                            quantity: sale.quantity || 1,
+                            reason: 'Vente client',
+                            category: product.productType || 'construction',
+                            notes: `Vente synchronisée - ${sale.customerName || 'client inconnu'}`,
+                            date: sale.createdAt || new Date().toISOString(),
+                            createdAt: new Date().toISOString(),
+                            saleId: sale._id
+                        };
+                    }
+                    return null;
+                }).filter(Boolean);
+                
+                const allMovements = [...movements, ...newMovements];
+                localStorage.setItem('stockMovements', JSON.stringify(allMovements));
+                
+                log(`✅ ${newMovements.length} mouvements de vente synchronisés`, 'fix');
+                updateStatus('Synchronisation terminée', 'success');
+            } else {
+                log('✅ Toutes les ventes ont déjà des mouvements correspondants', 'fix');
+                updateStatus('Synchronisation déjà à jour', 'success');
+            }
+        }
+
+        function showCorrectedStats() {
+            log('📈 STATISTIQUES APRÈS CORRECTION:', 'stats');
+            log('='.repeat(40), 'stats');
+            
+            const movements = JSON.parse(localStorage.getItem('stockMovements') || '[]');
+            
+            if (movements.length === 0) {
+                log('❌ Aucun mouvement trouvé après correction', 'stats');
+                return;
+            }
+            
+            // Calculer les statistiques
+            const inMovements = movements.filter(m => m.type === 'in');
+            const outMovements = movements.filter(m => m.type === 'out');
+            
+            const totalIn = inMovements.reduce((sum, m) => sum + (m.quantity || 0), 0);
+            const totalOut = outMovements.reduce((sum, m) => sum + (m.quantity || 0), 0);
+            
+            const constructionMovements = movements.filter(m => m.category === 'construction');
+            const electronicsMovements = movements.filter(m => m.category === 'electronics');
+            
+            const constructionIn = constructionMovements.filter(m => m.type === 'in').reduce((sum, m) => sum + (m.quantity || 0), 0);
+            const constructionOut = constructionMovements.filter(m => m.type === 'out').reduce((sum, m) => sum + (m.quantity || 0), 0);
+            
+            const electronicsIn = electronicsMovements.filter(m => m.type === 'in').reduce((sum, m) => sum + (m.quantity || 0), 0);
+            const electronicsOut = electronicsMovements.filter(m => m.type === 'out').reduce((sum, m) => sum + (m.quantity || 0), 0);
+            
+            log(`🎯 RÉSULTATS:`, 'stats');
+            log(``, 'stats');
+            log(`📊 ENTrées TOTAL: ${totalIn}`, 'stats');
+            log(`📊 SORTIES TOTAL: ${totalOut}`, 'stats');
+            log(`📊 STOCK TOTAL ACTUEL: ${totalIn - totalOut}`, 'stats');
+            log(`📊 MOUVEMENTS TOTAL: ${movements.length}`, 'stats');
+            log(``, 'stats');
+            log(`🏗️  CONSTRUCTION:`, 'stats');
+            log(`   Entrées: ${constructionIn}`, 'stats');
+            log(`   Sorties: ${constructionOut}`, 'stats');
+            log(`   Stock actuel: ${constructionIn - constructionOut}`, 'stats');
+            log(`   Produits: ${new Set(constructionMovements.map(m => m.productId)).size}`, 'stats');
+            log(``, 'stats');
+            log(`⚡ ÉLECTRONIQUE:`, 'stats');
+            log(`   Entrées: ${electronicsIn}`, 'stats');
+            log(`   Sorties: ${electronicsOut}`, 'stats');
+            log(`   Stock actuel: ${electronicsIn - electronicsOut}`, 'stats');
+            log(`   Produits: ${new Set(electronicsMovements.map(m => m.productId)).size}`, 'stats');
+            
+            // Afficher quelques exemples de mouvements
+            log(``, 'stats');
+            log(`📋 EXEMPLES DE MOUVEMENTS:`, 'stats');
+            movements.slice(0, 5).forEach((movement, index) => {
+                log(`   ${index + 1}. ${movement.productName} - ${movement.type === 'in' ? 'Entrée' : 'Sortie'} - ${movement.quantity} - ${movement.reason}`, 'stats');
+            });
+        }
+
+        function finalTest() {
+            log('🧪 TEST FINAL:', 'test');
+            log('='.repeat(25), 'test');
+            
+            const products = JSON.parse(localStorage.getItem('koula_products') || '[]');
+            const sales = JSON.parse(localStorage.getItem('salesData') || '[]');
+            const movements = JSON.parse(localStorage.getItem('stockMovements') || '[]');
+            
+            log(`Produits: ${products.length}`, 'test');
+            log(`Ventes: ${sales.length}`, 'test');
+            log(`Mouvements: ${movements.length}`, 'test');
+            
+            if (movements.length > 0) {
+                const inMovements = movements.filter(m => m.type === 'in');
+                const outMovements = movements.filter(m => m.type === 'out');
+                
+                const totalIn = inMovements.reduce((sum, m) => sum + (m.quantity || 0), 0);
+                const totalOut = outMovements.reduce((sum, m) => sum + (m.quantity || 0), 0);
+                
+                log(`Entrées: ${totalIn}`, 'test');
+                log(`Sorties: ${totalOut}`, 'test');
+                log(`Stock actuel: ${totalIn - totalOut}`, 'test');
+                
+                if (totalIn > 0 || totalOut > 0) {
+                    log('✅ TEST RÉUSSI - Les mouvements de stock fonctionnent!', 'test');
+                    updateStatus('✅ Test réussi - Mouvements de stock fonctionnels', 'success');
+                } else {
+                    log('❌ TEST ÉCHOUÉ - Toujours des zéros', 'test');
+                    updateStatus('❌ Test échoué', 'error');
+                }
+            } else {
+                log('❌ TEST ÉCHOUÉ - Aucun mouvement trouvé', 'test');
+                updateStatus('❌ Test échoué - Aucun mouvement', 'error');
+            }
+        }
+
+        function goToStockMovement() {
+            window.location.href = 'http://localhost:3002/admin/stock-movements';
+        }
+
+        // Diagnostic automatique au chargement
+        window.onload = function() {
+            log('🚀 Page de correction forcée chargée');
+            checkCurrentState();
+        };
+    </script>
+</body>
+</html>

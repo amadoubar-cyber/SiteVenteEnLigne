@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test des Images</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+        }
+        .image-test {
+            margin: 20px 0;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            background: #f9f9f9;
+        }
+        .image-test h3 {
+            margin-top: 0;
+            color: #555;
+        }
+        .image-container {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+            margin: 10px 0;
+        }
+        .image-item {
+            text-align: center;
+        }
+        .image-item img {
+            width: 100px;
+            height: 100px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            object-fit: cover;
+        }
+        .image-item p {
+            margin: 5px 0 0 0;
+            font-size: 12px;
+            color: #666;
+        }
+        .status {
+            padding: 5px 10px;
+            border-radius: 3px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        .success { background: #d4edda; color: #155724; }
+        .error { background: #f8d7da; color: #721c24; }
+        .info { background: #d1ecf1; color: #0c5460; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧪 Test des Images Base64</h1>
+        
+        <div class="image-test">
+            <h3>1. Images de Test Encodées en Base64</h3>
+            <div class="image-container">
+                <div class="image-item">
+                    <img id="test1" src="" alt="Test Image 1" onload="showStatus('test1', 'success')" onerror="showStatus('test1', 'error')">
+                    <p>Test Image 1</p>
+                    <div id="status1" class="status info">Chargement...</div>
+                </div>
+                <div class="image-item">
+                    <img id="test2" src="" alt="Test Image 2" onload="showStatus('test2', 'success')" onerror="showStatus('test2', 'error')">
+                    <p>Test Image 2</p>
+                    <div id="status2" class="status info">Chargement...</div>
+                </div>
+                <div class="image-item">
+                    <img id="placeholder" src="" alt="Placeholder" onload="showStatus('placeholder', 'success')" onerror="showStatus('placeholder', 'error')">
+                    <p>Placeholder</p>
+                    <div id="status3" class="status info">Chargement...</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="image-test">
+            <h3>2. Test des Images depuis localStorage</h3>
+            <div id="localStorageImages" class="image-container">
+                <p>Chargement des produits depuis localStorage...</p>
+            </div>
+        </div>
+
+        <div class="image-test">
+            <h3>3. Test des Images depuis products-data.json</h3>
+            <div id="jsonImages" class="image-container">
+                <p>Chargement des produits depuis products-data.json...</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Images de test encodées en base64
+        const TEST_IMAGES = {
+            'test-image-1': 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KICA8cmVjdCB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgZmlsbD0iIzYwQTVGQSIvPgogIDx0ZXh0IHg9IjUwJSIgeT0iNTAlIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iMTYiIGZpbGw9IiNGRkZGRkYiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGR5PSIuM2VtIj5JTUFHRSAxPC90ZXh0Pgo8L3N2Zz4K',
+            'test-image-2': 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KICA8cmVjdCB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgZmlsbD0iIzM0RDM5OSIvPgogIDx0ZXh0IHg9IjUwJSIgeT0iNTAlIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iMTYiIGZpbGw9IiNGRkZGRkYiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGR5PSIuM2VtIj5JTUFHRSAyPC90ZXh0Pgo8L3N2Zz4K',
+            'placeholder': 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KICA8cmVjdCB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgZmlsbD0iI0NDQ0NDQyIvPgogIDx0ZXh0IHg9IjUwJSIgeT0iNTAlIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iMTIiIGZpbGw9IiM2NjY2NjYiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGR5PSIuM2VtIj5QQVMgRCdJTUFHRTwvdGV4dD4KPC9zdmc+Cg=='
+        };
+
+        function showStatus(imageId, status) {
+            const statusElement = document.getElementById('status' + imageId.replace('test', '').replace('placeholder', '3'));
+            if (statusElement) {
+                statusElement.textContent = status === 'success' ? '✅ Chargé' : '❌ Erreur';
+                statusElement.className = 'status ' + status;
+            }
+        }
+
+        function createImageItem(product, index) {
+            const imageUrl = product.images && product.images[0] ? product.images[0] : TEST_IMAGES.placeholder;
+            return `
+                <div class="image-item">
+                    <img src="${imageUrl}" alt="${product.name}" onload="showProductStatus(${index}, 'success')" onerror="showProductStatus(${index}, 'error')">
+                    <p>${product.name}</p>
+                    <div id="productStatus${index}" class="status info">Chargement...</div>
+                </div>
+            `;
+        }
+
+        function showProductStatus(index, status) {
+            const statusElement = document.getElementById('productStatus' + index);
+            if (statusElement) {
+                statusElement.textContent = status === 'success' ? '✅ Chargé' : '❌ Erreur';
+                statusElement.className = 'status ' + status;
+            }
+        }
+
+        // Charger les images de test
+        document.getElementById('test1').src = TEST_IMAGES['test-image-1'];
+        document.getElementById('test2').src = TEST_IMAGES['test-image-2'];
+        document.getElementById('placeholder').src = TEST_IMAGES['placeholder'];
+
+        // Charger les produits depuis localStorage
+        try {
+            const adminProducts = JSON.parse(localStorage.getItem('adminProducts') || '[]');
+            const localStorageContainer = document.getElementById('localStorageImages');
+            
+            if (adminProducts.length > 0) {
+                localStorageContainer.innerHTML = adminProducts.map((product, index) => createImageItem(product, index)).join('');
+            } else {
+                localStorageContainer.innerHTML = '<p>Aucun produit trouvé dans localStorage</p>';
+            }
+        } catch (error) {
+            document.getElementById('localStorageImages').innerHTML = '<p>Erreur lors du chargement depuis localStorage: ' + error.message + '</p>';
+        }
+
+        // Charger les produits depuis products-data.json
+        fetch('/products-data.json')
+            .then(response => response.json())
+            .then(data => {
+                const jsonContainer = document.getElementById('jsonImages');
+                if (data.products && data.products.length > 0) {
+                    jsonContainer.innerHTML = data.products.map((product, index) => createImageItem(product, index + 100)).join('');
+                } else {
+                    jsonContainer.innerHTML = '<p>Aucun produit trouvé dans products-data.json</p>';
+                }
+            })
+            .catch(error => {
+                document.getElementById('jsonImages').innerHTML = '<p>Erreur lors du chargement depuis products-data.json: ' + error.message + '</p>';
+            });
+    </script>
+</body>
+</html>

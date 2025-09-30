@@ -1,39 +1,170 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useQuery } from 'react-query';
 import { ordersAPI, productsAPI } from '../../services/api';
-import { Package, ShoppingCart, Users, TrendingUp, DollarSign } from 'lucide-react';
+import { Package, ShoppingCart, Users, TrendingUp, DollarSign, Trash2, AlertTriangle, RefreshCw } from 'lucide-react';
+import ResetButton from '../../components/ResetButton';
+import NotificationPanel from '../../components/NotificationPanel';
+import useNotifications from '../../hooks/useNotifications';
+import useRealtimeSync from '../../hooks/useRealtimeSync';
 
 const AdminDashboard = () => {
-  const { data: orderStats } = useQuery(
+  const [isRefreshing, setIsRefreshing] = useState(false);
+  const { notifyNewOrder } = useNotifications();
+  const [lastOrderCount, setLastOrderCount] = useState(0);
+  const [syncCount, setSyncCount] = useState(0);
+
+  // Synchronisation en temps réel
+  const { forceSync, getStats } = useRealtimeSync('dashboard', (eventType, data) => {
+    console.log('🔄 Dashboard synchronisé:', eventType, data);
+    setSyncCount(prev => prev + 1);
+    
+    // Forcer le rafraîchissement des données
+    if (eventType === 'orderApproved' || eventType === 'orderRejected' || eventType === 'newOrderCreated') {
+      refetchOrderStats();
+      refetchProducts();
+      refetchOrders();
+    }
+  });
+
+  // Détecter les nouvelles commandes et envoyer des notifications
+  useEffect(() => {
+    const checkForNewOrders = () => {
+      const orders = JSON.parse(localStorage.getItem('clientOrders') || '[]');
+      const currentOrderCount = orders.length;
+      
+      if (currentOrderCount > lastOrderCount && lastOrderCount > 0) {
+        // Nouvelles commandes détectées
+        const newOrders = orders.slice(0, currentOrderCount - lastOrderCount);
+        newOrders.forEach(order => {
+          notifyNewOrder(order);
+        });
+      }
+      
+      setLastOrderCount(currentOrderCount);
+    };
+
+    // Écouter les événements de nouvelle commande
+    const handleNewOrder = (event) => {
+      const order = event.detail.order;
+      notifyNewOrder(order);
+    };
+
+    // Ajouter l'écouteur d'événement
+    window.addEventListener('newOrderCreated', handleNewOrder);
+
+    // Vérifier immédiatement
+    checkForNewOrders();
+
+    // Vérifier toutes les 5 secondes (moins fréquent car on a les événements)
+    const interval = setInterval(checkForNewOrders, 5000);
+
+    return () => {
+      window.removeEventListener('newOrderCreated', handleNewOrder);
+      clearInterval(interval);
+    };
+  }, [lastOrderCount, notifyNewOrder]);
+
+  const { data: orderStats, refetch: refetchOrderStats } = useQuery(
     'admin-order-stats',
-    () => ordersAPI.getOrderStats(),
+    () => {
+      // Charger les commandes depuis localStorage
+      const orders = JSON.parse(localStorage.getItem('clientOrders') || '[]');
+      
+      // Calculer les statistiques réelles
+      const totalOrders = orders.length;
+      const totalRevenue = orders.reduce((sum, order) => {
+        const orderTotal = order.items?.reduce((itemSum, item) => 
+          itemSum + (item.price * item.quantity), 0) || 0;
+        return sum + orderTotal;
+      }, 0);
+      const averageOrderValue = totalOrders > 0 ? totalRevenue / totalOrders : 0;
+      
+      console.log('📊 Statistiques calculées:', {
+        totalOrders,
+        totalRevenue,
+        averageOrderValue,
+        orders: orders.map(o => ({
+          id: o._id,
+          total: o.items?.reduce((sum, item) => sum + (item.price * item.quantity), 0) || 0,
+          status: o.orderStatus
+        }))
+      });
+      
+      // Statistiques par statut
+      const statusCounts = {};
+      orders.forEach(order => {
+        const status = order.orderStatus || 'pending';
+        statusCounts[status] = (statusCounts[status] || 0) + 1;
+      });
+      
+      return Promise.resolve({
+        data: {
+          data: {
+            overview: {
+              totalOrders,
+              totalRevenue,
+              averageOrderValue,
+              statusCounts
+            }
+          }
+        }
+      });
+    },
     {
-      select: (response) => response.data.data
+      select: (response) => response.data.data,
+      refetchInterval: 5000, // Actualiser toutes les 5 secondes
+      staleTime: 1000 // Considérer les données comme périmées après 1 seconde
     }
   );
 
-  const { data: productsData } = useQuery(
+  const { data: productsData, refetch: refetchProducts } = useQuery(
     'admin-products',
-    () => productsAPI.getProducts({ limit: 5, sort: 'createdAt', order: 'desc' }),
+    () => {
+      // Charger depuis localStorage pour une synchronisation immédiate
+      const localProducts = JSON.parse(localStorage.getItem('koula_products') || '[]');
+      return Promise.resolve({
+        data: {
+          data: {
+            products: localProducts.slice(0, 5)
+          }
+        }
+      });
+    },
     {
-      select: (response) => response.data.data.products
+      select: (response) => response.data.data.products,
+      refetchInterval: 3000, // Actualiser toutes les 3 secondes
+      staleTime: 1000 // Considérer les données comme périmées après 1 seconde
     }
   );
 
-  const { data: recentOrdersData } = useQuery(
+  const { data: recentOrdersData, refetch: refetchOrders } = useQuery(
     'admin-recent-orders',
-    () => ordersAPI.getAllOrders({ limit: 5, sort: 'createdAt', order: 'desc' }),
+    () => {
+      // Charger les commandes depuis localStorage
+      const orders = JSON.parse(localStorage.getItem('clientOrders') || '[]');
+      
+      // Trier par date de création (plus récentes en premier) et limiter à 5
+      const sortedOrders = orders
+        .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+        .slice(0, 5);
+      
+      return Promise.resolve({
+        data: {
+          data: {
+            orders: sortedOrders
+          }
+        }
+      });
+    },
     {
-      select: (response) => response.data.data.orders
+      select: (response) => response.data.data.orders,
+      refetchInterval: 5000, // Actualiser toutes les 5 secondes
+      staleTime: 1000 // Considérer les données comme périmées après 1 seconde
     }
   );
 
   const formatPrice = (price) => {
-    return new Intl.NumberFormat('fr-FR', {
-      style: 'currency',
-      currency: 'GNF',
-      minimumFractionDigits: 0
-    }).format(price);
+    return `${(price || 0).toLocaleString('fr-FR')} FG`;
   };
 
   const formatDate = (date) => {
@@ -72,18 +203,99 @@ const AdminDashboard = () => {
   const recentProducts = productsData || [];
   const recentOrders = recentOrdersData || [];
 
+  // Fonction pour rafraîchir les données
+  const handleRefreshData = async () => {
+    setIsRefreshing(true);
+    try {
+      // Forcer la synchronisation globale
+      forceSync();
+      
+      // Forcer le rafraîchissement de toutes les requêtes
+      await Promise.all([
+        refetchProducts(),
+        refetchOrderStats(),
+        refetchOrders()
+      ]);
+      console.log('✅ Données rafraîchies avec succès');
+    } catch (error) {
+      console.error('❌ Erreur lors du rafraîchissement:', error);
+    } finally {
+      setIsRefreshing(false);
+    }
+  };
+
+  // Fonction pour réinitialiser les données
+  const handleResetData = async () => {
+    try {
+      // Supprimer toutes les données localStorage
+      localStorage.clear();
+      
+      // Supprimer toutes les données sessionStorage
+      sessionStorage.clear();
+      
+      // Supprimer les cookies
+      document.cookie.split(";").forEach(function(c) { 
+        document.cookie = c.replace(/^ +/, "").replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/"); 
+      });
+      
+      // Attendre un peu pour que les suppressions prennent effet
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      // Recharger la page
+      window.location.reload(true);
+      
+    } catch (error) {
+      console.error('Erreur lors de la réinitialisation:', error);
+      throw error;
+    }
+  };
+
 
   const renderOverview = () => (
     <div className="min-h-screen bg-gray-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">
-            Tableau de bord
-          </h1>
-          <p className="text-gray-600">
-            Vue d'ensemble de votre boutique en ligne
-          </p>
+          <div className="flex justify-between items-start">
+            <div>
+              <h1 className="text-3xl font-bold text-gray-900 mb-2">
+                Tableau de bord
+              </h1>
+              <p className="text-gray-600">
+                Vue d'ensemble de votre boutique en ligne
+              </p>
+            </div>
+            
+            {/* Boutons d'action dans le tableau de bord */}
+            <div className="flex items-center space-x-3">
+              {/* Panneau de notifications */}
+              <NotificationPanel />
+              
+              {/* Indicateur de synchronisation */}
+              {syncCount > 0 && (
+                <div className="flex items-center px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm">
+                  <div className="w-2 h-2 bg-green-500 rounded-full mr-2 animate-pulse"></div>
+                  Sync: {syncCount}
+                </div>
+              )}
+              
+              <button
+                onClick={handleRefreshData}
+                disabled={isRefreshing}
+                className="flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors shadow-sm disabled:opacity-50"
+              >
+                <RefreshCw className={`h-5 w-5 mr-2 ${isRefreshing ? 'animate-spin' : ''}`} />
+                {isRefreshing ? 'Actualisation...' : 'Actualiser'}
+              </button>
+              
+              <ResetButton
+                onReset={handleResetData}
+                resetType="toutes les données"
+                confirmMessage="Êtes-vous sûr de vouloir réinitialiser TOUTES les données ? Cette action supprimera définitivement tous les produits, commandes, ventes, utilisateurs et paramètres. Cette action est irréversible !"
+                variant="danger"
+              />
+            </div>
+          </div>
         </div>
 
         {/* Stats Cards */}
@@ -98,6 +310,21 @@ const AdminDashboard = () => {
                 <p className="text-2xl font-bold text-gray-900">
                   {stats.totalOrders || 0}
                 </p>
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-white rounded-lg shadow-sm border p-6">
+            <div className="flex items-center">
+              <div className="w-12 h-12 bg-yellow-100 rounded-lg flex items-center justify-center">
+                <AlertTriangle className="h-6 w-6 text-yellow-600" />
+              </div>
+              <div className="ml-4">
+                <p className="text-sm font-medium text-gray-600">En Attente</p>
+                <p className="text-2xl font-bold text-gray-900">
+                  {stats.pendingApprovalOrders || 0}
+                </p>
+                <p className="text-xs text-yellow-600">À valider</p>
               </div>
             </div>
           </div>
@@ -299,6 +526,7 @@ const AdminDashboard = () => {
           </div>
         </div>
       </div>
+
     </div>
   );
 

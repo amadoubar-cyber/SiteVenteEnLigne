@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test - Données du Tableau de Bord</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        .stat-card {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 6px;
+            border-left: 4px solid #007bff;
+        }
+        .stat-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: #333;
+        }
+        .stat-label {
+            color: #666;
+            font-size: 14px;
+        }
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 10px;
+            border-radius: 4px;
+            margin: 10px 0;
+        }
+        .success {
+            background: #d4edda;
+            color: #155724;
+            padding: 10px;
+            border-radius: 4px;
+            margin: 10px 0;
+        }
+        .warning {
+            background: #fff3cd;
+            color: #856404;
+            padding: 10px;
+            border-radius: 4px;
+            margin: 10px 0;
+        }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+        .danger {
+            background: #dc3545;
+        }
+        .danger:hover {
+            background: #c82333;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 10px 0;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        .json-display {
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 4px;
+            padding: 10px;
+            font-family: monospace;
+            white-space: pre-wrap;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔍 Test - Données du Tableau de Bord</h1>
+        <p>Ce script analyse les données du localStorage et calcule les statistiques réelles du tableau de bord.</p>
+        
+        <button onclick="analyzeData()">🔍 Analyser les Données</button>
+        <button onclick="fixData()" class="danger">🔧 Corriger les Données</button>
+        <button onclick="clearAllData()" class="danger">🗑️ Vider Toutes les Données</button>
+        
+        <div id="results"></div>
+    </div>
+
+    <script>
+        function analyzeData() {
+            const resultsDiv = document.getElementById('results');
+            resultsDiv.innerHTML = '<h2>📊 Analyse des Données</h2>';
+            
+            try {
+                // Charger les données
+                const orders = JSON.parse(localStorage.getItem('clientOrders') || '[]');
+                const products = JSON.parse(localStorage.getItem('koula_products') || '[]');
+                
+                console.log('📦 Commandes trouvées:', orders.length);
+                console.log('📦 Produits trouvés:', products.length);
+                
+                // Calculer les statistiques des commandes
+                const totalOrders = orders.length;
+                const totalRevenue = orders.reduce((sum, order) => {
+                    const orderTotal = order.items?.reduce((itemSum, item) => 
+                        itemSum + (item.price * item.quantity), 0) || 0;
+                    return sum + orderTotal;
+                }, 0);
+                const averageOrderValue = totalOrders > 0 ? totalRevenue / totalOrders : 0;
+                
+                // Statistiques par statut
+                const statusCounts = {};
+                orders.forEach(order => {
+                    const status = order.orderStatus || 'pending';
+                    statusCounts[status] = (statusCounts[status] || 0) + 1;
+                });
+                
+                // Calculer les statistiques des produits
+                const totalProducts = products.length;
+                const totalStock = products.reduce((sum, product) => sum + (product.stock || 0), 0);
+                
+                // Afficher les statistiques
+                resultsDiv.innerHTML += `
+                    <div class="stats">
+                        <div class="stat-card">
+                            <div class="stat-value">${totalOrders}</div>
+                            <div class="stat-label">Commandes Total</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value">${totalRevenue.toLocaleString('fr-FR')} FG</div>
+                            <div class="stat-label">Chiffre d'Affaires</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value">${averageOrderValue.toLocaleString('fr-FR')} FG</div>
+                            <div class="stat-label">Panier Moyen</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value">${totalProducts}</div>
+                            <div class="stat-label">Produits Total</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value">${totalStock}</div>
+                            <div class="stat-label">Stock Total</div>
+                        </div>
+                    </div>
+                `;
+                
+                // Afficher les détails des commandes
+                if (orders.length > 0) {
+                    resultsDiv.innerHTML += `
+                        <h3>📋 Détails des Commandes</h3>
+                        <table>
+                            <tr>
+                                <th>ID Commande</th>
+                                <th>Client</th>
+                                <th>Total</th>
+                                <th>Statut</th>
+                                <th>Date</th>
+                            </tr>
+                            ${orders.map(order => `
+                                <tr>
+                                    <td>${order._id || 'N/A'}</td>
+                                    <td>${order.user?.firstName || ''} ${order.user?.lastName || ''}</td>
+                                    <td>${(order.items?.reduce((sum, item) => sum + (item.price * item.quantity), 0) || 0).toLocaleString('fr-FR')} FG</td>
+                                    <td>${order.orderStatus || 'pending'}</td>
+                                    <td>${new Date(order.createdAt).toLocaleDateString('fr-FR')}</td>
+                                </tr>
+                            `).join('')}
+                        </table>
+                    `;
+                }
+                
+                // Afficher les détails des produits
+                if (products.length > 0) {
+                    resultsDiv.innerHTML += `
+                        <h3>📦 Détails des Produits</h3>
+                        <table>
+                            <tr>
+                                <th>Nom</th>
+                                <th>Prix</th>
+                                <th>Stock</th>
+                                <th>Catégorie</th>
+                            </tr>
+                            ${products.map(product => `
+                                <tr>
+                                    <td>${product.name || 'N/A'}</td>
+                                    <td>${(product.price || 0).toLocaleString('fr-FR')} FG</td>
+                                    <td>${product.stock || 0}</td>
+                                    <td>${product.productType || 'N/A'}</td>
+                                </tr>
+                            `).join('')}
+                        </table>
+                    `;
+                }
+                
+                // Vérifier les incohérences
+                const issues = [];
+                
+                if (totalOrders === 0) {
+                    issues.push('Aucune commande trouvée');
+                }
+                
+                if (totalProducts === 0) {
+                    issues.push('Aucun produit trouvé');
+                }
+                
+                if (totalRevenue !== 2810000) {
+                    issues.push(`Chiffre d'affaires incorrect: ${totalRevenue} au lieu de 2810000`);
+                }
+                
+                if (totalProducts !== 2) {
+                    issues.push(`Nombre de produits incorrect: ${totalProducts} au lieu de 2`);
+                }
+                
+                // Afficher les problèmes
+                if (issues.length > 0) {
+                    resultsDiv.innerHTML += `
+                        <div class="warning">
+                            <h3>⚠️ Problèmes Détectés</h3>
+                            <ul>
+                                ${issues.map(issue => `<li>${issue}</li>`).join('')}
+                            </ul>
+                        </div>
+                    `;
+                } else {
+                    resultsDiv.innerHTML += `
+                        <div class="success">
+                            <h3>✅ Données Cohérentes</h3>
+                            <p>Toutes les données semblent correctes !</p>
+                        </div>
+                    `;
+                }
+                
+                // Afficher les données brutes
+                resultsDiv.innerHTML += `
+                    <h3>🔍 Données Brutes (localStorage)</h3>
+                    <h4>Commandes (clientOrders):</h4>
+                    <div class="json-display">${JSON.stringify(orders, null, 2)}</div>
+                    <h4>Produits (koula_products):</h4>
+                    <div class="json-display">${JSON.stringify(products, null, 2)}</div>
+                `;
+                
+            } catch (error) {
+                resultsDiv.innerHTML += `
+                    <div class="error">
+                        <h3>❌ Erreur lors de l'analyse</h3>
+                        <p>${error.message}</p>
+                    </div>
+                `;
+            }
+        }
+        
+        function fixData() {
+            const resultsDiv = document.getElementById('results');
+            resultsDiv.innerHTML = '<h2>🔧 Correction des Données</h2>';
+            
+            try {
+                // Charger les données existantes
+                const orders = JSON.parse(localStorage.getItem('clientOrders') || '[]');
+                const products = JSON.parse(localStorage.getItem('koula_products') || '[]');
+                
+                // Vérifier et corriger les produits
+                let fixedProducts = products;
+                if (products.length === 0) {
+                    resultsDiv.innerHTML += '<div class="warning">⚠️ Aucun produit trouvé - création de produits de test</div>';
+                    fixedProducts = [
+                        {
+                            _id: 'prod-1',
+                            name: 'Ciment Portland',
+                            price: 50000,
+                            stock: 5,
+                            productType: 'construction',
+                            createdAt: new Date().toISOString()
+                        },
+                        {
+                            _id: 'prod-2',
+                            name: 'Téléphone Samsung',
+                            price: 250000,
+                            stock: 3,
+                            productType: 'electronics',
+                            createdAt: new Date().toISOString()
+                        }
+                    ];
+                    localStorage.setItem('koula_products', JSON.stringify(fixedProducts));
+                }
+                
+                // Vérifier et corriger les commandes
+                let fixedOrders = orders;
+                if (orders.length === 0) {
+                    resultsDiv.innerHTML += '<div class="warning">⚠️ Aucune commande trouvée - création de commandes de test</div>';
+                    fixedOrders = [
+                        {
+                            _id: 'order-1',
+                            user: {
+                                firstName: 'Mamadou',
+                                lastName: 'Diallo',
+                                phone: '+224 123 456 789'
+                            },
+                            items: [
+                                {
+                                    product: 'prod-1',
+                                    name: 'Ciment Portland',
+                                    price: 50000,
+                                    quantity: 2
+                                }
+                            ],
+                            orderStatus: 'delivered',
+                            createdAt: new Date().toISOString(),
+                            trackingNumber: 'CMD-001'
+                        },
+                        {
+                            _id: 'order-2',
+                            user: {
+                                firstName: 'Fatou',
+                                lastName: 'Camara',
+                                phone: '+224 987 654 321'
+                            },
+                            items: [
+                                {
+                                    product: 'prod-2',
+                                    name: 'Téléphone Samsung',
+                                    price: 250000,
+                                    quantity: 1
+                                }
+                            ],
+                            orderStatus: 'pending',
+                            createdAt: new Date().toISOString(),
+                            trackingNumber: 'CMD-002'
+                        }
+                    ];
+                    localStorage.setItem('clientOrders', JSON.stringify(fixedOrders));
+                }
+                
+                // Recalculer les statistiques
+                const totalOrders = fixedOrders.length;
+                const totalRevenue = fixedOrders.reduce((sum, order) => {
+                    const orderTotal = order.items?.reduce((itemSum, item) => 
+                        itemSum + (item.price * item.quantity), 0) || 0;
+                    return sum + orderTotal;
+                }, 0);
+                
+                resultsDiv.innerHTML += `
+                    <div class="success">
+                        <h3>✅ Données Corrigées</h3>
+                        <p>Commandes: ${totalOrders}</p>
+                        <p>Chiffre d'affaires: ${totalRevenue.toLocaleString('fr-FR')} FG</p>
+                        <p>Produits: ${fixedProducts.length}</p>
+                    </div>
+                `;
+                
+                // Recharger la page pour voir les changements
+                setTimeout(() => {
+                    window.location.reload();
+                }, 2000);
+                
+            } catch (error) {
+                resultsDiv.innerHTML += `
+                    <div class="error">
+                        <h3>❌ Erreur lors de la correction</h3>
+                        <p>${error.message}</p>
+                    </div>
+                `;
+            }
+        }
+        
+        function clearAllData() {
+            if (confirm('Êtes-vous sûr de vouloir supprimer TOUTES les données ?')) {
+                localStorage.clear();
+                sessionStorage.clear();
+                document.getElementById('results').innerHTML = `
+                    <div class="success">
+                        <h3>✅ Données Supprimées</h3>
+                        <p>Toutes les données ont été supprimées. La page va se recharger.</p>
+                    </div>
+                `;
+                setTimeout(() => {
+                    window.location.reload();
+                }, 2000);
+            }
+        }
+        
+        // Analyser automatiquement au chargement
+        window.onload = function() {
+            analyzeData();
+        };
+    </script>
+</body>
+</html>

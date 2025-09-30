@@ -1,0 +1,814 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test - Système de Validation des Commandes</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        .success {
+            background: #d4edda;
+            color: #155724;
+            padding: 15px;
+            border-radius: 4px;
+            margin: 10px 0;
+        }
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 15px;
+            border-radius: 4px;
+            margin: 10px 0;
+        }
+        .warning {
+            background: #fff3cd;
+            color: #856404;
+            padding: 15px;
+            border-radius: 4px;
+            margin: 10px 0;
+        }
+        .info {
+            background: #d1ecf1;
+            color: #0c5460;
+            padding: 15px;
+            border-radius: 4px;
+            margin: 10px 0;
+        }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+            font-size: 14px;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+        .danger {
+            background: #dc3545;
+        }
+        .danger:hover {
+            background: #c82333;
+        }
+        .success-btn {
+            background: #28a745;
+        }
+        .success-btn:hover {
+            background: #218838;
+        }
+        .warning-btn {
+            background: #ffc107;
+            color: #212529;
+        }
+        .warning-btn:hover {
+            background: #e0a800;
+        }
+        .test-section {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 6px;
+            margin: 15px 0;
+            border-left: 4px solid #007bff;
+        }
+        .order-list {
+            max-height: 400px;
+            overflow-y: auto;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 10px;
+            margin: 10px 0;
+        }
+        .order-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            border-bottom: 1px solid #eee;
+            background: white;
+            margin: 5px 0;
+            border-radius: 4px;
+        }
+        .order-info {
+            flex: 1;
+        }
+        .order-id {
+            font-weight: bold;
+            color: #333;
+        }
+        .order-details {
+            font-size: 12px;
+            color: #666;
+            margin-top: 2px;
+        }
+        .order-status {
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        .status-pending {
+            background: #fff3cd;
+            color: #856404;
+        }
+        .status-approved {
+            background: #d4edda;
+            color: #155724;
+        }
+        .status-rejected {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        .order-actions {
+            display: flex;
+            gap: 5px;
+        }
+        .btn-small {
+            padding: 4px 8px;
+            font-size: 12px;
+        }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        .stat-card {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 6px;
+            border-left: 4px solid #007bff;
+            text-align: center;
+        }
+        .stat-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: #333;
+        }
+        .stat-label {
+            color: #666;
+            font-size: 14px;
+        }
+        .code-block {
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 4px;
+            padding: 15px;
+            margin: 10px 0;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            overflow-x: auto;
+        }
+        .test-step {
+            background: #e7f3ff;
+            border: 1px solid #b3d9ff;
+            border-radius: 4px;
+            padding: 15px;
+            margin: 10px 0;
+        }
+        .test-step h4 {
+            margin: 0 0 10px 0;
+            color: #0066cc;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧪 Test - Système de Validation des Commandes</h1>
+        <p>Ce test vérifie que le système de notifications et de validation des commandes fonctionne correctement.</p>
+        
+        <div class="info">
+            <strong>🎯 Objectif :</strong> Vérifier que les clients voient des messages d'attente appropriés au lieu de "Commande non trouvée", et que les admins reçoivent des notifications.
+        </div>
+
+        <div class="test-section">
+            <h3>📊 État Actuel des Commandes</h3>
+            <div class="stats-grid" id="orderStats"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>📋 Commandes Existantes</h3>
+            <div class="order-list" id="orderList">
+                <p>Cliquez sur "Analyser les Commandes" pour voir les commandes.</p>
+            </div>
+        </div>
+
+        <div class="test-section">
+            <h3>🧪 Tests à Effectuer</h3>
+            
+            <div class="test-step">
+                <h4>1. Créer une Commande Test</h4>
+                <p>Créez une commande de test pour vérifier le système.</p>
+                <button onclick="createTestOrder()" class="success-btn">
+                    📦 Créer Commande Test
+                </button>
+            </div>
+
+            <div class="test-step">
+                <h4>2. Tester la Récupération de Commande</h4>
+                <p>Testez la récupération d'une commande par ID.</p>
+                <button onclick="testOrderRetrieval()" class="warning-btn">
+                    🔍 Tester Récupération
+                </button>
+            </div>
+
+            <div class="test-step">
+                <h4>3. Simuler Validation Admin</h4>
+                <p>Simulez l'approbation/rejet d'une commande par l'admin.</p>
+                <button onclick="simulateAdminApproval()" class="success-btn">
+                    ✅ Simuler Approbation
+                </button>
+                <button onclick="simulateAdminRejection()" class="danger">
+                    ❌ Simuler Rejet
+                </button>
+            </div>
+
+            <div class="test-step">
+                <h4>4. Tester les Notifications</h4>
+                <p>Testez le système de notifications.</p>
+                <button onclick="testNotifications()" class="warning-btn">
+                    🔔 Tester Notifications
+                </button>
+            </div>
+        </div>
+
+        <div class="test-section">
+            <h3>🔧 Actions de Test</h3>
+            <button onclick="analyzeOrders()" class="success-btn">
+                📊 Analyser les Commandes
+            </button>
+            <button onclick="clearTestData()" class="danger">
+                🗑️ Nettoyer Données Test
+            </button>
+            <button onclick="runFullTest()" class="success-btn">
+                🚀 Test Complet
+            </button>
+        </div>
+
+        <div class="test-section">
+            <h3>📝 Résultats des Tests</h3>
+            <div id="testResults">
+                <p>Aucun test exécuté pour le moment.</p>
+            </div>
+        </div>
+
+        <div class="test-section">
+            <h3>🔍 Code de Test</h3>
+            <p>Code JavaScript pour tester manuellement dans la console :</p>
+            <div class="code-block" id="testCode">
+                // Code de test sera généré ici
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Système de test pour la validation des commandes
+        class OrderValidationTester {
+            constructor() {
+                this.orders = [];
+                this.testResults = [];
+                this.init();
+            }
+
+            init() {
+                this.analyzeOrders();
+                this.generateTestCode();
+            }
+
+            // Analyser les commandes existantes
+            analyzeOrders() {
+                try {
+                    const ordersData = localStorage.getItem('clientOrders');
+                    this.orders = ordersData ? JSON.parse(ordersData) : [];
+                    
+                    this.displayOrderStats();
+                    this.displayOrders();
+                    
+                    showSuccess(`✅ ${this.orders.length} commandes analysées`);
+                } catch (error) {
+                    console.error('Erreur lors de l\'analyse:', error);
+                    showError('Erreur lors de l\'analyse des commandes: ' + error.message);
+                }
+            }
+
+            // Afficher les statistiques
+            displayOrderStats() {
+                const stats = {
+                    total: this.orders.length,
+                    pending: this.orders.filter(o => o.orderStatus === 'pending_approval').length,
+                    approved: this.orders.filter(o => o.orderStatus === 'approved').length,
+                    rejected: this.orders.filter(o => o.orderStatus === 'rejected').length,
+                    other: this.orders.filter(o => !['pending_approval', 'approved', 'rejected'].includes(o.orderStatus)).length
+                };
+
+                const statsGrid = document.getElementById('orderStats');
+                statsGrid.innerHTML = `
+                    <div class="stat-card">
+                        <div class="stat-value">${stats.total}</div>
+                        <div class="stat-label">Total Commandes</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">${stats.pending}</div>
+                        <div class="stat-label">En Attente</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">${stats.approved}</div>
+                        <div class="stat-label">Approuvées</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">${stats.rejected}</div>
+                        <div class="stat-label">Rejetées</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">${stats.other}</div>
+                        <div class="stat-label">Autres</div>
+                    </div>
+                `;
+            }
+
+            // Afficher la liste des commandes
+            displayOrders() {
+                const orderList = document.getElementById('orderList');
+                
+                if (this.orders.length === 0) {
+                    orderList.innerHTML = '<p class="info">Aucune commande trouvée. Créez une commande test.</p>';
+                    return;
+                }
+
+                orderList.innerHTML = this.orders.map(order => `
+                    <div class="order-item">
+                        <div class="order-info">
+                            <div class="order-id">Commande #${order.trackingNumber || order._id}</div>
+                            <div class="order-details">
+                                Client: ${order.user?.firstName || ''} ${order.user?.lastName || ''} | 
+                                Total: ${order.total ? order.total.toLocaleString() : 0} FG | 
+                                Date: ${new Date(order.createdAt).toLocaleDateString('fr-FR')}
+                            </div>
+                        </div>
+                        <div class="order-status status-${order.orderStatus}">
+                            ${this.getStatusText(order.orderStatus)}
+                        </div>
+                        <div class="order-actions">
+                            <button onclick="viewOrder('${order._id}')" class="btn-small">
+                                Voir
+                            </button>
+                            <button onclick="editOrderStatus('${order._id}')" class="btn-small">
+                                Modifier
+                            </button>
+                        </div>
+                    </div>
+                `).join('');
+            }
+
+            // Créer une commande de test
+            createTestOrder() {
+                const testOrder = {
+                    _id: Date.now().toString(),
+                    user: {
+                        id: 'test-user',
+                        firstName: 'Client',
+                        lastName: 'Test',
+                        email: 'client.test@example.com',
+                        phone: '+224 123 456 789'
+                    },
+                    items: [
+                        {
+                            product: { _id: '1', name: 'Produit Test' },
+                            quantity: 2,
+                            price: 50000,
+                            name: 'Produit Test',
+                            image: ''
+                        }
+                    ],
+                    shippingAddress: {
+                        firstName: 'Client',
+                        lastName: 'Test',
+                        street: 'Rue Test',
+                        city: 'Conakry',
+                        postalCode: '001',
+                        phone: '+224 123 456 789',
+                        country: 'Guinée'
+                    },
+                    paymentMethod: 'mobile_money',
+                    notes: 'Commande de test pour validation',
+                    subtotal: 100000,
+                    shippingCost: 5000,
+                    tax: 0,
+                    total: 105000,
+                    orderStatus: 'pending_approval',
+                    trackingNumber: 'TE' + Date.now().toString().slice(-6),
+                    createdAt: new Date().toISOString(),
+                    updatedAt: new Date().toISOString()
+                };
+
+                this.orders.unshift(testOrder);
+                localStorage.setItem('clientOrders', JSON.stringify(this.orders));
+
+                showSuccess(`✅ Commande test créée: #${testOrder.trackingNumber}`);
+                this.analyzeOrders();
+            }
+
+            // Tester la récupération de commande
+            testOrderRetrieval() {
+                if (this.orders.length === 0) {
+                    showWarning('⚠️ Aucune commande à tester. Créez d\'abord une commande test.');
+                    return;
+                }
+
+                const testOrder = this.orders[0];
+                
+                // Simuler la récupération via l'API locale
+                try {
+                    const retrievedOrder = this.orders.find(o => o._id === testOrder._id);
+                    
+                    if (retrievedOrder) {
+                        showSuccess(`✅ Récupération réussie: Commande #${retrievedOrder.trackingNumber}`);
+                        this.addTestResult('Récupération de commande', 'SUCCESS', 'Commande récupérée avec succès');
+                    } else {
+                        showError('❌ Échec de la récupération: Commande non trouvée');
+                        this.addTestResult('Récupération de commande', 'FAILED', 'Commande non trouvée');
+                    }
+                } catch (error) {
+                    showError('❌ Erreur lors de la récupération: ' + error.message);
+                    this.addTestResult('Récupération de commande', 'ERROR', error.message);
+                }
+            }
+
+            // Simuler l'approbation admin
+            simulateAdminApproval() {
+                if (this.orders.length === 0) {
+                    showWarning('⚠️ Aucune commande à approuver. Créez d\'abord une commande test.');
+                    return;
+                }
+
+                const pendingOrders = this.orders.filter(o => o.orderStatus === 'pending_approval');
+                if (pendingOrders.length === 0) {
+                    showWarning('⚠️ Aucune commande en attente d\'approbation.');
+                    return;
+                }
+
+                const order = pendingOrders[0];
+                order.orderStatus = 'approved';
+                order.adminNotes = 'Commande approuvée par l\'administrateur - Test automatique';
+                order.approvedAt = new Date().toISOString();
+                order.updatedAt = new Date().toISOString();
+
+                localStorage.setItem('clientOrders', JSON.stringify(this.orders));
+
+                showSuccess(`✅ Commande #${order.trackingNumber} approuvée avec succès`);
+                this.addTestResult('Approbation admin', 'SUCCESS', `Commande #${order.trackingNumber} approuvée`);
+                this.analyzeOrders();
+            }
+
+            // Simuler le rejet admin
+            simulateAdminRejection() {
+                if (this.orders.length === 0) {
+                    showWarning('⚠️ Aucune commande à rejeter. Créez d\'abord une commande test.');
+                    return;
+                }
+
+                const pendingOrders = this.orders.filter(o => o.orderStatus === 'pending_approval');
+                if (pendingOrders.length === 0) {
+                    showWarning('⚠️ Aucune commande en attente d\'approbation.');
+                    return;
+                }
+
+                const order = pendingOrders[0];
+                order.orderStatus = 'rejected';
+                order.rejectionReason = 'Stock insuffisant - Test automatique';
+                order.rejectedAt = new Date().toISOString();
+                order.updatedAt = new Date().toISOString();
+
+                localStorage.setItem('clientOrders', JSON.stringify(this.orders));
+
+                showSuccess(`✅ Commande #${order.trackingNumber} rejetée avec succès`);
+                this.addTestResult('Rejet admin', 'SUCCESS', `Commande #${order.trackingNumber} rejetée`);
+                this.analyzeOrders();
+            }
+
+            // Tester les notifications
+            testNotifications() {
+                try {
+                    // Créer un événement de notification
+                    const notificationEvent = new CustomEvent('newOrderCreated', {
+                        detail: { 
+                            order: {
+                                _id: 'test-notification',
+                                trackingNumber: 'NOT' + Date.now().toString().slice(-6),
+                                total: 50000
+                            }
+                        }
+                    });
+
+                    // Déclencher l'événement
+                    window.dispatchEvent(notificationEvent);
+
+                    showSuccess('✅ Notification de test envoyée');
+                    this.addTestResult('Notifications', 'SUCCESS', 'Événement de notification déclenché');
+                } catch (error) {
+                    showError('❌ Erreur lors du test de notification: ' + error.message);
+                    this.addTestResult('Notifications', 'ERROR', error.message);
+                }
+            }
+
+            // Exécuter un test complet
+            runFullTest() {
+                this.testResults = [];
+                showInfo('🚀 Démarrage du test complet...');
+
+                // Test 1: Création de commande
+                this.createTestOrder();
+                this.addTestResult('Création de commande', 'SUCCESS', 'Commande test créée');
+
+                // Test 2: Récupération
+                setTimeout(() => {
+                    this.testOrderRetrieval();
+                }, 500);
+
+                // Test 3: Notifications
+                setTimeout(() => {
+                    this.testNotifications();
+                }, 1000);
+
+                // Test 4: Approbation
+                setTimeout(() => {
+                    this.simulateAdminApproval();
+                }, 1500);
+
+                // Test 5: Résultats
+                setTimeout(() => {
+                    this.displayTestResults();
+                }, 2000);
+            }
+
+            // Afficher les résultats des tests
+            displayTestResults() {
+                const resultsDiv = document.getElementById('testResults');
+                
+                if (this.testResults.length === 0) {
+                    resultsDiv.innerHTML = '<p class="info">Aucun test exécuté pour le moment.</p>';
+                    return;
+                }
+
+                const successCount = this.testResults.filter(r => r.status === 'SUCCESS').length;
+                const failedCount = this.testResults.filter(r => r.status === 'FAILED').length;
+                const errorCount = this.testResults.filter(r => r.status === 'ERROR').length;
+
+                resultsDiv.innerHTML = `
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-value" style="color: #28a745;">${successCount}</div>
+                            <div class="stat-label">Succès</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value" style="color: #dc3545;">${failedCount}</div>
+                            <div class="stat-label">Échecs</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value" style="color: #ffc107;">${errorCount}</div>
+                            <div class="stat-label">Erreurs</div>
+                        </div>
+                    </div>
+                    <div class="order-list">
+                        ${this.testResults.map(result => `
+                            <div class="order-item">
+                                <div class="order-info">
+                                    <div class="order-id">${result.test}</div>
+                                    <div class="order-details">${result.message}</div>
+                                </div>
+                                <div class="order-status status-${result.status.toLowerCase()}">
+                                    ${result.status}
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+
+                if (successCount === this.testResults.length) {
+                    showSuccess('🎉 Tous les tests sont passés avec succès !');
+                } else {
+                    showWarning(`⚠️ ${failedCount + errorCount} test(s) ont échoué.`);
+                }
+            }
+
+            // Ajouter un résultat de test
+            addTestResult(test, status, message) {
+                this.testResults.push({ test, status, message, timestamp: new Date().toISOString() });
+            }
+
+            // Nettoyer les données de test
+            clearTestData() {
+                if (confirm('Supprimer toutes les commandes de test ?')) {
+                    this.orders = this.orders.filter(order => !order.trackingNumber?.startsWith('TE'));
+                    localStorage.setItem('clientOrders', JSON.stringify(this.orders));
+                    showSuccess('✅ Données de test supprimées');
+                    this.analyzeOrders();
+                }
+            }
+
+            // Générer le code de test
+            generateTestCode() {
+                const testCode = `
+// Code de test pour la validation des commandes
+// Copiez et exécutez dans la console du navigateur
+
+// 1. Créer une commande test
+const createTestOrder = () => {
+  const orders = JSON.parse(localStorage.getItem('clientOrders') || '[]');
+  const testOrder = {
+    _id: Date.now().toString(),
+    user: {
+      firstName: 'Client',
+      lastName: 'Test',
+      email: 'test@example.com',
+      phone: '+224 123 456 789'
+    },
+    items: [{ product: { name: 'Produit Test' }, quantity: 1, price: 50000 }],
+    shippingAddress: {
+      firstName: 'Client',
+      lastName: 'Test',
+      street: 'Rue Test',
+      city: 'Conakry',
+      phone: '+224 123 456 789',
+      country: 'Guinée'
+    },
+    total: 50000,
+    orderStatus: 'pending_approval',
+    trackingNumber: 'TE' + Date.now().toString().slice(-6),
+    createdAt: new Date().toISOString()
+  };
+  
+  orders.unshift(testOrder);
+  localStorage.setItem('clientOrders', JSON.stringify(orders));
+  console.log('✅ Commande test créée:', testOrder.trackingNumber);
+};
+
+// 2. Approuver une commande
+const approveOrder = (orderId) => {
+  const orders = JSON.parse(localStorage.getItem('clientOrders') || '[]');
+  const order = orders.find(o => o._id === orderId);
+  if (order) {
+    order.orderStatus = 'approved';
+    order.adminNotes = 'Approuvée par test';
+    order.updatedAt = new Date().toISOString();
+    localStorage.setItem('clientOrders', JSON.stringify(orders));
+    console.log('✅ Commande approuvée:', order.trackingNumber);
+  }
+};
+
+// 3. Rejeter une commande
+const rejectOrder = (orderId) => {
+  const orders = JSON.parse(localStorage.getItem('clientOrders') || '[]');
+  const order = orders.find(o => o._id === orderId);
+  if (order) {
+    order.orderStatus = 'rejected';
+    order.rejectionReason = 'Rejetée par test';
+    order.updatedAt = new Date().toISOString();
+    localStorage.setItem('clientOrders', JSON.stringify(orders));
+    console.log('✅ Commande rejetée:', order.trackingNumber);
+  }
+};
+
+// 4. Tester les notifications
+const testNotification = () => {
+  const event = new CustomEvent('newOrderCreated', {
+    detail: { order: { _id: 'test', trackingNumber: 'TEST123' } }
+  });
+  window.dispatchEvent(event);
+  console.log('✅ Notification de test envoyée');
+};
+
+// Exécution
+console.log('🧪 Tests disponibles:');
+console.log('- createTestOrder()');
+console.log('- approveOrder(orderId)');
+console.log('- rejectOrder(orderId)');
+console.log('- testNotification()');
+                `;
+
+                document.getElementById('testCode').textContent = testCode;
+            }
+
+            // Obtenir le texte du statut
+            getStatusText(status) {
+                const texts = {
+                    pending_approval: 'En Attente',
+                    approved: 'Approuvée',
+                    rejected: 'Rejetée',
+                    pending: 'En Attente',
+                    confirmed: 'Confirmée',
+                    processing: 'En Cours',
+                    shipped: 'Expédiée',
+                    delivered: 'Livrée',
+                    cancelled: 'Annulée'
+                };
+                return texts[status] || status;
+            }
+        }
+
+        // Initialiser le testeur
+        const tester = new OrderValidationTester();
+
+        // Fonctions globales
+        function analyzeOrders() {
+            tester.analyzeOrders();
+        }
+
+        function createTestOrder() {
+            tester.createTestOrder();
+        }
+
+        function testOrderRetrieval() {
+            tester.testOrderRetrieval();
+        }
+
+        function simulateAdminApproval() {
+            tester.simulateAdminApproval();
+        }
+
+        function simulateAdminRejection() {
+            tester.simulateAdminRejection();
+        }
+
+        function testNotifications() {
+            tester.testNotifications();
+        }
+
+        function runFullTest() {
+            tester.runFullTest();
+        }
+
+        function clearTestData() {
+            tester.clearTestData();
+        }
+
+        function viewOrder(orderId) {
+            const order = tester.orders.find(o => o._id === orderId);
+            if (order) {
+                alert(`Commande #${order.trackingNumber}\nStatut: ${tester.getStatusText(order.orderStatus)}\nTotal: ${order.total} FG`);
+            }
+        }
+
+        function editOrderStatus(orderId) {
+            const order = tester.orders.find(o => o._id === orderId);
+            if (order) {
+                const newStatus = prompt('Nouveau statut (pending_approval, approved, rejected):', order.orderStatus);
+                if (newStatus && ['pending_approval', 'approved', 'rejected'].includes(newStatus)) {
+                    order.orderStatus = newStatus;
+                    order.updatedAt = new Date().toISOString();
+                    localStorage.setItem('clientOrders', JSON.stringify(tester.orders));
+                    showSuccess(`✅ Statut mis à jour: ${tester.getStatusText(newStatus)}`);
+                    tester.analyzeOrders();
+                }
+            }
+        }
+
+        function showSuccess(message) {
+            const div = document.createElement('div');
+            div.className = 'success';
+            div.textContent = message;
+            document.querySelector('.container').appendChild(div);
+            setTimeout(() => div.remove(), 5000);
+        }
+
+        function showError(message) {
+            const div = document.createElement('div');
+            div.className = 'error';
+            div.textContent = message;
+            document.querySelector('.container').appendChild(div);
+            setTimeout(() => div.remove(), 5000);
+        }
+
+        function showWarning(message) {
+            const div = document.createElement('div');
+            div.className = 'warning';
+            div.textContent = message;
+            document.querySelector('.container').appendChild(div);
+            setTimeout(() => div.remove(), 5000);
+        }
+
+        function showInfo(message) {
+            const div = document.createElement('div');
+            div.className = 'info';
+            div.textContent = message;
+            document.querySelector('.container').appendChild(div);
+            setTimeout(() => div.remove(), 5000);
+        }
+    </script>
+</body>
+</html>

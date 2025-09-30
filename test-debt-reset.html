@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test - Réinitialisation des Dettes</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .button {
+            background: #dc3545;
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 10px 5px;
+        }
+        .button:hover {
+            background: #c82333;
+        }
+        .success {
+            background: #28a745;
+        }
+        .success:hover {
+            background: #218838;
+        }
+        .info {
+            background: #17a2b8;
+        }
+        .info:hover {
+            background: #138496;
+        }
+        .warning {
+            background: #ffc107;
+            color: #212529;
+        }
+        .warning:hover {
+            background: #e0a800;
+        }
+        .status {
+            margin: 20px 0;
+            padding: 15px;
+            border-radius: 5px;
+            background: #e9ecef;
+        }
+        .log {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 5px;
+            padding: 15px;
+            margin: 20px 0;
+            font-family: monospace;
+            white-space: pre-wrap;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        .reset-button {
+            display: inline-flex;
+            align-items: center;
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-weight: 500;
+            transition: all 0.2s;
+            cursor: pointer;
+            border: 1px solid;
+            margin: 5px;
+            background: #fef2f2;
+            color: #dc2626;
+            border-color: #fecaca;
+        }
+        .reset-button:hover {
+            background: #fee2e2;
+        }
+        .debt-item {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 5px;
+            padding: 15px;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧪 Test - Réinitialisation des Dettes</h1>
+        <p>Test spécifique pour la page de gestion des dettes.</p>
+        
+        <div class="status" id="status">
+            Prêt à tester la réinitialisation des dettes...
+        </div>
+        
+        <h2>Test des boutons de réinitialisation</h2>
+        
+        <div>
+            <button class="reset-button" onclick="testResetButton()">
+                🔄 Test ResetButton (Simulation)
+            </button>
+            <button class="button" onclick="clearDebtsData()">
+                💳 Vider Dettes
+            </button>
+            <button class="button warning" onclick="createTestDebts()">
+                📝 Créer Dettes Test
+            </button>
+            <button class="button" onclick="clearAllData()">
+                🧹 Vider Tout
+            </button>
+        </div>
+        
+        <h2>Vérification des données</h2>
+        <button class="button info" onclick="checkDebtsData()">Vérifier les dettes</button>
+        <button class="button success" onclick="goToDebtManagement()">Aller à la gestion des dettes</button>
+        
+        <h2>Données actuelles</h2>
+        <div id="debtsList" class="log"></div>
+        
+        <div class="log" id="log"></div>
+    </div>
+
+    <script>
+        function log(message) {
+            const logElement = document.getElementById('log');
+            const timestamp = new Date().toLocaleTimeString();
+            logElement.textContent += `[${timestamp}] ${message}\n`;
+            logElement.scrollTop = logElement.scrollHeight;
+        }
+
+        function updateStatus(message, type = 'info') {
+            const statusElement = document.getElementById('status');
+            statusElement.textContent = message;
+            statusElement.style.background = type === 'success' ? '#d4edda' : 
+                                           type === 'error' ? '#f8d7da' : '#e9ecef';
+        }
+
+        function testResetButton() {
+            log('🧪 Test du composant ResetButton pour les dettes...');
+            
+            // Simuler l'ouverture du modal de confirmation
+            const confirmed = confirm('Êtes-vous sûr de vouloir réinitialiser toutes les dettes ? Cette action supprimera définitivement toutes les dettes, paiements et données associées.');
+            
+            if (confirmed) {
+                log('✅ Confirmation reçue - Simulation de la réinitialisation des dettes...');
+                clearDebtsData();
+            } else {
+                log('❌ Action annulée par l\'utilisateur');
+            }
+        }
+
+        function clearDebtsData() {
+            log('💳 Nettoyage des données de dettes...');
+            try {
+                localStorage.removeItem('debts');
+                localStorage.removeItem('debtData');
+                localStorage.removeItem('adminDebts');
+                log('✅ Données de dettes supprimées');
+                updateStatus('✅ Données de dettes supprimées', 'success');
+                displayDebts();
+            } catch (error) {
+                log('❌ Erreur: ' + error.message);
+                updateStatus('❌ Erreur', 'error');
+            }
+        }
+
+        function createTestDebts() {
+            log('📝 Création de dettes de test...');
+            try {
+                const testDebts = [
+                    {
+                        id: 1,
+                        _id: 'debt_1',
+                        customerName: 'Mamadou Diallo',
+                        customerPhone: '+224 123 456 789',
+                        customerAddress: 'Conakry, Guinée',
+                        productName: 'Ciment Portland',
+                        productCategory: 'Matériaux de Construction',
+                        quantity: 10,
+                        unitPrice: 15000,
+                        totalPrice: 150000,
+                        paidAmount: 0,
+                        remainingAmount: 150000,
+                        dueDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
+                        status: 'pending',
+                        paymentMethod: 'cash',
+                        notes: 'Commande importante',
+                        createdAt: new Date().toISOString()
+                    },
+                    {
+                        id: 2,
+                        _id: 'debt_2',
+                        customerName: 'Fatoumata Camara',
+                        customerPhone: '+224 987 654 321',
+                        customerAddress: 'Labé, Guinée',
+                        productName: 'Téléphone Samsung',
+                        productCategory: 'Électronique',
+                        quantity: 1,
+                        unitPrice: 250000,
+                        totalPrice: 250000,
+                        paidAmount: 100000,
+                        remainingAmount: 150000,
+                        dueDate: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(),
+                        status: 'overdue',
+                        paymentMethod: 'mobile_money',
+                        notes: 'Paiement partiel effectué',
+                        createdAt: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000).toISOString()
+                    },
+                    {
+                        id: 3,
+                        _id: 'debt_3',
+                        customerName: 'Ibrahima Bah',
+                        customerPhone: '+224 555 123 456',
+                        customerAddress: 'Kankan, Guinée',
+                        productName: 'Tôles Ondulées',
+                        productCategory: 'Matériaux de Construction',
+                        quantity: 20,
+                        unitPrice: 25000,
+                        totalPrice: 500000,
+                        paidAmount: 200000,
+                        remainingAmount: 300000,
+                        dueDate: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString(),
+                        status: 'partial',
+                        paymentMethod: 'bank_transfer',
+                        notes: 'Paiement échelonné',
+                        createdAt: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString()
+                    }
+                ];
+                
+                localStorage.setItem('debts', JSON.stringify(testDebts));
+                log('✅ Dettes de test créées');
+                updateStatus('✅ Dettes de test créées', 'success');
+                displayDebts();
+            } catch (error) {
+                log('❌ Erreur: ' + error.message);
+                updateStatus('❌ Erreur', 'error');
+            }
+        }
+
+        function clearAllData() {
+            log('🧹 Nettoyage complet...');
+            try {
+                localStorage.clear();
+                sessionStorage.clear();
+                log('✅ Toutes les données supprimées');
+                updateStatus('✅ Toutes les données supprimées', 'success');
+                displayDebts();
+            } catch (error) {
+                log('❌ Erreur: ' + error.message);
+                updateStatus('❌ Erreur', 'error');
+            }
+        }
+
+        function checkDebtsData() {
+            log('🔍 Vérification des données de dettes...');
+            
+            const debts = localStorage.getItem('debts');
+            if (debts) {
+                try {
+                    const parsedDebts = JSON.parse(debts);
+                    log(`📊 ${parsedDebts.length} dettes trouvées`);
+                    
+                    const totalAmount = parsedDebts.reduce((sum, debt) => sum + (debt.totalPrice || 0), 0);
+                    const paidAmount = parsedDebts.reduce((sum, debt) => sum + (debt.paidAmount || 0), 0);
+                    const remainingAmount = parsedDebts.reduce((sum, debt) => sum + (debt.remainingAmount || 0), 0);
+                    
+                    log(`💰 Montant total: ${totalAmount.toLocaleString()} FG`);
+                    log(`💳 Montant payé: ${paidAmount.toLocaleString()} FG`);
+                    log(`⏳ Montant restant: ${remainingAmount.toLocaleString()} FG`);
+                    
+                    updateStatus(`📊 ${parsedDebts.length} dettes trouvées`, 'info');
+                } catch (e) {
+                    log('❌ Erreur de parsing des dettes');
+                    updateStatus('❌ Données corrompues', 'error');
+                }
+            } else {
+                log('📊 Aucune dette trouvée');
+                updateStatus('📊 Aucune dette trouvée', 'success');
+            }
+            
+            displayDebts();
+        }
+
+        function displayDebts() {
+            const debtsListElement = document.getElementById('debtsList');
+            const debts = localStorage.getItem('debts');
+            
+            if (debts) {
+                try {
+                    const parsedDebts = JSON.parse(debts);
+                    let html = '📋 Dettes actuelles:\n\n';
+                    
+                    parsedDebts.forEach((debt, index) => {
+                        html += `${index + 1}. ${debt.customerName}\n`;
+                        html += `   📞 ${debt.customerPhone}\n`;
+                        html += `   📦 ${debt.productName} (${debt.quantity} unités)\n`;
+                        html += `   💰 Total: ${debt.totalPrice?.toLocaleString() || 0} FG\n`;
+                        html += `   💳 Payé: ${debt.paidAmount?.toLocaleString() || 0} FG\n`;
+                        html += `   ⏳ Restant: ${debt.remainingAmount?.toLocaleString() || 0} FG\n`;
+                        html += `   📅 Échéance: ${new Date(debt.dueDate).toLocaleDateString('fr-FR')}\n`;
+                        html += `   🏷️ Statut: ${debt.status}\n\n`;
+                    });
+                    
+                    debtsListElement.textContent = html;
+                } catch (e) {
+                    debtsListElement.textContent = '❌ Erreur de parsing des dettes';
+                }
+            } else {
+                debtsListElement.textContent = '📊 Aucune dette trouvée';
+            }
+        }
+
+        function goToDebtManagement() {
+            log('🔗 Redirection vers la gestion des dettes...');
+            window.location.href = '/admin/debts';
+        }
+
+        // Vérifier au chargement
+        window.onload = function() {
+            log('🚀 Page de test des dettes chargée');
+            checkDebtsData();
+        };
+    </script>
+</body>
+</html>

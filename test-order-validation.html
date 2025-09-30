@@ -1,0 +1,615 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test - Système de Validation des Commandes</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+        }
+        .success {
+            background: #d4edda;
+            color: #155724;
+            padding: 10px;
+            border-radius: 4px;
+            margin: 10px 0;
+        }
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 10px;
+            border-radius: 4px;
+            margin: 10px 0;
+        }
+        .warning {
+            background: #fff3cd;
+            color: #856404;
+            padding: 10px;
+            border-radius: 4px;
+            margin: 10px 0;
+        }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+        .danger {
+            background: #dc3545;
+        }
+        .danger:hover {
+            background: #c82333;
+        }
+        .success-btn {
+            background: #28a745;
+        }
+        .success-btn:hover {
+            background: #218838;
+        }
+        .warning-btn {
+            background: #ffc107;
+            color: #212529;
+        }
+        .warning-btn:hover {
+            background: #e0a800;
+        }
+        .order-card {
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 10px 0;
+            background: white;
+        }
+        .order-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        .order-id {
+            font-weight: bold;
+            color: #333;
+        }
+        .order-status {
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        .status-pending {
+            background: #fff3cd;
+            color: #856404;
+        }
+        .status-approved {
+            background: #d4edda;
+            color: #155724;
+        }
+        .status-rejected {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        .order-details {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 10px;
+            margin: 10px 0;
+        }
+        .detail-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .detail-label {
+            font-weight: bold;
+            color: #666;
+        }
+        .detail-value {
+            color: #333;
+        }
+        .actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        .stat-card {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 6px;
+            border-left: 4px solid #007bff;
+            text-align: center;
+        }
+        .stat-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: #333;
+        }
+        .stat-label {
+            color: #666;
+            font-size: 14px;
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+        }
+        .modal-content {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            width: 90%;
+            max-width: 500px;
+        }
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        .modal-title {
+            font-size: 18px;
+            font-weight: bold;
+        }
+        .close {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        .form-label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        .form-input, .form-textarea {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        .form-textarea {
+            height: 80px;
+            resize: vertical;
+        }
+        .modal-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔍 Test - Système de Validation des Commandes</h1>
+        <p>Ce script teste le système de validation des commandes par l'admin.</p>
+        
+        <div class="test-section">
+            <h3>📊 État Actuel</h3>
+            <div id="currentState"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>🧪 Tests de Commandes</h3>
+            <button onclick="createTestOrder()" class="success-btn">
+                📦 Créer Commande Test
+            </button>
+            <button onclick="createMultipleOrders()" class="success-btn">
+                📦 Créer Plusieurs Commandes
+            </button>
+            <button onclick="showPendingOrders()" class="warning-btn">
+                ⏳ Voir Commandes en Attente
+            </button>
+            <button onclick="clearAllData()" class="danger">
+                🗑️ Vider Toutes les Données
+            </button>
+        </div>
+
+        <div class="test-section">
+            <h3>📋 Commandes en Attente d'Approbation</h3>
+            <div id="pendingOrders"></div>
+        </div>
+    </div>
+
+    <!-- Modal d'approbation -->
+    <div id="approvalModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title">Approuver la Commande</div>
+                <button class="close" onclick="closeModal('approvalModal')">&times;</button>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Notes d'approbation (optionnel)</label>
+                <textarea id="approvalNotes" class="form-textarea" placeholder="Ajoutez des notes pour le client..."></textarea>
+            </div>
+            <div class="modal-actions">
+                <button onclick="closeModal('approvalModal')">Annuler</button>
+                <button onclick="approveOrder()" class="success-btn">Approuver</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de rejet -->
+    <div id="rejectionModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title">Rejeter la Commande</div>
+                <button class="close" onclick="closeModal('rejectionModal')">&times;</button>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Raison du rejet *</label>
+                <textarea id="rejectionReason" class="form-textarea" placeholder="Expliquez pourquoi cette commande est rejetée..." required></textarea>
+            </div>
+            <div class="modal-actions">
+                <button onclick="closeModal('rejectionModal')">Annuler</button>
+                <button onclick="rejectOrder()" class="danger">Rejeter</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentOrder = null;
+
+        // Simuler le système de validation
+        class OrderValidationSystem {
+            constructor() {
+                this.orders = JSON.parse(localStorage.getItem('clientOrders') || '[]');
+                this.updateDisplay();
+            }
+
+            createOrder(customerData, items) {
+                const order = {
+                    _id: 'order-' + Date.now(),
+                    user: {
+                        firstName: customerData.firstName,
+                        lastName: customerData.lastName,
+                        phone: customerData.phone
+                    },
+                    items: items,
+                    shippingAddress: {
+                        street: customerData.address,
+                        city: customerData.city
+                    },
+                    orderStatus: 'pending_approval',
+                    trackingNumber: 'CMD-' + Math.random().toString(36).substr(2, 8).toUpperCase(),
+                    createdAt: new Date().toISOString(),
+                    updatedAt: new Date().toISOString()
+                };
+
+                this.orders.unshift(order);
+                localStorage.setItem('clientOrders', JSON.stringify(this.orders));
+                this.updateDisplay();
+                return order;
+            }
+
+            approveOrder(orderId, notes = '') {
+                const orderIndex = this.orders.findIndex(o => o._id === orderId);
+                if (orderIndex === -1) return false;
+
+                this.orders[orderIndex] = {
+                    ...this.orders[orderIndex],
+                    orderStatus: 'approved',
+                    adminNotes: notes,
+                    approvedAt: new Date().toISOString(),
+                    updatedAt: new Date().toISOString()
+                };
+
+                localStorage.setItem('clientOrders', JSON.stringify(this.orders));
+                this.updateDisplay();
+                return true;
+            }
+
+            rejectOrder(orderId, reason = '') {
+                const orderIndex = this.orders.findIndex(o => o._id === orderId);
+                if (orderIndex === -1) return false;
+
+                this.orders[orderIndex] = {
+                    ...this.orders[orderIndex],
+                    orderStatus: 'rejected',
+                    rejectionReason: reason,
+                    rejectedAt: new Date().toISOString(),
+                    updatedAt: new Date().toISOString()
+                };
+
+                localStorage.setItem('clientOrders', JSON.stringify(this.orders));
+                this.updateDisplay();
+                return true;
+            }
+
+            getPendingOrders() {
+                return this.orders.filter(o => o.orderStatus === 'pending_approval');
+            }
+
+            getStats() {
+                const total = this.orders.length;
+                const pending = this.orders.filter(o => o.orderStatus === 'pending_approval').length;
+                const approved = this.orders.filter(o => o.orderStatus === 'approved').length;
+                const rejected = this.orders.filter(o => o.orderStatus === 'rejected').length;
+
+                return { total, pending, approved, rejected };
+            }
+
+            updateDisplay() {
+                this.updateStats();
+                this.updatePendingOrders();
+            }
+
+            updateStats() {
+                const stats = this.getStats();
+                const stateDiv = document.getElementById('currentState');
+                
+                stateDiv.innerHTML = `
+                    <div class="stats">
+                        <div class="stat-card">
+                            <div class="stat-value">${stats.total}</div>
+                            <div class="stat-label">Total</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value">${stats.pending}</div>
+                            <div class="stat-label">En Attente</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value">${stats.approved}</div>
+                            <div class="stat-label">Approuvées</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value">${stats.rejected}</div>
+                            <div class="stat-label">Rejetées</div>
+                        </div>
+                    </div>
+                `;
+            }
+
+            updatePendingOrders() {
+                const pendingOrders = this.getPendingOrders();
+                const container = document.getElementById('pendingOrders');
+                
+                if (pendingOrders.length === 0) {
+                    container.innerHTML = '<p>Aucune commande en attente d\'approbation</p>';
+                    return;
+                }
+
+                container.innerHTML = pendingOrders.map(order => {
+                    const total = order.items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+                    return `
+                        <div class="order-card">
+                            <div class="order-header">
+                                <div class="order-id">#${order.trackingNumber}</div>
+                                <div class="order-status status-pending">En attente d'approbation</div>
+                            </div>
+                            <div class="order-details">
+                                <div class="detail-item">
+                                    <span class="detail-label">Client:</span>
+                                    <span class="detail-value">${order.user.firstName} ${order.user.lastName}</span>
+                                </div>
+                                <div class="detail-item">
+                                    <span class="detail-label">Téléphone:</span>
+                                    <span class="detail-value">${order.user.phone}</span>
+                                </div>
+                                <div class="detail-item">
+                                    <span class="detail-label">Total:</span>
+                                    <span class="detail-value">${total.toLocaleString('fr-FR')} FG</span>
+                                </div>
+                                <div class="detail-item">
+                                    <span class="detail-label">Date:</span>
+                                    <span class="detail-value">${new Date(order.createdAt).toLocaleDateString('fr-FR')}</span>
+                                </div>
+                            </div>
+                            <div class="actions">
+                                <button onclick="openApprovalModal('${order._id}')" class="success-btn">Approuver</button>
+                                <button onclick="openRejectionModal('${order._id}')" class="danger">Rejeter</button>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            }
+        }
+
+        // Initialiser le système
+        const orderSystem = new OrderValidationSystem();
+
+        // Fonctions de test
+        function createTestOrder() {
+            const customerData = {
+                firstName: 'Test',
+                lastName: 'Client',
+                phone: '+224 123 456 789',
+                address: '123 Rue Test',
+                city: 'Conakry'
+            };
+
+            const items = [
+                {
+                    product: 'prod-1',
+                    name: 'Produit Test',
+                    price: 50000,
+                    quantity: 2
+                }
+            ];
+
+            const order = orderSystem.createOrder(customerData, items);
+            showSuccess(`Commande ${order.trackingNumber} créée !`);
+        }
+
+        function createMultipleOrders() {
+            const customers = [
+                {
+                    firstName: 'Mamadou',
+                    lastName: 'Diallo',
+                    phone: '+224 111 222 333',
+                    address: '456 Avenue Alpha',
+                    city: 'Conakry'
+                },
+                {
+                    firstName: 'Fatou',
+                    lastName: 'Camara',
+                    phone: '+224 444 555 666',
+                    address: '789 Rue Beta',
+                    city: 'Kankan'
+                },
+                {
+                    firstName: 'Ibrahima',
+                    lastName: 'Bah',
+                    phone: '+224 777 888 999',
+                    address: '321 Boulevard Gamma',
+                    city: 'Labé'
+                }
+            ];
+
+            customers.forEach((customer, index) => {
+                setTimeout(() => {
+                    const items = [{
+                        product: `prod-${index + 1}`,
+                        name: `Produit ${index + 1}`,
+                        price: 25000 + (index * 10000),
+                        quantity: 1 + index
+                    }];
+
+                    const order = orderSystem.createOrder(customer, items);
+                    console.log(`Commande ${order.trackingNumber} créée pour ${customer.firstName}`);
+                }, index * 1000);
+            });
+
+            showSuccess('Création de plusieurs commandes lancée !');
+        }
+
+        function showPendingOrders() {
+            const pending = orderSystem.getPendingOrders();
+            console.log('Commandes en attente:', pending);
+            alert(`Commandes en attente: ${pending.length}`);
+        }
+
+        function openApprovalModal(orderId) {
+            currentOrder = orderId;
+            document.getElementById('approvalModal').style.display = 'block';
+        }
+
+        function openRejectionModal(orderId) {
+            currentOrder = orderId;
+            document.getElementById('rejectionModal').style.display = 'block';
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).style.display = 'none';
+            currentOrder = null;
+        }
+
+        function approveOrder() {
+            if (!currentOrder) return;
+            
+            const notes = document.getElementById('approvalNotes').value;
+            const success = orderSystem.approveOrder(currentOrder, notes);
+            
+            if (success) {
+                showSuccess('Commande approuvée !');
+                closeModal('approvalModal');
+            } else {
+                showError('Erreur lors de l\'approbation');
+            }
+        }
+
+        function rejectOrder() {
+            if (!currentOrder) return;
+            
+            const reason = document.getElementById('rejectionReason').value;
+            if (!reason.trim()) {
+                showError('Veuillez indiquer une raison de rejet');
+                return;
+            }
+            
+            const success = orderSystem.rejectOrder(currentOrder, reason);
+            
+            if (success) {
+                showSuccess('Commande rejetée !');
+                closeModal('rejectionModal');
+            } else {
+                showError('Erreur lors du rejet');
+            }
+        }
+
+        function clearAllData() {
+            if (confirm('Êtes-vous sûr de vouloir supprimer toutes les données ?')) {
+                localStorage.clear();
+                orderSystem.orders = [];
+                orderSystem.updateDisplay();
+                showSuccess('Toutes les données ont été supprimées !');
+            }
+        }
+
+        function showSuccess(message) {
+            const successDiv = document.createElement('div');
+            successDiv.className = 'success';
+            successDiv.textContent = message;
+            document.querySelector('.container').appendChild(successDiv);
+            setTimeout(() => successDiv.remove(), 3000);
+        }
+
+        function showError(message) {
+            const errorDiv = document.createElement('div');
+            errorDiv.className = 'error';
+            errorDiv.textContent = message;
+            document.querySelector('.container').appendChild(errorDiv);
+            setTimeout(() => errorDiv.remove(), 3000);
+        }
+
+        // Fermer les modales en cliquant à l'extérieur
+        window.onclick = function(event) {
+            const approvalModal = document.getElementById('approvalModal');
+            const rejectionModal = document.getElementById('rejectionModal');
+            
+            if (event.target === approvalModal) {
+                closeModal('approvalModal');
+            }
+            if (event.target === rejectionModal) {
+                closeModal('rejectionModal');
+            }
+        };
+
+        // Mettre à jour l'affichage toutes les 2 secondes
+        setInterval(() => {
+            orderSystem.updateDisplay();
+        }, 2000);
+    </script>
+</body>
+</html>

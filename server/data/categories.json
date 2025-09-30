@@ -1,0 +1,22 @@
+{
+  "categories": [
+    {
+      "_id": "cat-1",
+      "name": "Matériaux de Construction",
+      "type": "construction",
+      "description": "Tous les matériaux pour vos projets de construction",
+      "image": "/images/categories/construction.jpg",
+      "isActive": true,
+      "createdAt": "2025-09-29T21:35:14.578Z"
+    },
+    {
+      "_id": "cat-2",
+      "name": "Électronique",
+      "type": "electronics",
+      "description": "Produits électroniques et technologiques",
+      "image": "/images/categories/electronics.jpg",
+      "isActive": true,
+      "createdAt": "2025-09-29T21:35:14.578Z"
+    }
+  ]
+}

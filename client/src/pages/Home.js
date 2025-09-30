@@ -1,14 +1,90 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useQuery } from 'react-query';
 import { productsAPI } from '../services/api';
 import { localProductsAPI } from '../services/localProductsAPI';
 import { useCart } from '../contexts/CartContext';
-import { Star, ShoppingCart, ArrowRight, Truck, Shield, Headphones, Zap, Calculator, BarChart3 } from 'lucide-react';
+import { Star, ShoppingCart, ArrowRight, Truck, Shield, Headphones, Zap, Calculator, BarChart3, ChevronLeft, ChevronRight } from 'lucide-react';
 import { getProductImage, getPlaceholderImage } from '../utils/imageUtils';
+import '../styles/carousel.css';
 
 const Home = () => {
   const { addToCart } = useCart();
+
+  // Images pour l'animation du carrousel
+  const carouselImages = [
+    {
+      src: '/images/products/construction/A3.jpeg',
+      alt: 'Matériaux de construction - Ciment et briques',
+      title: 'Matériaux de Construction',
+      description: 'Ciment, briques et tous les matériaux pour vos projets'
+    },
+    {
+      src: '/images/products/construction/A4.jpeg',
+      alt: 'Matériaux de construction - Fer à béton',
+      title: 'Fer à Béton',
+      description: 'Armatures et structures métalliques de qualité'
+    },
+    {
+      src: '/images/products/construction/A5.jpeg',
+      alt: 'Matériaux de construction - Outils',
+      title: 'Outils de Construction',
+      description: 'Tous les outils nécessaires pour vos chantiers'
+    },
+    {
+      src: '/images/products/construction/A6.jpeg',
+      alt: 'Matériaux de construction - Peinture',
+      title: 'Peintures et Finitions',
+      description: 'Peintures intérieures et extérieures de qualité'
+    }
+  ];
+
+  // État pour le carrousel
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [isAutoPlaying, setIsAutoPlaying] = useState(true);
+
+  // Animation automatique du carrousel
+  useEffect(() => {
+    if (!isAutoPlaying) return;
+
+    const interval = setInterval(() => {
+      setCurrentImageIndex((prevIndex) => 
+        prevIndex === carouselImages.length - 1 ? 0 : prevIndex + 1
+      );
+    }, 3000); // Change d'image toutes les 3 secondes
+
+    return () => clearInterval(interval);
+  }, [isAutoPlaying, carouselImages.length]);
+
+  // Navigation manuelle
+  const goToPrevious = () => {
+    setCurrentImageIndex((prevIndex) => 
+      prevIndex === 0 ? carouselImages.length - 1 : prevIndex - 1
+    );
+    setIsAutoPlaying(false);
+  };
+
+  const goToNext = () => {
+    setCurrentImageIndex((prevIndex) => 
+      prevIndex === carouselImages.length - 1 ? 0 : prevIndex + 1
+    );
+    setIsAutoPlaying(false);
+  };
+
+  const goToSlide = (index) => {
+    setCurrentImageIndex(index);
+    setIsAutoPlaying(false);
+  };
+
+  // Reprendre l'animation automatique après 10 secondes d'inactivité
+  useEffect(() => {
+    if (!isAutoPlaying) {
+      const timeout = setTimeout(() => {
+        setIsAutoPlaying(true);
+      }, 10000);
+      return () => clearTimeout(timeout);
+    }
+  }, [isAutoPlaying]);
 
   // Récupérer les produits vedettes de construction
   const { data: featuredConstruction, isLoading: featuredConstructionLoading } = useQuery(
@@ -129,27 +205,114 @@ const Home = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Hero Section */}
-      <section className="bg-gradient-to-r from-blue-600 to-orange-500 text-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+      {/* Hero Section avec Carrousel */}
+      <section className="relative bg-gradient-to-r from-blue-600 to-orange-500 text-white overflow-hidden">
+        {/* Carrousel d'Images */}
+        <div className="absolute inset-0 z-0">
+          <div className="relative w-full h-full">
+            {carouselImages.map((image, index) => (
+              <div
+                key={index}
+                className={`absolute inset-0 transition-opacity duration-1000 ease-in-out ${
+                  index === currentImageIndex ? 'opacity-100' : 'opacity-0'
+                }`}
+              >
+                <img
+                  src={image.src}
+                  alt={image.alt}
+                  className="w-full h-full object-cover"
+                  onError={(e) => {
+                    e.target.src = '/placeholder-construction.jpg';
+                  }}
+                />
+                {/* Overlay sombre pour la lisibilité du texte */}
+                <div className="absolute inset-0 bg-black bg-opacity-40"></div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Contenu par-dessus le carrousel */}
+        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
           <div className="text-center mb-12">
-            <h1 className="text-4xl md:text-6xl font-bold mb-6">
-              Votre Plateforme de Vente en Ligne
+            <h1 className="text-4xl md:text-6xl font-bold mb-6 drop-shadow-lg carousel-title">
+              Bowoye Multi Services
             </h1>
-            <p className="text-xl text-blue-100 max-w-3xl mx-auto mb-8">
+            <p className="text-xl text-blue-100 max-w-3xl mx-auto mb-8 drop-shadow-md fade-in">
               Découvrez nos deux univers : Matériaux de construction et Produits électroniques. 
               Tout ce dont vous avez besoin, au meilleur prix.
             </p>
+            
+            {/* Informations de l'image actuelle */}
+            <div className="bg-white/10 backdrop-blur-sm rounded-lg p-4 max-w-md mx-auto carousel-info">
+              <h3 className="text-lg font-semibold mb-2">
+                {carouselImages[currentImageIndex]?.title}
+              </h3>
+              <p className="text-sm text-blue-100">
+                {carouselImages[currentImageIndex]?.description}
+              </p>
+            </div>
+          </div>
+
+          {/* Contrôles du carrousel */}
+          <div className="flex justify-center items-center space-x-4 mb-8">
+            {/* Bouton Précédent */}
+            <button
+              onClick={goToPrevious}
+              className="p-2 bg-white/20 backdrop-blur-sm rounded-full hover:bg-white/30 transition-all duration-300 carousel-nav-button carousel-button-shine"
+              aria-label="Image précédente"
+            >
+              <ChevronLeft className="h-6 w-6" />
+            </button>
+
+            {/* Indicateurs de pagination */}
+            <div className="flex space-x-2">
+              {carouselImages.map((_, index) => (
+                <button
+                  key={index}
+                  onClick={() => goToSlide(index)}
+                  className={`w-3 h-3 rounded-full transition-all duration-300 carousel-dot ${
+                    index === currentImageIndex
+                      ? 'bg-white scale-125 active pulse'
+                      : 'bg-white/50 hover:bg-white/70'
+                  }`}
+                  aria-label={`Aller à l'image ${index + 1}`}
+                />
+              ))}
+            </div>
+
+            {/* Bouton Suivant */}
+            <button
+              onClick={goToNext}
+              className="p-2 bg-white/20 backdrop-blur-sm rounded-full hover:bg-white/30 transition-all duration-300 carousel-nav-button carousel-button-shine"
+              aria-label="Image suivante"
+            >
+              <ChevronRight className="h-6 w-6" />
+            </button>
+          </div>
+
+          {/* Indicateur de lecture automatique */}
+          <div className="flex justify-center">
+            <button
+              onClick={() => setIsAutoPlaying(!isAutoPlaying)}
+              className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-300 carousel-play-button ${
+                isAutoPlaying
+                  ? 'bg-white/20 backdrop-blur-sm text-white'
+                  : 'bg-white/10 backdrop-blur-sm text-blue-100'
+              }`}
+            >
+              {isAutoPlaying ? '⏸️ Pause' : '▶️ Lecture'}
+            </button>
           </div>
 
           {/* Main Categories */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto mt-12">
             <Link
               to="/construction"
-              className="group bg-white/10 backdrop-blur-sm rounded-2xl p-8 hover:bg-white/20 transition-all duration-300"
+              className="group bg-white/10 backdrop-blur-sm rounded-2xl p-8 hover:bg-white/20 transition-all duration-300 carousel-category slide-in-left"
             >
               <div className="text-center">
-                <div className="w-16 h-16 bg-orange-100 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform">
+                <div className="w-16 h-16 bg-orange-100 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform carousel-icon">
                   <Truck className="h-8 w-8 text-orange-600" />
                 </div>
                 <h2 className="text-2xl font-bold mb-3">Matériaux de Construction</h2>
@@ -165,10 +328,10 @@ const Home = () => {
 
             <Link
               to="/electronics"
-              className="group bg-white/10 backdrop-blur-sm rounded-2xl p-8 hover:bg-white/20 transition-all duration-300"
+              className="group bg-white/10 backdrop-blur-sm rounded-2xl p-8 hover:bg-white/20 transition-all duration-300 carousel-category slide-in-right"
             >
               <div className="text-center">
-                <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform">
+                <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform carousel-icon">
                   <Zap className="h-8 w-8 text-blue-600" />
                 </div>
                 <h2 className="text-2xl font-bold mb-3">Électronique</h2>
@@ -244,7 +407,7 @@ const Home = () => {
               to="/construction"
               className="text-primary-500 hover:text-primary-600 text-sm font-medium"
             >
-              Voir tout →
+              Voir tout → team
             </Link>
           </div>
           

@@ -57,7 +57,50 @@ export const localAuthAPI = {
   login: async (email, password) => {
     await delay(1000); // Simuler un délai de réseau
     
-    const user = LOCAL_USERS.find(u => u.email === email && u.password === password);
+    // Charger les utilisateurs depuis localStorage
+    const users = JSON.parse(localStorage.getItem('users') || '[]');
+    
+    // Si aucun utilisateur n'existe, créer les utilisateurs par défaut
+    if (users.length === 0) {
+      const defaultUsers = [
+        {
+          _id: '1',
+          id: 1,
+          firstName: 'Admin',
+          lastName: 'Koula',
+          email: 'admin@koula.gn',
+          password: 'admin123',
+          phone: '+224 123 456 789',
+          role: 'admin',
+          isActive: true,
+          createdAt: new Date().toISOString(),
+          lastLogin: null,
+          totalOrders: 0,
+          totalSpent: 0,
+          address: 'Conakry, Guinée'
+        },
+        {
+          _id: '2',
+          id: 2,
+          firstName: 'Client',
+          lastName: 'Test',
+          email: 'client@koula.gn',
+          password: 'password123',
+          phone: '+224 987 654 321',
+          role: 'client',
+          isActive: true,
+          createdAt: new Date().toISOString(),
+          lastLogin: null,
+          totalOrders: 0,
+          totalSpent: 0,
+          address: 'Conakry, Guinée'
+        }
+      ];
+      localStorage.setItem('users', JSON.stringify(defaultUsers));
+      users.push(...defaultUsers);
+    }
+    
+    const user = users.find(u => u.email === email && u.password === password);
     
     if (!user) {
       throw new Error('Email ou mot de passe incorrect');
@@ -65,6 +108,12 @@ export const localAuthAPI = {
 
     const token = generateToken(user.id);
     const { password: _, ...userWithoutPassword } = user;
+    
+    // Mettre à jour la dernière connexion
+    const updatedUsers = users.map(u => 
+      u.id === user.id ? { ...u, lastLogin: new Date().toISOString() } : u
+    );
+    localStorage.setItem('users', JSON.stringify(updatedUsers));
     
     // Stocker en localStorage
     localStorage.setItem('token', token);
@@ -84,29 +133,37 @@ export const localAuthAPI = {
     
     const { email, password, firstName, lastName, phone } = userData;
     
+    // Charger les utilisateurs existants depuis localStorage
+    const existingUsers = JSON.parse(localStorage.getItem('users') || '[]');
+    
     // Vérifier si l'email existe déjà
-    const existingUser = LOCAL_USERS.find(u => u.email === email);
+    const existingUser = existingUsers.find(u => u.email === email);
     if (existingUser) {
       throw new Error('Un compte avec cet email existe déjà');
     }
 
     // Créer un nouvel utilisateur
     const newUser = {
-      id: (LOCAL_USERS.length + 1).toString(),
+      _id: Date.now().toString(),
+      id: Date.now(),
       firstName,
       lastName,
       email,
       password,
       phone: phone || '',
-      role: 'user',
-      address: {
-        street: '',
-        city: '',
-        country: 'Guinée'
-      }
+      role: 'client',
+      isActive: true,
+      createdAt: new Date().toISOString(),
+      lastLogin: null,
+      totalOrders: 0,
+      totalSpent: 0,
+      address: phone || ''
     };
 
-    LOCAL_USERS.push(newUser);
+    // Ajouter à la liste des utilisateurs
+    const updatedUsers = [...existingUsers, newUser];
+    localStorage.setItem('users', JSON.stringify(updatedUsers));
+
     const token = generateToken(newUser.id);
     const { password: _, ...userWithoutPassword } = newUser;
     

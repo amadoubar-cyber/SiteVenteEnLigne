@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test - Données Réelles Uniquement</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1000px;
+            margin: 50px auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .button {
+            background: #dc3545;
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 10px 5px;
+        }
+        .button:hover {
+            background: #c82333;
+        }
+        .success {
+            background: #28a745;
+        }
+        .success:hover {
+            background: #218838;
+        }
+        .info {
+            background: #17a2b8;
+        }
+        .info:hover {
+            background: #138496;
+        }
+        .warning {
+            background: #ffc107;
+            color: #212529;
+        }
+        .warning:hover {
+            background: #e0a800;
+        }
+        .status {
+            margin: 20px 0;
+            padding: 15px;
+            border-radius: 5px;
+            background: #e9ecef;
+        }
+        .log {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 5px;
+            padding: 15px;
+            margin: 20px 0;
+            font-family: monospace;
+            white-space: pre-wrap;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        .test-section {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 5px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+        .data-item {
+            background: #ffffff;
+            border: 1px solid #dee2e6;
+            border-radius: 3px;
+            padding: 10px;
+            margin: 5px 0;
+        }
+        .empty-state {
+            text-align: center;
+            color: #6c757d;
+            font-style: italic;
+            padding: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧪 Test - Données Réelles Uniquement</h1>
+        <p>Vérification que l'interface admin ne montre que les vraies données insérées par l'utilisateur.</p>
+        
+        <div class="status" id="status">
+            Prêt à vérifier les données...
+        </div>
+        
+        <div class="test-section">
+            <h2>🧹 Nettoyage Complet</h2>
+            <button class="button" onclick="cleanAllData()">Vider TOUTES les données</button>
+            <button class="button warning" onclick="cleanFakeDataOnly()">Vider données de test seulement</button>
+            <div id="cleanupLog" class="log"></div>
+        </div>
+        
+        <div class="test-section">
+            <h2>📊 Vérification des Données</h2>
+            <button class="button info" onclick="checkAllData()">Vérifier toutes les données</button>
+            <button class="button success" onclick="addRealProduct()">Ajouter un vrai produit</button>
+            <div id="dataLog" class="log"></div>
+        </div>
+        
+        <div class="test-section">
+            <h2>📦 Produits</h2>
+            <div id="productsList" class="log"></div>
+        </div>
+        
+        <div class="test-section">
+            <h2>🛒 Ventes</h2>
+            <div id="salesList" class="log"></div>
+        </div>
+        
+        <div class="test-section">
+            <h2>💳 Dettes</h2>
+            <div id="debtsList" class="log"></div>
+        </div>
+        
+        <div class="test-section">
+            <h2>👥 Utilisateurs</h2>
+            <div id="usersList" class="log"></div>
+        </div>
+        
+        <div class="test-section">
+            <h2>🏷️ Catégories</h2>
+            <div id="categoriesList" class="log"></div>
+        </div>
+        
+        <div class="test-section">
+            <h2>🔗 Actions</h2>
+            <button class="button success" onclick="goToAdmin()">Aller à l'admin</button>
+            <button class="button info" onclick="reloadPage()">Recharger la page</button>
+        </div>
+        
+        <div class="log" id="log"></div>
+    </div>
+
+    <script>
+        function log(message) {
+            const logElement = document.getElementById('log');
+            const timestamp = new Date().toLocaleTimeString();
+            logElement.textContent += `[${timestamp}] ${message}\n`;
+            logElement.scrollTop = logElement.scrollHeight;
+        }
+
+        function updateStatus(message, type = 'info') {
+            const statusElement = document.getElementById('status');
+            statusElement.textContent = message;
+            statusElement.style.background = type === 'success' ? '#d4edda' : 
+                                           type === 'error' ? '#f8d7da' : '#e9ecef';
+        }
+
+        function cleanAllData() {
+            log('🧹 Nettoyage complet de toutes les données...');
+            try {
+                localStorage.clear();
+                sessionStorage.clear();
+                
+                // Nettoyer les cookies
+                document.cookie.split(";").forEach(function(c) { 
+                    document.cookie = c.replace(/^ +/, "").replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/"); 
+                });
+                
+                log('✅ Toutes les données supprimées');
+                updateStatus('✅ Toutes les données supprimées', 'success');
+                
+                // Mettre à jour l'affichage
+                checkAllData();
+                
+            } catch (error) {
+                log('❌ Erreur: ' + error.message);
+                updateStatus('❌ Erreur lors du nettoyage', 'error');
+            }
+        }
+
+        function cleanFakeDataOnly() {
+            log('🧹 Nettoyage des données de test seulement...');
+            
+            const fakeDataKeys = [
+                'salesData', 'ordersData', 'adminOrders', 'revenueData', 'salesStats',
+                'debts', 'debtData', 'adminDebts'
+            ];
+            
+            let cleanedCount = 0;
+            fakeDataKeys.forEach(key => {
+                if (localStorage.getItem(key)) {
+                    localStorage.removeItem(key);
+                    cleanedCount++;
+                    log(`✅ Supprimé: ${key}`);
+                }
+            });
+            
+            log(`📊 ${cleanedCount} données de test supprimées`);
+            updateStatus(`${cleanedCount} données de test supprimées`, 'success');
+            
+            checkAllData();
+        }
+
+        function addRealProduct() {
+            log('📦 Ajout d\'un vrai produit...');
+            
+            const realProduct = {
+                _id: 'real_product_' + Date.now(),
+                name: 'Produit Réel Test',
+                description: 'Ceci est un vrai produit ajouté par l\'utilisateur',
+                price: 50000,
+                category: 'Test',
+                stock: 10,
+                isPublished: true,
+                createdAt: new Date().toISOString(),
+                updatedAt: new Date().toISOString()
+            };
+            
+            // Récupérer les produits existants
+            const existingProducts = JSON.parse(localStorage.getItem('koula_products') || '[]');
+            existingProducts.push(realProduct);
+            
+            // Sauvegarder
+            localStorage.setItem('koula_products', JSON.stringify(existingProducts));
+            
+            log('✅ Produit réel ajouté');
+            updateStatus('✅ Produit réel ajouté', 'success');
+            
+            checkAllData();
+        }
+
+        function checkAllData() {
+            log('🔍 Vérification de toutes les données...');
+            
+            const dataTypes = {
+                'Produits': 'koula_products',
+                'Ventes': 'salesData',
+                'Dettes': 'debts',
+                'Utilisateurs': 'users',
+                'Catégories': 'categories'
+            };
+            
+            let totalItems = 0;
+            let hasData = false;
+            
+            Object.entries(dataTypes).forEach(([name, key]) => {
+                const data = localStorage.getItem(key);
+                if (data) {
+                    try {
+                        const parsed = JSON.parse(data);
+                        const count = Array.isArray(parsed) ? parsed.length : 1;
+                        totalItems += count;
+                        hasData = true;
+                        log(`📊 ${name}: ${count} éléments`);
+                    } catch (e) {
+                        log(`❌ ${name}: données corrompues`);
+                    }
+                } else {
+                    log(`⚪ ${name}: vide`);
+                }
+            });
+            
+            updateStatus(hasData ? `${totalItems} éléments trouvés` : 'Aucune donnée trouvée', hasData ? 'info' : 'success');
+            
+            // Mettre à jour les listes
+            displayProducts();
+            displaySales();
+            displayDebts();
+            displayUsers();
+            displayCategories();
+        }
+
+        function displayProducts() {
+            const element = document.getElementById('productsList');
+            const products = JSON.parse(localStorage.getItem('koula_products') || '[]');
+            
+            if (products.length === 0) {
+                element.innerHTML = '<div class="empty-state">Aucun produit trouvé</div>';
+            } else {
+                let html = `📦 ${products.length} produit(s):\n\n`;
+                products.forEach((product, index) => {
+                    html += `${index + 1}. ${product.name}\n`;
+                    html += `   💰 Prix: ${product.price?.toLocaleString() || 0} FG\n`;
+                    html += `   📦 Stock: ${product.stock || 0}\n`;
+                    html += `   🏷️ Catégorie: ${product.category || 'Non définie'}\n`;
+                    html += `   📅 Créé: ${new Date(product.createdAt).toLocaleDateString('fr-FR')}\n\n`;
+                });
+                element.textContent = html;
+            }
+        }
+
+        function displaySales() {
+            const element = document.getElementById('salesList');
+            const sales = JSON.parse(localStorage.getItem('salesData') || '[]');
+            
+            if (sales.length === 0) {
+                element.innerHTML = '<div class="empty-state">Aucune vente trouvée</div>';
+            } else {
+                let html = `🛒 ${sales.length} vente(s):\n\n`;
+                sales.forEach((sale, index) => {
+                    html += `${index + 1}. ${sale.productName || 'Produit'}\n`;
+                    html += `   👤 Client: ${sale.customerName || 'Non spécifié'}\n`;
+                    html += `   💰 Montant: ${sale.totalPrice?.toLocaleString() || 0} FG\n`;
+                    html += `   📅 Date: ${new Date(sale.soldAt || sale.createdAt).toLocaleDateString('fr-FR')}\n\n`;
+                });
+                element.textContent = html;
+            }
+        }
+
+        function displayDebts() {
+            const element = document.getElementById('debtsList');
+            const debts = JSON.parse(localStorage.getItem('debts') || '[]');
+            
+            if (debts.length === 0) {
+                element.innerHTML = '<div class="empty-state">Aucune dette trouvée</div>';
+            } else {
+                let html = `💳 ${debts.length} dette(s):\n\n`;
+                debts.forEach((debt, index) => {
+                    html += `${index + 1}. ${debt.customerName || 'Client'}\n`;
+                    html += `   📦 Produit: ${debt.productName || 'Non spécifié'}\n`;
+                    html += `   💰 Montant: ${debt.totalPrice?.toLocaleString() || 0} FG\n`;
+                    html += `   💳 Payé: ${debt.paidAmount?.toLocaleString() || 0} FG\n`;
+                    html += `   ⏳ Restant: ${debt.remainingAmount?.toLocaleString() || 0} FG\n\n`;
+                });
+                element.textContent = html;
+            }
+        }
+
+        function displayUsers() {
+            const element = document.getElementById('usersList');
+            const users = JSON.parse(localStorage.getItem('users') || '[]');
+            
+            if (users.length === 0) {
+                element.innerHTML = '<div class="empty-state">Aucun utilisateur trouvé</div>';
+            } else {
+                let html = `👥 ${users.length} utilisateur(s):\n\n`;
+                users.forEach((user, index) => {
+                    html += `${index + 1}. ${user.firstName || ''} ${user.lastName || ''}\n`;
+                    html += `   📧 Email: ${user.email || 'Non spécifié'}\n`;
+                    html += `   🏷️ Rôle: ${user.role || 'Non spécifié'}\n\n`;
+                });
+                element.textContent = html;
+            }
+        }
+
+        function displayCategories() {
+            const element = document.getElementById('categoriesList');
+            const categories = JSON.parse(localStorage.getItem('categories') || '[]');
+            
+            if (categories.length === 0) {
+                element.innerHTML = '<div class="empty-state">Aucune catégorie trouvée</div>';
+            } else {
+                let html = `🏷️ ${categories.length} catégorie(s):\n\n`;
+                categories.forEach((category, index) => {
+                    html += `${index + 1}. ${category.name || 'Non nommée'}\n`;
+                    html += `   📝 Description: ${category.description || 'Aucune'}\n\n`;
+                });
+                element.textContent = html;
+            }
+        }
+
+        function goToAdmin() {
+            log('🔗 Redirection vers l\'admin...');
+            window.location.href = '/admin';
+        }
+
+        function reloadPage() {
+            log('🔄 Rechargement de la page...');
+            window.location.reload();
+        }
+
+        // Vérification automatique au chargement
+        window.onload = function() {
+            log('🚀 Page de test des données réelles chargée');
+            checkAllData();
+        };
+    </script>
+</body>
+</html>

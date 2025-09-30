@@ -141,7 +141,7 @@ const Checkout = () => {
 
     // Calculer les totaux
     const subtotal = totalPrice;
-    const shippingCost = 5000; // Frais de livraison fixes
+    const shippingCost = 0; // Livraison gratuite
     const tax = 0; // Pas de taxe pour l'instant
     const total = subtotal + shippingCost + tax;
 

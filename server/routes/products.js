@@ -28,6 +28,9 @@ const productValidation = [
   body('price')
     .isFloat({ min: 0 })
     .withMessage('Le prix doit être un nombre positif'),
+  body('purchasePrice')
+    .isFloat({ min: 0 })
+    .withMessage('Le prix d\'achat doit être un nombre positif'),
   body('category')
     .isMongoId()
     .withMessage('ID de catégorie invalide'),

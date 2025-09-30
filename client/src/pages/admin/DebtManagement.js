@@ -15,18 +15,17 @@ import {
   Trash2,
   Filter,
   Search,
-  TrendingUp,
-  TrendingDown,
   FileText,
   Receipt,
   Package
 } from 'lucide-react';
+import ResetButton from '../../components/ResetButton';
 
 const DebtManagement = () => {
   const [debts, setDebts] = useState([]);
   const [sales, setSales] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [stats, setStats] = useState({});
+  // Statistiques supprimées - plus d'affichage des cartes de stats
   const [filters, setFilters] = useState({
     status: 'all',
     search: '',
@@ -66,32 +65,33 @@ const DebtManagement = () => {
     notes: ''
   });
 
-  // Données de test
+  // Charger les données au montage du composant
   useEffect(() => {
     console.log('DebtManagement component loaded');
     loadDebtsData();
     loadSalesData();
-  }, [filters]);
-
-  // Charger les dettes depuis localStorage au montage du composant
-  useEffect(() => {
-    const savedDebts = localStorage.getItem('debts');
-    if (savedDebts) {
-      try {
-        const parsedDebts = JSON.parse(savedDebts);
-        // Convertir les dates string en objets Date
-        const debtsWithDates = parsedDebts.map(debt => ({
-          ...debt,
-          dueDate: new Date(debt.dueDate),
-          createdAt: new Date(debt.createdAt)
-        }));
-        setDebts(debtsWithDates);
-        console.log('Dettes chargées depuis localStorage:', debtsWithDates);
-      } catch (error) {
-        console.error('Erreur lors du chargement des dettes:', error);
-      }
-    }
   }, []);
+
+
+  // Fonction de calcul des statistiques supprimée - plus d'affichage des cartes de stats
+
+  // Fonction de réinitialisation des dettes
+  const handleResetDebts = async () => {
+    try {
+      // Vider toutes les données de dettes
+      localStorage.removeItem('debts');
+      localStorage.removeItem('debtData');
+      localStorage.removeItem('adminDebts');
+      
+      // Réinitialiser l'état
+      setDebts([]);
+      
+      console.log('✅ Données de dettes réinitialisées avec succès');
+    } catch (error) {
+      console.error('❌ Erreur lors de la réinitialisation des dettes:', error);
+      throw error;
+    }
+  };
 
   const loadSalesData = async () => {
     // Simulation de données - à remplacer par des appels API réels
@@ -101,39 +101,54 @@ const DebtManagement = () => {
   };
 
   const loadDebtsData = async () => {
+    console.log('Loading debts data...');
     setLoading(true);
     
-    // Simulation de données - à remplacer par des appels API réels
-    const mockDebts = [];
-
-    const mockStats = {
-      summary: {
-        totalDebts: 3,
-        totalAmount: 1700000,
-        totalPaid: 525000,
-        totalRemaining: 1175000,
-        overdueCount: 1
-      },
-      byStatus: [
-        { _id: 'pending', count: 1, totalAmount: 850000, remainingAmount: 850000 },
-        { _id: 'partial', count: 1, totalAmount: 625000, remainingAmount: 325000 },
-        { _id: 'paid', count: 1, totalAmount: 225000, remainingAmount: 0 }
-      ]
-    };
-
-    setTimeout(() => {
-      setDebts(mockDebts);
-      setStats(mockStats);
-      setLoading(false);
-    }, 1000);
+    try {
+      // Charger les dettes depuis localStorage
+      const savedDebts = localStorage.getItem('debts');
+      console.log('Saved debts from localStorage:', savedDebts);
+      let debtsData = [];
+      
+      if (savedDebts) {
+        // Charger les dettes existantes
+        const parsedDebts = JSON.parse(savedDebts);
+        console.log('Parsed debts:', parsedDebts);
+        debtsData = parsedDebts.map(debt => ({
+          ...debt,
+          dueDate: new Date(debt.dueDate),
+          createdAt: new Date(debt.createdAt)
+        }));
+      } else {
+        console.log('No saved debts found - starting with empty state');
+        // Ne pas créer de données de test - commencer avec un état vide
+        debtsData = [];
+      }
+      
+      setDebts(debtsData);
+      console.log('Dettes chargées et définies:', debtsData);
+      
+    } catch (error) {
+      console.error('Erreur lors du chargement des dettes:', error);
+      setDebts([]);
+    }
+    
+    setLoading(false);
   };
 
   const formatCurrency = (amount) => {
-    return new Intl.NumberFormat('fr-FR').format(amount) + ' FG';
+    // Gérer les valeurs NaN, undefined, null
+    const safeAmount = isNaN(amount) || amount === null || amount === undefined ? 0 : Number(amount) || 0;
+    return new Intl.NumberFormat('fr-FR').format(safeAmount) + ' FG';
   };
 
   const formatDate = (date) => {
+    if (!date) return 'Date non spécifiée';
+    try {
     return new Date(date).toLocaleDateString('fr-FR');
+    } catch (error) {
+      return 'Date invalide';
+    }
   };
 
   const getStatusColor = (status) => {
@@ -274,13 +289,7 @@ const DebtManagement = () => {
       return updatedDebts;
     });
     
-    // Mettre à jour les statistiques
-    setStats(prevStats => ({
-      ...prevStats,
-      totalAmount: prevStats.totalAmount + totalPrice,
-      totalRemaining: prevStats.totalRemaining + totalPrice,
-      count: prevStats.count + 1
-    }));
+    // Statistiques supprimées - plus de mise à jour nécessaire
 
     console.log('Dette créée et ajoutée:', newDebt);
     
@@ -353,7 +362,7 @@ const DebtManagement = () => {
             Suivi des paiements et encaissements clients
           </p>
         </div>
-        <div className="mt-4 sm:mt-0">
+        <div className="mt-4 sm:mt-0 flex flex-col sm:flex-row gap-3">
             <button
               onClick={(e) => {
                 e.preventDefault();
@@ -366,67 +375,15 @@ const DebtManagement = () => {
               <Plus className="h-4 w-4 mr-2" />
               Vente à Crédit
             </button>
+            <ResetButton
+              onReset={handleResetDebts}
+              resetType="dettes"
+              confirmMessage="Êtes-vous sûr de vouloir réinitialiser toutes les dettes ? Cette action supprimera définitivement toutes les dettes, paiements et données associées."
+              variant="danger"
+            />
         </div>
       </div>
 
-      {/* Statistiques */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <div className="bg-white p-6 rounded-lg shadow-sm border">
-          <div className="flex items-center">
-            <div className="p-3 bg-blue-100 rounded-lg">
-              <CreditCard className="h-6 w-6 text-blue-600" />
-            </div>
-            <div className="ml-4">
-              <p className="text-sm font-medium text-gray-600">Total Dettes</p>
-              <p className="text-2xl font-bold text-gray-900">{stats.summary.totalDebts}</p>
-              <p className="text-sm text-gray-500">{formatCurrency(stats.summary.totalAmount)}</p>
-            </div>
-          </div>
-        </div>
-
-        <div className="bg-white p-6 rounded-lg shadow-sm border">
-          <div className="flex items-center">
-            <div className="p-3 bg-green-100 rounded-lg">
-              <CheckCircle className="h-6 w-6 text-green-600" />
-            </div>
-            <div className="ml-4">
-              <p className="text-sm font-medium text-gray-600">Montant Payé</p>
-              <p className="text-2xl font-bold text-gray-900">{formatCurrency(stats.summary.totalPaid)}</p>
-              <p className="text-sm text-green-600">
-                {Math.round((stats.summary.totalPaid / stats.summary.totalAmount) * 100)}% payé
-              </p>
-            </div>
-          </div>
-        </div>
-
-        <div className="bg-white p-6 rounded-lg shadow-sm border">
-          <div className="flex items-center">
-            <div className="p-3 bg-orange-100 rounded-lg">
-              <DollarSign className="h-6 w-6 text-orange-600" />
-            </div>
-            <div className="ml-4">
-              <p className="text-sm font-medium text-gray-600">Montant Restant</p>
-              <p className="text-2xl font-bold text-gray-900">{formatCurrency(stats.summary.totalRemaining)}</p>
-              <p className="text-sm text-orange-600">
-                {Math.round((stats.summary.totalRemaining / stats.summary.totalAmount) * 100)}% en attente
-              </p>
-            </div>
-          </div>
-        </div>
-
-        <div className="bg-white p-6 rounded-lg shadow-sm border">
-          <div className="flex items-center">
-            <div className="p-3 bg-red-100 rounded-lg">
-              <AlertTriangle className="h-6 w-6 text-red-600" />
-            </div>
-            <div className="ml-4">
-              <p className="text-sm font-medium text-gray-600">En Retard</p>
-              <p className="text-2xl font-bold text-gray-900">{stats.summary.overdueCount}</p>
-              <p className="text-sm text-red-600">Dettes échues</p>
-            </div>
-          </div>
-        </div>
-      </div>
 
       {/* Filtres */}
       <div className="bg-white p-6 rounded-lg shadow-sm border">
@@ -538,10 +495,10 @@ const DebtManagement = () => {
                   </td>
 
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm text-gray-900">Total: {formatCurrency(debt.totalPrice)}</div>
-                    <div className="text-sm text-green-600">Payé: {formatCurrency(debt.amountPaid)}</div>
+                    <div className="text-sm text-gray-900">Total: {formatCurrency(debt.totalPrice || 0)}</div>
+                    <div className="text-sm text-green-600">Payé: {formatCurrency(debt.paidAmount || debt.amountPaid || 0)}</div>
                     <div className="text-sm font-bold text-orange-600">
-                      Restant: {formatCurrency(debt.amountRemaining)}
+                      Restant: {formatCurrency(debt.remainingAmount || debt.amountRemaining || 0)}
                     </div>
                   </td>
 
@@ -811,7 +768,7 @@ const DebtManagement = () => {
                     </div>
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Prix unitaire (FCFA) *
+                        Prix unitaire (FG) *
                       </label>
                       <input
                         type="number"
@@ -894,12 +851,12 @@ const DebtManagement = () => {
                     </div>
                     <div>
                       <span className="text-gray-600">Prix unitaire :</span>
-                      <span className="ml-2 font-medium">{createDebtData.unitPrice.toLocaleString()} FCFA</span>
+                      <span className="ml-2 font-medium">{createDebtData.unitPrice.toLocaleString()} FG</span>
                     </div>
                     <div>
                       <span className="text-gray-600">Montant total :</span>
                       <span className="ml-2 font-bold text-red-600 text-lg">
-                        {createDebtData.totalPrice.toLocaleString()} FCFA
+                        {createDebtData.totalPrice.toLocaleString()} FG
                       </span>
                     </div>
                   </div>
@@ -966,7 +923,7 @@ const DebtManagement = () => {
                 <div className="flex justify-between">
                   <span className="text-sm text-gray-600">Montant:</span>
                   <span className="text-sm font-bold text-blue-600">
-                    {showSuccessModal.amount.toLocaleString()} FCFA
+                    {showSuccessModal.amount.toLocaleString()} FG
                   </span>
                 </div>
                 <div className="flex justify-between">

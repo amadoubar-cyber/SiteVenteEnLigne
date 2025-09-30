@@ -18,15 +18,13 @@ const Products = () => {
   const page = searchParams.get('page') || '1';
   const search = searchParams.get('search') || '';
   const category = searchParams.get('category') || '';
-  const minPrice = searchParams.get('minPrice') || '';
-  const maxPrice = searchParams.get('maxPrice') || '';
   const sort = searchParams.get('sort') || 'createdAt';
   const order = searchParams.get('order') || 'desc';
   const featured = searchParams.get('featured') || '';
 
   // Récupérer les produits
   const { data: productsData, isLoading } = useQuery(
-    ['products', { page, search, category, minPrice, maxPrice, sort, order, featured }],
+    ['products', { page, search, category, sort, order, featured }],
     async () => {
       try {
         // Essayer d'abord l'API locale
@@ -34,8 +32,6 @@ const Products = () => {
           page,
           search,
           category,
-          minPrice,
-          maxPrice,
           sort,
           order,
           featured
@@ -48,8 +44,6 @@ const Products = () => {
           page,
           search,
           category,
-          minPrice,
-          maxPrice,
           sort,
           order,
           featured
@@ -231,23 +225,6 @@ const Products = () => {
 
               {/* Price Range */}
               <div className="mb-6">
-                <label className="block text-sm font-medium mb-2">Prix</label>
-                <div className="space-y-2">
-                  <input
-                    type="number"
-                    placeholder="Prix min"
-                    value={minPrice}
-                    onChange={(e) => handleFilterChange('minPrice', e.target.value)}
-                    className="input w-full"
-                  />
-                  <input
-                    type="number"
-                    placeholder="Prix max"
-                    value={maxPrice}
-                    onChange={(e) => handleFilterChange('maxPrice', e.target.value)}
-                    className="input w-full"
-                  />
-                </div>
               </div>
 
               {/* Sort */}

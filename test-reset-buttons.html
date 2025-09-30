@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test des boutons de réinitialisation</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 50px auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .page-section {
+            margin: 30px 0;
+            padding: 20px;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            background: #fafafa;
+        }
+        .button {
+            background: #dc3545;
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 10px 5px;
+        }
+        .button:hover {
+            background: #c82333;
+        }
+        .success {
+            background: #28a745;
+        }
+        .success:hover {
+            background: #218838;
+        }
+        .info {
+            background: #17a2b8;
+        }
+        .info:hover {
+            background: #138496;
+        }
+        .warning {
+            background: #ffc107;
+            color: #212529;
+        }
+        .warning:hover {
+            background: #e0a800;
+        }
+        .status {
+            margin: 20px 0;
+            padding: 15px;
+            border-radius: 5px;
+            background: #e9ecef;
+        }
+        .log {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 5px;
+            padding: 15px;
+            margin: 20px 0;
+            font-family: monospace;
+            white-space: pre-wrap;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        .reset-button {
+            display: inline-flex;
+            align-items: center;
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-weight: 500;
+            transition: all 0.2s;
+            cursor: pointer;
+            border: 1px solid;
+            margin: 5px;
+        }
+        .reset-button.danger {
+            background: #fef2f2;
+            color: #dc2626;
+            border-color: #fecaca;
+        }
+        .reset-button.danger:hover {
+            background: #fee2e2;
+        }
+        .reset-button.warning {
+            background: #fffbeb;
+            color: #d97706;
+            border-color: #fed7aa;
+        }
+        .reset-button.warning:hover {
+            background: #fef3c7;
+        }
+        .reset-button.info {
+            background: #eff6ff;
+            color: #2563eb;
+            border-color: #bfdbfe;
+        }
+        .reset-button.info:hover {
+            background: #dbeafe;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧪 Test des boutons de réinitialisation</h1>
+        <p>Cette page permet de tester tous les boutons de réinitialisation ajoutés aux pages admin.</p>
+        
+        <div class="status" id="status">
+            Prêt à tester les boutons de réinitialisation...
+        </div>
+        
+        <div class="page-section">
+            <h2>📊 Dashboard (Tableau de bord)</h2>
+            <p>Bouton de réinitialisation de toutes les données</p>
+            <button class="reset-button danger" onclick="testReset('dashboard')">
+                🔄 Réinitialiser toutes les données
+            </button>
+        </div>
+        
+        <div class="page-section">
+            <h2>🛒 Gestion des Ventes</h2>
+            <p>Bouton de réinitialisation des données de vente</p>
+            <button class="reset-button danger" onclick="testReset('sales')">
+                🔄 Réinitialiser ventes
+            </button>
+        </div>
+        
+        <div class="page-section">
+            <h2>📦 Gestion des Produits</h2>
+            <p>Bouton de réinitialisation des produits</p>
+            <button class="reset-button danger" onclick="testReset('products')">
+                🔄 Réinitialiser produits
+            </button>
+        </div>
+        
+        <div class="page-section">
+            <h2>📈 Contrôle de Stock</h2>
+            <p>Bouton de réinitialisation des données de stock</p>
+            <button class="reset-button danger" onclick="testReset('stock')">
+                🔄 Réinitialiser stock
+            </button>
+        </div>
+        
+        <div class="page-section">
+            <h2>👥 Gestion des Utilisateurs</h2>
+            <p>Bouton de réinitialisation des utilisateurs</p>
+            <button class="reset-button danger" onclick="testReset('users')">
+                🔄 Réinitialiser utilisateurs
+            </button>
+        </div>
+        
+        <div class="page-section">
+            <h2>🏷️ Gestion des Catégories</h2>
+            <p>Bouton de réinitialisation des catégories</p>
+            <button class="reset-button warning" onclick="testReset('categories')">
+                🔄 Réinitialiser catégories
+            </button>
+        </div>
+        
+        <div class="page-section">
+            <h2>🧹 Actions globales</h2>
+            <p>Actions de nettoyage global</p>
+            <button class="button info" onclick="checkAllData()">Vérifier toutes les données</button>
+            <button class="button success" onclick="clearAllData()">Vider tout le localStorage</button>
+            <button class="button" onclick="goToAdmin()">Aller à l'admin</button>
+        </div>
+        
+        <div class="log" id="log"></div>
+    </div>
+
+    <script>
+        function log(message) {
+            const logElement = document.getElementById('log');
+            const timestamp = new Date().toLocaleTimeString();
+            logElement.textContent += `[${timestamp}] ${message}\n`;
+            logElement.scrollTop = logElement.scrollHeight;
+        }
+
+        function updateStatus(message, type = 'info') {
+            const statusElement = document.getElementById('status');
+            statusElement.textContent = message;
+            statusElement.style.background = type === 'success' ? '#d4edda' : 
+                                           type === 'error' ? '#f8d7da' : '#e9ecef';
+        }
+
+        function testReset(type) {
+            log(`🧪 Test du bouton de réinitialisation pour: ${type}`);
+            
+            switch(type) {
+                case 'dashboard':
+                    resetDashboard();
+                    break;
+                case 'sales':
+                    resetSales();
+                    break;
+                case 'products':
+                    resetProducts();
+                    break;
+                case 'stock':
+                    resetStock();
+                    break;
+                case 'users':
+                    resetUsers();
+                    break;
+                case 'categories':
+                    resetCategories();
+                    break;
+                default:
+                    log('❌ Type de réinitialisation non reconnu');
+            }
+        }
+
+        function resetDashboard() {
+            log('🔄 Réinitialisation du dashboard...');
+            try {
+                localStorage.clear();
+                sessionStorage.clear();
+                log('✅ Dashboard réinitialisé - toutes les données supprimées');
+                updateStatus('✅ Dashboard réinitialisé avec succès', 'success');
+            } catch (error) {
+                log('❌ Erreur: ' + error.message);
+                updateStatus('❌ Erreur lors de la réinitialisation', 'error');
+            }
+        }
+
+        function resetSales() {
+            log('🔄 Réinitialisation des ventes...');
+            try {
+                localStorage.removeItem('salesData');
+                localStorage.removeItem('ordersData');
+                localStorage.removeItem('adminOrders');
+                localStorage.removeItem('revenueData');
+                localStorage.removeItem('salesStats');
+                log('✅ Ventes réinitialisées');
+                updateStatus('✅ Ventes réinitialisées avec succès', 'success');
+            } catch (error) {
+                log('❌ Erreur: ' + error.message);
+                updateStatus('❌ Erreur lors de la réinitialisation', 'error');
+            }
+        }
+
+        function resetProducts() {
+            log('🔄 Réinitialisation des produits...');
+            try {
+                localStorage.removeItem('koula_products');
+                localStorage.removeItem('adminProducts');
+                localStorage.removeItem('productsData');
+                log('✅ Produits réinitialisés');
+                updateStatus('✅ Produits réinitialisés avec succès', 'success');
+            } catch (error) {
+                log('❌ Erreur: ' + error.message);
+                updateStatus('❌ Erreur lors de la réinitialisation', 'error');
+            }
+        }
+
+        function resetStock() {
+            log('🔄 Réinitialisation du stock...');
+            try {
+                localStorage.removeItem('salesData');
+                localStorage.removeItem('ordersData');
+                localStorage.removeItem('adminOrders');
+                localStorage.removeItem('stockMovements');
+                localStorage.removeItem('stockData');
+                localStorage.removeItem('revenueData');
+                log('✅ Stock réinitialisé');
+                updateStatus('✅ Stock réinitialisé avec succès', 'success');
+            } catch (error) {
+                log('❌ Erreur: ' + error.message);
+                updateStatus('❌ Erreur lors de la réinitialisation', 'error');
+            }
+        }
+
+        function resetUsers() {
+            log('🔄 Réinitialisation des utilisateurs...');
+            try {
+                localStorage.removeItem('users');
+                localStorage.removeItem('adminUsers');
+                localStorage.removeItem('userData');
+                log('✅ Utilisateurs réinitialisés');
+                updateStatus('✅ Utilisateurs réinitialisés avec succès', 'success');
+            } catch (error) {
+                log('❌ Erreur: ' + error.message);
+                updateStatus('❌ Erreur lors de la réinitialisation', 'error');
+            }
+        }
+
+        function resetCategories() {
+            log('🔄 Réinitialisation des catégories...');
+            try {
+                localStorage.removeItem('categories');
+                localStorage.removeItem('adminCategories');
+                localStorage.removeItem('categoryData');
+                log('✅ Catégories réinitialisées');
+                updateStatus('✅ Catégories réinitialisées avec succès', 'success');
+            } catch (error) {
+                log('❌ Erreur: ' + error.message);
+                updateStatus('❌ Erreur lors de la réinitialisation', 'error');
+            }
+        }
+
+        function checkAllData() {
+            log('🔍 Vérification de toutes les données...');
+            
+            const dataKeys = [
+                'salesData', 'ordersData', 'adminOrders', 'revenueData', 'salesStats',
+                'koula_products', 'adminProducts', 'productsData',
+                'stockMovements', 'stockData',
+                'users', 'adminUsers', 'userData',
+                'categories', 'adminCategories', 'categoryData'
+            ];
+            
+            let foundData = [];
+            dataKeys.forEach(key => {
+                if (localStorage.getItem(key)) {
+                    foundData.push(key);
+                }
+            });
+            
+            if (foundData.length > 0) {
+                log(`📊 Données trouvées: ${foundData.join(', ')}`);
+                updateStatus(`📊 ${foundData.length} types de données trouvées`, 'info');
+            } else {
+                log('📊 Aucune donnée trouvée - localStorage vide');
+                updateStatus('📊 Aucune donnée trouvée', 'success');
+            }
+        }
+
+        function clearAllData() {
+            log('🧹 Nettoyage complet du localStorage...');
+            try {
+                localStorage.clear();
+                sessionStorage.clear();
+                log('✅ Toutes les données supprimées');
+                updateStatus('✅ Toutes les données supprimées avec succès', 'success');
+            } catch (error) {
+                log('❌ Erreur: ' + error.message);
+                updateStatus('❌ Erreur lors du nettoyage', 'error');
+            }
+        }
+
+        function goToAdmin() {
+            log('🔗 Redirection vers l\'interface admin...');
+            window.location.href = '/admin';
+        }
+
+        // Vérifier les données au chargement de la page
+        window.onload = function() {
+            log('🚀 Page de test des boutons de réinitialisation chargée');
+            checkAllData();
+        };
+    </script>
+</body>
+</html>

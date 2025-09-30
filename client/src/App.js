@@ -17,6 +17,8 @@ import Cart from './pages/Cart';
 import Checkout from './pages/Checkout';
 import Login from './pages/Login';
 import Register from './pages/Register';
+import ForgotPassword from './pages/ForgotPassword';
+import ResetPassword from './pages/ResetPassword';
 import Profile from './pages/Profile';
 import Orders from './pages/Orders';
 import OrderDetail from './pages/OrderDetail';
@@ -24,11 +26,8 @@ import AdminLayout from './components/Layout/AdminLayout';
 import AdminDirect from './pages/admin/AdminDirect';
 import AdminDashboard from './pages/admin/Dashboard';
 import AdminProducts from './pages/admin/Products';
-import AdminOrders from './pages/admin/Orders';
-import AdminOrderDetail from './pages/admin/OrderDetail';
 import AdminCategories from './pages/admin/Categories';
 import AdminUsers from './pages/admin/Users';
-import AdminImages from './pages/admin/Images';
 import StockMovement from './pages/admin/StockMovement';
 import StockControl from './pages/admin/StockControl';
 import TestStockControl from './pages/admin/TestStockControl';
@@ -58,9 +57,7 @@ import TestLoginSimple from './pages/TestLoginSimple';
 import AdminFinal from './pages/AdminFinal';
 import AdminComplete from './pages/admin/AdminComplete';
 import AdminSimpleComplete from './pages/admin/AdminSimpleComplete';
-import AdminLogin from './pages/AdminLogin';
 import AdminAuth from './components/AdminAuth';
-import AdminLoginNew from './pages/admin/AdminLogin';
 import AdminRedirect from './pages/AdminRedirect';
 import TestAccounts from './pages/TestAccounts';
 import TestButtons from './pages/TestButtons';
@@ -70,6 +67,8 @@ import ProductManagementSimple from './pages/admin/ProductManagementSimple';
 import ProtectedRoute from './components/ProtectedRoute';
 import AdminRoute from './components/AdminRoute';
 import NotFound from './pages/NotFound';
+import DynamicDashboard from './components/DynamicDashboard';
+import LocalStorageDiagnostic from './components/LocalStorageDiagnostic';
 
 function App() {
   return (
@@ -92,17 +91,20 @@ function App() {
               <Route path="cart" element={<Cart />} />
               <Route path="login" element={<Login />} />
               <Route path="register" element={<Register />} />
+              <Route path="forgot-password" element={<ForgotPassword />} />
+              <Route path="reset-password/:token" element={<ResetPassword />} />
                   <Route path="admin-page" element={<AdminPage />} />
                   <Route path="test-login" element={<TestLogin />} />
                   <Route path="test-login-simple" element={<TestLoginSimple />} />
                   <Route path="admin-final" element={<AdminFinal />} />
                   <Route path="admin-complete" element={<AdminComplete />} />
                   <Route path="admin-simple-complete" element={<AdminSimpleComplete />} />
-                  <Route path="admin-login" element={<AdminLogin />} />
                   <Route path="test-buttons" element={<TestButtons />} />
                   <Route path="test-alerts" element={<TestAlerts />} />
                   <Route path="test-images" element={<TestImages />} />
                   <Route path="products-simple" element={<ProductManagementSimple />} />
+                  <Route path="dashboard-dynamique" element={<DynamicDashboard />} />
+                  <Route path="localstorage-diagnostic" element={<LocalStorageDiagnostic />} />
               
               {/* Protected Routes */}
               <Route path="checkout" element={
@@ -138,8 +140,6 @@ function App() {
             }>
               <Route index element={<AdminDashboard />} />
               <Route path="products" element={<AdminProducts />} />
-              <Route path="orders" element={<AdminOrders />} />
-              <Route path="orders/:orderId" element={<AdminOrderDetail />} />
               <Route path="stock" element={<StockMovement />} />
               <Route path="stock-control" element={<StockControlSimplePage />} />
               <Route path="stock-control-full" element={<StockControl />} />
@@ -154,7 +154,6 @@ function App() {
               <Route path="test-ultra-simple" element={<TestUltraSimple />} />
               <Route path="categories" element={<AdminCategories />} />
               <Route path="users" element={<AdminUsers />} />
-              <Route path="images" element={<AdminImages />} />
               <Route path="test" element={<AdminTest />} />
               <Route path="simple" element={<SimpleTest />} />
               <Route path="testsimple" element={<TestSimple />} />
@@ -173,7 +172,6 @@ function App() {
             
             {/* Routes d'authentification admin */}
             <Route path="/admin" element={<AdminRedirect />} />
-            <Route path="/admin-login" element={<AdminLoginNew />} />
             <Route path="/admin-simple-complete" element={
               <AdminAuth>
                 <AdminSimpleComplete />

@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Gestion Utilisateurs - Transformer Amadou Diallo en Admin</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        .header {
+            background: linear-gradient(135deg, #ff6b6b, #ffa500);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 2.5em;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        .content {
+            padding: 30px;
+        }
+        .test-section {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 25px;
+            margin: 20px 0;
+            border-left: 5px solid #ff6b6b;
+        }
+        .test-section h2 {
+            color: #ff6b6b;
+            margin-top: 0;
+            display: flex;
+            align-items: center;
+        }
+        .test-section h2::before {
+            content: "👤";
+            margin-right: 10px;
+            font-size: 1.2em;
+        }
+        .success {
+            background: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 10px 0;
+        }
+        .success::before {
+            content: "✅ ";
+            font-weight: bold;
+        }
+        .error {
+            background: #f8d7da;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 10px 0;
+        }
+        .error::before {
+            content: "❌ ";
+            font-weight: bold;
+        }
+        .info {
+            background: #d1ecf1;
+            border: 1px solid #bee5eb;
+            color: #0c5460;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 10px 0;
+        }
+        .info::before {
+            content: "ℹ️ ";
+            font-weight: bold;
+        }
+        .warning {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            color: #856404;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 10px 0;
+        }
+        .warning::before {
+            content: "⚠️ ";
+            font-weight: bold;
+        }
+        .code-block {
+            background: #2d3748;
+            color: #e2e8f0;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            margin: 10px 0;
+            overflow-x: auto;
+        }
+        .btn {
+            background: linear-gradient(135deg, #ff6b6b, #ffa500);
+            color: white;
+            padding: 12px 25px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 10px 5px;
+            text-decoration: none;
+            display: inline-block;
+            transition: transform 0.2s;
+        }
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        .btn-success {
+            background: linear-gradient(135deg, #28a745, #20c997);
+        }
+        .btn-danger {
+            background: linear-gradient(135deg, #dc3545, #e74c3c);
+        }
+        .checklist {
+            list-style: none;
+            padding: 0;
+        }
+        .checklist li {
+            padding: 8px 0;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            align-items: center;
+        }
+        .checklist li::before {
+            content: "☐";
+            margin-right: 10px;
+            font-size: 1.2em;
+        }
+        .checklist li.checked::before {
+            content: "☑️";
+        }
+        .footer {
+            background: #343a40;
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+        .step {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 15px 0;
+            border: 1px solid #e9ecef;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+        .step h3 {
+            color: #495057;
+            margin-top: 0;
+            display: flex;
+            align-items: center;
+        }
+        .step h3::before {
+            content: "📋";
+            margin-right: 8px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>👤 Test Gestion Utilisateurs</h1>
+            <p>Transformer Amadou Diallo en utilisateur admin</p>
+        </div>
+
+        <div class="content">
+            <!-- Problème identifié -->
+            <div class="test-section">
+                <h2>Problème Identifié</h2>
+                
+                <div class="warning">
+                    ⚠️ <strong>Problème :</strong> Impossible de modifier l'utilisateur Amadou Diallo pour le transformer en admin.
+                </div>
+
+                <div class="info">
+                    ℹ️ <strong>Objectif :</strong> Donner les droits d'administrateur à l'utilisateur Amadou Diallo.
+                </div>
+            </div>
+
+            <!-- Solutions -->
+            <div class="test-section">
+                <h2>Solutions Proposées</h2>
+                
+                <div class="step">
+                    <h3>Solution 1 : Rechercher l'utilisateur existant</h3>
+                    <div class="code-block">
+                        # Naviguer vers le dossier server
+                        cd server
+
+                        # Chercher Amadou Diallo dans la base de données
+                        node manage-users.js find Amadou Diallo
+                    </div>
+                    <div class="info">
+                        ℹ️ Cette commande va chercher l'utilisateur Amadou Diallo dans la base de données MongoDB.
+                    </div>
+                </div>
+
+                <div class="step">
+                    <h3>Solution 2 : Lister tous les utilisateurs</h3>
+                    <div class="code-block">
+                        # Voir tous les utilisateurs de la base
+                        node manage-users.js list
+                    </div>
+                    <div class="info">
+                        ℹ️ Cette commande va afficher tous les utilisateurs avec leurs IDs et rôles.
+                    </div>
+                </div>
+
+                <div class="step">
+                    <h3>Solution 3 : Transformer en admin (si trouvé)</h3>
+                    <div class="code-block">
+                        # Transformer l'utilisateur en admin (remplacer USER_ID par l'ID trouvé)
+                        node manage-users.js make-admin USER_ID
+                    </div>
+                    <div class="info">
+                        ℹ️ Cette commande va changer le rôle de l'utilisateur vers "admin".
+                    </div>
+                </div>
+
+                <div class="step">
+                    <h3>Solution 4 : Créer un nouvel admin</h3>
+                    <div class="code-block">
+                        # Créer un nouvel utilisateur admin
+                        node manage-users.js create-admin Amadou Diallo amadou@bowoye.gn password123
+                    </div>
+                    <div class="info">
+                        ℹ️ Cette commande va créer un nouvel utilisateur admin avec les informations fournies.
+                    </div>
+                </div>
+            </div>
+
+            <!-- Instructions détaillées -->
+            <div class="test-section">
+                <h2>Instructions Détaillées</h2>
+                
+                <div class="step">
+                    <h3>Étape 1 : Vérifier MongoDB</h3>
+                    <ul class="checklist">
+                        <li>☐ Vérifier que MongoDB est démarré</li>
+                        <li>☐ Vérifier la connexion à la base de données</li>
+                        <li>☐ Vérifier que le serveur backend peut se connecter</li>
+                    </ul>
+                </div>
+
+                <div class="step">
+                    <h3>Étape 2 : Rechercher l'utilisateur</h3>
+                    <ul class="checklist">
+                        <li>☐ Exécuter la commande de recherche</li>
+                        <li>☐ Vérifier si Amadou Diallo existe</li>
+                        <li>☐ Noter l'ID de l'utilisateur s'il est trouvé</li>
+                    </ul>
+                </div>
+
+                <div class="step">
+                    <h3>Étape 3 : Modifier le rôle</h3>
+                    <ul class="checklist">
+                        <li>☐ Utiliser l'ID trouvé pour modifier le rôle</li>
+                        <li>☐ Vérifier que la modification a réussi</li>
+                        <li>☐ Tester la connexion avec les nouveaux droits</li>
+                    </ul>
+                </div>
+
+                <div class="step">
+                    <h3>Étape 4 : Tester l'accès admin</h3>
+                    <ul class="checklist">
+                        <li>☐ Se connecter avec les identifiants d'Amadou Diallo</li>
+                        <li>☐ Vérifier l'accès à l'interface admin</li>
+                        <li>☐ Tester les fonctionnalités d'administration</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Commandes prêtes à exécuter -->
+            <div class="test-section">
+                <h2>Commandes Prêtes à Exécuter</h2>
+                
+                <div class="success">
+                    ✅ <strong>Copiez et exécutez ces commandes dans le terminal :</strong>
+                </div>
+
+                <div class="code-block">
+# 1. Aller dans le dossier server
+cd server
+
+# 2. Chercher Amadou Diallo
+node manage-users.js find Amadou Diallo
+
+# 3. Si trouvé, transformer en admin (remplacer USER_ID)
+node manage-users.js make-admin USER_ID
+
+# 4. Alternative : Créer un nouvel admin
+node manage-users.js create-admin Amadou Diallo amadou@bowoye.gn password123
+                </div>
+            </div>
+
+            <!-- Résolution de problèmes -->
+            <div class="test-section">
+                <h2>Résolution de Problèmes</h2>
+                
+                <div class="error">
+                    ❌ <strong>Si l'utilisateur n'est pas trouvé :</strong>
+                </div>
+                <ul>
+                    <li>Vérifiez l'orthographe du nom</li>
+                    <li>Essayez avec des variations (Diallo, Dialo, etc.)</li>
+                    <li>Créez un nouvel utilisateur admin</li>
+                </ul>
+
+                <div class="error">
+                    ❌ <strong>Si MongoDB n'est pas accessible :</strong>
+                </div>
+                <ul>
+                    <li>Vérifiez que MongoDB est démarré</li>
+                    <li>Vérifiez la connexion dans server/index.js</li>
+                    <li>Redémarrez le serveur backend</li>
+                </ul>
+
+                <div class="error">
+                    ❌ <strong>Si la modification échoue :</strong>
+                </div>
+                <ul>
+                    <li>Vérifiez que l'ID utilisateur est correct</li>
+                    <li>Vérifiez les permissions de la base de données</li>
+                    <li>Essayez de créer un nouvel utilisateur admin</li>
+                </ul>
+            </div>
+
+            <!-- Actions rapides -->
+            <div class="test-section">
+                <h2>Actions Rapides</h2>
+                <a href="http://localhost:3000/login" class="btn" target="_blank">
+                    🔑 Page de connexion
+                </a>
+                <a href="http://localhost:3000/admin" class="btn" target="_blank">
+                    🔧 Interface admin
+                </a>
+                <button onclick="copyCommands()" class="btn btn-success">
+                    📋 Copier les commandes
+                </button>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p><strong>Test Gestion Utilisateurs</strong> - Bowoye Multi Services</p>
+            <p>Transformer Amadou Diallo en utilisateur admin</p>
+        </div>
+    </div>
+
+    <script>
+        function copyCommands() {
+            const commands = `cd server
+node manage-users.js find Amadou Diallo
+node manage-users.js make-admin USER_ID
+node manage-users.js create-admin Amadou Diallo amadou@bowoye.gn password123`;
+            
+            navigator.clipboard.writeText(commands).then(() => {
+                alert('Commandes copiées dans le presse-papiers !');
+            }).catch(err => {
+                console.error('Erreur lors de la copie:', err);
+            });
+        }
+
+        // Animation des cartes
+        document.addEventListener('DOMContentLoaded', function() {
+            const cards = document.querySelectorAll('.step, .test-section');
+            cards.forEach((card, index) => {
+                card.style.opacity = '0';
+                card.style.transform = 'translateY(20px)';
+                setTimeout(() => {
+                    card.style.transition = 'all 0.5s ease';
+                    card.style.opacity = '1';
+                    card.style.transform = 'translateY(0)';
+                }, index * 100);
+            });
+        });
+    </script>
+</body>
+</html>

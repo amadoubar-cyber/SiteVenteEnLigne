@@ -5,32 +5,30 @@ import {
   ShoppingCart, 
   Users, 
   Settings, 
-  Image as ImageIcon,
   LogOut, 
   Menu, 
   X,
   Home,
   ChevronLeft,
-  Tag,
   TrendingUp,
   BarChart3,
-  CreditCard
+  CreditCard,
+  MessageCircle,
+  Clock
 } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 
 // Import des pages complètes
 import AdminDashboardComplete from './AdminDashboardComplete';
 import AdminProductsReal from './AdminProductsReal';
-import AdminOrdersComplete from './AdminOrdersComplete';
 import AdminUsersComplete from './AdminUsersComplete';
-import AdminCategoriesComplete from './AdminCategoriesComplete';
-import AdminImagesComplete from './AdminImagesComplete';
+import AdminCommentManagement from './AdminCommentManagement';
 import StockMovement from './StockMovement';
 import StockControl from './StockControl';
 import SalesManagement from './SalesManagement';
 import DebtManagement from './DebtManagement';
-import OrderManagement from './OrderManagement';
-import StockDemo from './StockDemo';
+import OrderApproval from './OrderApproval';
+import OrderHistory from './OrderHistory';
 
 const AdminSimpleComplete = ({ onLogout }) => {
   const navigate = useNavigate();
@@ -39,17 +37,15 @@ const AdminSimpleComplete = ({ onLogout }) => {
 
   const navigation = [
     { name: 'Tableau de bord', tab: 'dashboard', icon: LayoutDashboard },
+    { name: 'Validation Commandes', tab: 'order-approval', icon: ShoppingCart },
+    { name: 'Historique Commandes', tab: 'order-history', icon: Clock },
     { name: 'Produits', tab: 'products', icon: Package },
     { name: 'Mouvements de Stock', tab: 'stock', icon: TrendingUp },
     { name: 'Contrôle de Stock', tab: 'stock-control', icon: BarChart3 },
     { name: 'Gestion des Ventes', tab: 'sales', icon: ShoppingCart },
     { name: 'Gestion des Dettes', tab: 'debts', icon: CreditCard },
-    { name: 'Commandes', tab: 'orders', icon: ShoppingCart },
-    { name: 'Gestion des Commandes', tab: 'order-management', icon: ShoppingCart },
-    { name: 'Démo Stock', tab: 'stock-demo', icon: Package },
-    { name: 'Galerie d\'Images', tab: 'images', icon: ImageIcon },
     { name: 'Utilisateurs', tab: 'users', icon: Users },
-    { name: 'Catégories', tab: 'categories', icon: Tag },
+    { name: 'Commentaires', tab: 'comments', icon: MessageCircle },
   ];
 
   const handleNavigation = (item) => {
@@ -59,17 +55,15 @@ const AdminSimpleComplete = ({ onLogout }) => {
   const renderContent = () => {
     switch (activeTab) {
       case 'dashboard': return <AdminDashboardComplete />;
+      case 'order-approval': return <OrderApproval />;
+      case 'order-history': return <OrderHistory />;
       case 'products': return <AdminProductsReal />;
       case 'stock': return <StockMovement />;
       case 'stock-control': return <StockControl />;
       case 'sales': return <SalesManagement />;
       case 'debts': return <DebtManagement />;
-      case 'orders': return <AdminOrdersComplete />;
-      case 'order-management': return <OrderManagement />;
-      case 'stock-demo': return <StockDemo />;
-      case 'images': return <AdminImagesComplete />;
       case 'users': return <AdminUsersComplete />;
-      case 'categories': return <AdminCategoriesComplete />;
+      case 'comments': return <AdminCommentManagement />;
       default: return <AdminDashboardComplete />;
     }
   };

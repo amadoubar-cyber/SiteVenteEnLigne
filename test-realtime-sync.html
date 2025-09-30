@@ -1,0 +1,602 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test - Synchronisation Temps Réel</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+        }
+        .success {
+            background: #d4edda;
+            color: #155724;
+            padding: 10px;
+            border-radius: 4px;
+            margin: 10px 0;
+        }
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 10px;
+            border-radius: 4px;
+            margin: 10px 0;
+        }
+        .warning {
+            background: #fff3cd;
+            color: #856404;
+            padding: 10px;
+            border-radius: 4px;
+            margin: 10px 0;
+        }
+        .info {
+            background: #d1ecf1;
+            color: #0c5460;
+            padding: 10px;
+            border-radius: 4px;
+            margin: 10px 0;
+        }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+        .danger {
+            background: #dc3545;
+        }
+        .danger:hover {
+            background: #c82333;
+        }
+        .success-btn {
+            background: #28a745;
+        }
+        .success-btn:hover {
+            background: #218838;
+        }
+        .warning-btn {
+            background: #ffc107;
+            color: #212529;
+        }
+        .warning-btn:hover {
+            background: #e0a800;
+        }
+        .sync-indicator {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            margin-right: 5px;
+        }
+        .sync-active {
+            background: #28a745;
+            animation: pulse 1s infinite;
+        }
+        .sync-inactive {
+            background: #6c757d;
+        }
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+        .event-log {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            padding: 15px;
+            max-height: 300px;
+            overflow-y: auto;
+            font-family: monospace;
+            font-size: 12px;
+        }
+        .event-item {
+            margin: 5px 0;
+            padding: 5px;
+            border-left: 3px solid #007bff;
+            background: white;
+        }
+        .event-order {
+            border-left-color: #28a745;
+        }
+        .event-stock {
+            border-left-color: #ffc107;
+        }
+        .event-sync {
+            border-left-color: #17a2b8;
+        }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        .stat-card {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 6px;
+            border-left: 4px solid #007bff;
+            text-align: center;
+        }
+        .stat-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: #333;
+        }
+        .stat-label {
+            color: #666;
+            font-size: 14px;
+        }
+        .component-status {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        .component-card {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 6px;
+            border: 1px solid #dee2e6;
+        }
+        .component-name {
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        .component-sync {
+            display: flex;
+            align-items: center;
+            margin: 5px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔄 Test - Synchronisation Temps Réel</h1>
+        <p>Ce script teste le système de synchronisation en temps réel entre toutes les pages admin.</p>
+        
+        <div class="test-section">
+            <h3>📊 État de Synchronisation</h3>
+            <div id="syncStatus">
+                <div class="sync-indicator sync-inactive"></div>
+                <span>En attente de synchronisation...</span>
+            </div>
+            <div class="stats-grid" id="statsGrid"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>🧪 Tests de Synchronisation</h3>
+            <button onclick="createTestOrder()" class="success-btn">
+                📦 Créer Commande Test
+            </button>
+            <button onclick="approveLastOrder()" class="success-btn">
+                ✅ Approuver Dernière Commande
+            </button>
+            <button onclick="rejectLastOrder()" class="warning-btn">
+                ❌ Rejeter Dernière Commande
+            </button>
+            <button onclick="createStockMovement()" class="success-btn">
+                📦 Créer Mouvement Stock
+            </button>
+            <button onclick="forceSync()" class="warning-btn">
+                🔄 Forcer Synchronisation
+            </button>
+            <button onclick="clearAllData()" class="danger">
+                🗑️ Vider Toutes les Données
+            </button>
+        </div>
+
+        <div class="test-section">
+            <h3>📋 Statut des Composants</h3>
+            <div class="component-status" id="componentStatus"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>📝 Journal des Événements</h3>
+            <div class="event-log" id="eventLog"></div>
+            <button onclick="clearEventLog()" class="warning-btn">
+                🗑️ Vider le Journal
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // Simuler le système de synchronisation
+        class RealtimeSyncTest {
+            constructor() {
+                this.components = new Map();
+                this.eventLog = [];
+                this.syncCount = 0;
+                this.isActive = false;
+                this.init();
+            }
+
+            init() {
+                // Simuler les composants admin
+                this.components.set('dashboard', { name: 'Tableau de Bord', syncCount: 0, lastSync: null });
+                this.components.set('orderApproval', { name: 'Validation Commandes', syncCount: 0, lastSync: null });
+                this.components.set('stockMovement', { name: 'Mouvements Stock', syncCount: 0, lastSync: null });
+                this.components.set('salesManagement', { name: 'Gestion Ventes', syncCount: 0, lastSync: null });
+                this.components.set('productManagement', { name: 'Gestion Produits', syncCount: 0, lastSync: null });
+
+                this.updateDisplay();
+                this.logEvent('sync', 'Système de synchronisation initialisé');
+            }
+
+            // Simuler la création d'une commande
+            createOrder() {
+                const order = {
+                    _id: 'order-' + Date.now(),
+                    trackingNumber: 'CMD-' + Math.random().toString(36).substr(2, 8).toUpperCase(),
+                    user: {
+                        firstName: 'Test',
+                        lastName: 'Client',
+                        phone: '+224 123 456 789'
+                    },
+                    items: [{
+                        product: 'prod-1',
+                        name: 'Produit Test',
+                        price: 50000,
+                        quantity: 2
+                    }],
+                    orderStatus: 'pending_approval',
+                    createdAt: new Date().toISOString()
+                };
+
+                // Sauvegarder la commande
+                const orders = JSON.parse(localStorage.getItem('clientOrders') || '[]');
+                orders.unshift(order);
+                localStorage.setItem('clientOrders', JSON.stringify(orders));
+
+                // Déclencher la synchronisation
+                this.triggerSync('newOrderCreated', { order });
+                this.logEvent('order', `Nouvelle commande créée: ${order.trackingNumber}`);
+                return order;
+            }
+
+            // Simuler l'approbation d'une commande
+            approveOrder(orderId) {
+                const orders = JSON.parse(localStorage.getItem('clientOrders') || '[]');
+                const orderIndex = orders.findIndex(o => o._id === orderId);
+                
+                if (orderIndex === -1) return false;
+
+                orders[orderIndex].orderStatus = 'approved';
+                orders[orderIndex].approvedAt = new Date().toISOString();
+                localStorage.setItem('clientOrders', JSON.stringify(orders));
+
+                // Déclencher la synchronisation
+                this.triggerSync('orderApproved', { order: orders[orderIndex] });
+                this.logEvent('order', `Commande approuvée: ${orders[orderIndex].trackingNumber}`);
+                return true;
+            }
+
+            // Simuler le rejet d'une commande
+            rejectOrder(orderId) {
+                const orders = JSON.parse(localStorage.getItem('clientOrders') || '[]');
+                const orderIndex = orders.findIndex(o => o._id === orderId);
+                
+                if (orderIndex === -1) return false;
+
+                orders[orderIndex].orderStatus = 'rejected';
+                orders[orderIndex].rejectedAt = new Date().toISOString();
+                localStorage.setItem('clientOrders', JSON.stringify(orders));
+
+                // Déclencher la synchronisation
+                this.triggerSync('orderRejected', { order: orders[orderIndex] });
+                this.logEvent('order', `Commande rejetée: ${orders[orderIndex].trackingNumber}`);
+                return true;
+            }
+
+            // Simuler la création d'un mouvement de stock
+            createStockMovement() {
+                const movement = {
+                    _id: 'movement-' + Date.now(),
+                    productId: 'prod-1',
+                    productName: 'Produit Test',
+                    type: 'in',
+                    quantity: 10,
+                    reason: 'Test de synchronisation',
+                    category: 'construction',
+                    date: new Date().toISOString(),
+                    createdAt: new Date().toISOString()
+                };
+
+                // Sauvegarder le mouvement
+                const movements = JSON.parse(localStorage.getItem('stockMovements') || '[]');
+                movements.unshift(movement);
+                localStorage.setItem('stockMovements', JSON.stringify(movements));
+
+                // Déclencher la synchronisation
+                this.triggerSync('stockUpdated', { movement });
+                this.logEvent('stock', `Mouvement de stock créé: ${movement.type} ${movement.quantity}`);
+                return movement;
+            }
+
+            // Déclencher la synchronisation
+            triggerSync(eventType, data) {
+                this.isActive = true;
+                this.syncCount++;
+                
+                // Notifier tous les composants
+                this.components.forEach((component, id) => {
+                    component.syncCount++;
+                    component.lastSync = new Date().toISOString();
+                });
+
+                // Mettre à jour l'affichage
+                this.updateDisplay();
+                
+                // Simuler un délai de synchronisation
+                setTimeout(() => {
+                    this.isActive = false;
+                    this.updateDisplay();
+                }, 1000);
+
+                this.logEvent('sync', `Synchronisation déclenchée: ${eventType}`);
+            }
+
+            // Forcer la synchronisation
+            forceSync() {
+                this.triggerSync('forceSync', {});
+                this.logEvent('sync', 'Synchronisation forcée');
+            }
+
+            // Mettre à jour l'affichage
+            updateDisplay() {
+                this.updateSyncStatus();
+                this.updateStats();
+                this.updateComponentStatus();
+            }
+
+            // Mettre à jour le statut de synchronisation
+            updateSyncStatus() {
+                const statusDiv = document.getElementById('syncStatus');
+                const indicator = statusDiv.querySelector('.sync-indicator');
+                
+                if (this.isActive) {
+                    indicator.className = 'sync-indicator sync-active';
+                    statusDiv.innerHTML = `
+                        <div class="sync-indicator sync-active"></div>
+                        <span>Synchronisation en cours... (${this.syncCount} syncs)</span>
+                    `;
+                } else {
+                    indicator.className = 'sync-indicator sync-inactive';
+                    statusDiv.innerHTML = `
+                        <div class="sync-indicator sync-inactive"></div>
+                        <span>Synchronisation inactive (${this.syncCount} syncs total)</span>
+                    `;
+                }
+            }
+
+            // Mettre à jour les statistiques
+            updateStats() {
+                const orders = JSON.parse(localStorage.getItem('clientOrders') || '[]');
+                const movements = JSON.parse(localStorage.getItem('stockMovements') || '[]');
+                
+                const stats = {
+                    totalOrders: orders.length,
+                    pendingOrders: orders.filter(o => o.orderStatus === 'pending_approval').length,
+                    approvedOrders: orders.filter(o => o.orderStatus === 'approved').length,
+                    rejectedOrders: orders.filter(o => o.orderStatus === 'rejected').length,
+                    totalMovements: movements.length,
+                    totalSyncs: this.syncCount
+                };
+
+                const statsGrid = document.getElementById('statsGrid');
+                statsGrid.innerHTML = `
+                    <div class="stat-card">
+                        <div class="stat-value">${stats.totalOrders}</div>
+                        <div class="stat-label">Commandes Total</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">${stats.pendingOrders}</div>
+                        <div class="stat-label">En Attente</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">${stats.approvedOrders}</div>
+                        <div class="stat-label">Approuvées</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">${stats.rejectedOrders}</div>
+                        <div class="stat-label">Rejetées</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">${stats.totalMovements}</div>
+                        <div class="stat-label">Mouvements Stock</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">${stats.totalSyncs}</div>
+                        <div class="stat-label">Synchronisations</div>
+                    </div>
+                `;
+            }
+
+            // Mettre à jour le statut des composants
+            updateComponentStatus() {
+                const container = document.getElementById('componentStatus');
+                container.innerHTML = Array.from(this.components.entries()).map(([id, component]) => `
+                    <div class="component-card">
+                        <div class="component-name">${component.name}</div>
+                        <div class="component-sync">
+                            <div class="sync-indicator ${this.isActive ? 'sync-active' : 'sync-inactive'}"></div>
+                            <span>Syncs: ${component.syncCount}</span>
+                        </div>
+                        <div style="font-size: 12px; color: #666; margin-top: 5px;">
+                            Dernière sync: ${component.lastSync ? new Date(component.lastSync).toLocaleTimeString() : 'Jamais'}
+                        </div>
+                    </div>
+                `).join('');
+            }
+
+            // Journaliser un événement
+            logEvent(type, message) {
+                const event = {
+                    timestamp: new Date().toISOString(),
+                    type: type,
+                    message: message
+                };
+                
+                this.eventLog.unshift(event);
+                
+                // Limiter à 50 événements
+                if (this.eventLog.length > 50) {
+                    this.eventLog = this.eventLog.slice(0, 50);
+                }
+                
+                this.updateEventLog();
+            }
+
+            // Mettre à jour le journal des événements
+            updateEventLog() {
+                const eventLogDiv = document.getElementById('eventLog');
+                eventLogDiv.innerHTML = this.eventLog.map(event => `
+                    <div class="event-item event-${event.type}">
+                        <strong>${new Date(event.timestamp).toLocaleTimeString()}</strong> 
+                        [${event.type.toUpperCase()}] ${event.message}
+                    </div>
+                `).join('');
+            }
+
+            // Vider le journal
+            clearEventLog() {
+                this.eventLog = [];
+                this.updateEventLog();
+            }
+
+            // Vider toutes les données
+            clearAllData() {
+                if (confirm('Êtes-vous sûr de vouloir supprimer toutes les données ?')) {
+                    localStorage.clear();
+                    this.components.forEach(component => {
+                        component.syncCount = 0;
+                        component.lastSync = null;
+                    });
+                    this.syncCount = 0;
+                    this.updateDisplay();
+                    this.logEvent('sync', 'Toutes les données supprimées');
+                }
+            }
+        }
+
+        // Initialiser le système de test
+        const syncTest = new RealtimeSyncTest();
+
+        // Fonctions globales pour les boutons
+        function createTestOrder() {
+            const order = syncTest.createOrder();
+            showSuccess(`Commande ${order.trackingNumber} créée !`);
+        }
+
+        function approveLastOrder() {
+            const orders = JSON.parse(localStorage.getItem('clientOrders') || '[]');
+            const pendingOrder = orders.find(o => o.orderStatus === 'pending_approval');
+            
+            if (pendingOrder) {
+                const success = syncTest.approveOrder(pendingOrder._id);
+                if (success) {
+                    showSuccess(`Commande ${pendingOrder.trackingNumber} approuvée !`);
+                } else {
+                    showError('Erreur lors de l\'approbation');
+                }
+            } else {
+                showWarning('Aucune commande en attente');
+            }
+        }
+
+        function rejectLastOrder() {
+            const orders = JSON.parse(localStorage.getItem('clientOrders') || '[]');
+            const pendingOrder = orders.find(o => o.orderStatus === 'pending_approval');
+            
+            if (pendingOrder) {
+                const success = syncTest.rejectOrder(pendingOrder._id);
+                if (success) {
+                    showSuccess(`Commande ${pendingOrder.trackingNumber} rejetée !`);
+                } else {
+                    showError('Erreur lors du rejet');
+                }
+            } else {
+                showWarning('Aucune commande en attente');
+            }
+        }
+
+        function createStockMovement() {
+            const movement = syncTest.createStockMovement();
+            showSuccess(`Mouvement de stock créé !`);
+        }
+
+        function forceSync() {
+            syncTest.forceSync();
+            showInfo('Synchronisation forcée !');
+        }
+
+        function clearAllData() {
+            syncTest.clearAllData();
+        }
+
+        function clearEventLog() {
+            syncTest.clearEventLog();
+        }
+
+        function showSuccess(message) {
+            const successDiv = document.createElement('div');
+            successDiv.className = 'success';
+            successDiv.textContent = message;
+            document.querySelector('.container').appendChild(successDiv);
+            setTimeout(() => successDiv.remove(), 3000);
+        }
+
+        function showError(message) {
+            const errorDiv = document.createElement('div');
+            errorDiv.className = 'error';
+            errorDiv.textContent = message;
+            document.querySelector('.container').appendChild(errorDiv);
+            setTimeout(() => errorDiv.remove(), 3000);
+        }
+
+        function showWarning(message) {
+            const warningDiv = document.createElement('div');
+            warningDiv.className = 'warning';
+            warningDiv.textContent = message;
+            document.querySelector('.container').appendChild(warningDiv);
+            setTimeout(() => warningDiv.remove(), 3000);
+        }
+
+        function showInfo(message) {
+            const infoDiv = document.createElement('div');
+            infoDiv.className = 'info';
+            infoDiv.textContent = message;
+            document.querySelector('.container').appendChild(infoDiv);
+            setTimeout(() => infoDiv.remove(), 3000);
+        }
+
+        // Mettre à jour l'affichage toutes les 2 secondes
+        setInterval(() => {
+            syncTest.updateDisplay();
+        }, 2000);
+    </script>
+</body>
+</html>

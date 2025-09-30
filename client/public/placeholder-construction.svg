@@ -1,0 +1,11 @@
+<svg width="400" height="300" viewBox="0 0 400 300" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="400" height="300" fill="#f3f4f6"/>
+  <rect x="50" y="50" width="300" height="200" fill="#e5e7eb" stroke="#d1d5db" stroke-width="2"/>
+  <rect x="80" y="80" width="80" height="60" fill="#9ca3af"/>
+  <rect x="180" y="80" width="80" height="60" fill="#9ca3af"/>
+  <rect x="280" y="80" width="80" height="60" fill="#9ca3af"/>
+  <rect x="80" y="160" width="80" height="60" fill="#9ca3af"/>
+  <rect x="180" y="160" width="80" height="60" fill="#9ca3af"/>
+  <rect x="280" y="160" width="80" height="60" fill="#9ca3af"/>
+  <text x="200" y="250" text-anchor="middle" font-family="Arial, sans-serif" font-size="16" fill="#6b7280">Construction</text>
+</svg>

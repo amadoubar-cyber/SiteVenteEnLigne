@@ -1,0 +1,26 @@
+{
+  "orders": [
+    {
+      "_id": "order-1",
+      "user": {
+        "_id": "user-1",
+        "firstName": "Mamadou",
+        "lastName": "Diallo",
+        "email": "mamadou@bowoye.gn",
+        "phone": "+224 123 456 789"
+      },
+      "items": [
+        {
+          "product": "prod-1",
+          "name": "Ciment Portland 50kg",
+          "price": 8500,
+          "quantity": 2
+        }
+      ],
+      "total": 17000,
+      "orderStatus": "pending",
+      "createdAt": "2025-09-29T21:35:14.571Z",
+      "trackingNumber": "CMD-001"
+    }
+  ]
+}

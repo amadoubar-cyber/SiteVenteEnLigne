@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Debug - Persistance des Produits</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1000px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .button {
+            background: #007bff;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        .button:hover {
+            background: #0056b3;
+        }
+        .danger {
+            background: #dc3545;
+        }
+        .danger:hover {
+            background: #c82333;
+        }
+        .success {
+            background: #28a745;
+        }
+        .success:hover {
+            background: #218838;
+        }
+        .warning {
+            background: #ffc107;
+            color: #212529;
+        }
+        .warning:hover {
+            background: #e0a800;
+        }
+        .log {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 5px;
+            padding: 15px;
+            margin: 20px 0;
+            font-family: monospace;
+            white-space: pre-wrap;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        .section {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 5px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+        .product-item {
+            background: white;
+            border: 1px solid #dee2e6;
+            border-radius: 5px;
+            padding: 10px;
+            margin: 5px 0;
+        }
+        .status {
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+        .status.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .status.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .status.warning {
+            background: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeaa7;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔍 Debug - Persistance des Produits</h1>
+        <p>Diagnostic du problème de disparition des produits à l'actualisation.</p>
+        
+        <div id="status" class="status warning">
+            Prêt à diagnostiquer...
+        </div>
+        
+        <div class="section">
+            <h2>🔍 Diagnostic</h2>
+            <button class="button" onclick="diagnoseProblem()">Diagnostiquer le problème</button>
+            <button class="button warning" onclick="checkAllStorageKeys()">Vérifier toutes les clés localStorage</button>
+            <button class="button" onclick="simulateProductCreation()">Simuler création de produit</button>
+            <div id="diagnosis" class="log"></div>
+        </div>
+        
+        <div class="section">
+            <h2>📦 Produits actuels</h2>
+            <button class="button" onclick="showCurrentProducts()">Afficher les produits actuels</button>
+            <button class="button success" onclick="addTestProduct()">Ajouter un produit de test</button>
+            <div id="products" class="log"></div>
+        </div>
+        
+        <div class="section">
+            <h2>🔧 Solutions</h2>
+            <button class="button success" onclick="fixProductPersistence()">Corriger la persistance</button>
+            <button class="button danger" onclick="clearAllData()">Vider toutes les données</button>
+            <button class="button" onclick="backupProducts()">Sauvegarder les produits</button>
+            <button class="button" onclick="restoreProducts()">Restaurer les produits</button>
+            <div id="solutions" class="log"></div>
+        </div>
+        
+        <div class="section">
+            <h2>🧪 Test de persistance</h2>
+            <button class="button" onclick="testPersistence()">Tester la persistance</button>
+            <button class="button" onclick="goToProductManagement()">Aller à la gestion des produits</button>
+            <div id="test" class="log"></div>
+        </div>
+    </div>
+
+    <script>
+        let backupData = null;
+
+        function log(message, targetId = 'diagnosis') {
+            const logElement = document.getElementById(targetId);
+            const timestamp = new Date().toLocaleTimeString();
+            logElement.textContent += `[${timestamp}] ${message}\n`;
+            logElement.scrollTop = logElement.scrollHeight;
+        }
+
+        function updateStatus(message, type = 'warning') {
+            const statusElement = document.getElementById('status');
+            statusElement.textContent = message;
+            statusElement.className = `status ${type}`;
+        }
+
+        function diagnoseProblem() {
+            log('🔍 DIAGNOSTIC DU PROBLÈME DE PERSISTANCE DES PRODUITS');
+            log('='.repeat(60));
+            
+            // Vérifier les clés localStorage liées aux produits
+            const productKeys = [
+                'koula_products',
+                'adminProducts', 
+                'productsData',
+                'products'
+            ];
+            
+            log('\n📋 VÉRIFICATION DES CLÉS LOCALSTORAGE:');
+            productKeys.forEach(key => {
+                const value = localStorage.getItem(key);
+                if (value) {
+                    try {
+                        const parsed = JSON.parse(value);
+                        log(`✅ ${key}: ${parsed.length || 'N/A'} éléments`);
+                        if (key === 'koula_products' && parsed.length > 0) {
+                            log(`   Dernier produit: ${parsed[parsed.length - 1].name || 'Sans nom'}`);
+                        }
+                    } catch (e) {
+                        log(`❌ ${key}: Données corrompues`);
+                    }
+                } else {
+                    log(`⚪ ${key}: Vide`);
+                }
+            });
+            
+            // Vérifier les conflits potentiels
+            log('\n🔍 RECHERCHE DE CONFLITS:');
+            const allKeys = Object.keys(localStorage);
+            const productRelatedKeys = allKeys.filter(key => 
+                key.toLowerCase().includes('product') || 
+                key.toLowerCase().includes('koula')
+            );
+            
+            if (productRelatedKeys.length > 1) {
+                log(`⚠️  CONFLIT DÉTECTÉ: ${productRelatedKeys.length} clés liées aux produits`);
+                productRelatedKeys.forEach(key => {
+                    log(`   - ${key}`);
+                });
+            } else {
+                log('✅ Aucun conflit de clés détecté');
+            }
+            
+            // Vérifier la cohérence des données
+            log('\n🔍 VÉRIFICATION DE LA COHÉRENCE:');
+            const mainProducts = localStorage.getItem('koula_products');
+            if (mainProducts) {
+                try {
+                    const products = JSON.parse(mainProducts);
+                    const validProducts = products.filter(p => p._id && p.name);
+                    log(`✅ ${validProducts.length}/${products.length} produits valides`);
+                    
+                    if (validProducts.length !== products.length) {
+                        log('⚠️  Certains produits ont des données incomplètes');
+                    }
+                } catch (e) {
+                    log('❌ Données corrompues dans koula_products');
+                }
+            }
+            
+            updateStatus('Diagnostic terminé - Vérifiez les résultats', 'success');
+        }
+
+        function checkAllStorageKeys() {
+            log('🔍 TOUTES LES CLÉS LOCALSTORAGE:', 'diagnosis');
+            log('='.repeat(40), 'diagnosis');
+            
+            const allKeys = Object.keys(localStorage);
+            if (allKeys.length === 0) {
+                log('⚪ Aucune donnée dans localStorage', 'diagnosis');
+            } else {
+                allKeys.forEach(key => {
+                    const value = localStorage.getItem(key);
+                    const size = value ? value.length : 0;
+                    log(`${key}: ${size} caractères`, 'diagnosis');
+                });
+            }
+        }
+
+        function simulateProductCreation() {
+            log('🧪 SIMULATION DE CRÉATION DE PRODUIT:', 'diagnosis');
+            
+            const testProduct = {
+                _id: Date.now().toString(),
+                name: 'Produit Test ' + new Date().toLocaleTimeString(),
+                description: 'Produit créé pour tester la persistance',
+                price: 10000,
+                stock: 5,
+                productType: 'construction',
+                category: 'Test',
+                featured: false,
+                isPublished: true,
+                images: [],
+                createdAt: new Date().toISOString(),
+                updatedAt: new Date().toISOString()
+            };
+            
+            try {
+                // Récupérer les produits existants
+                const existingProducts = JSON.parse(localStorage.getItem('koula_products') || '[]');
+                existingProducts.push(testProduct);
+                
+                // Sauvegarder
+                localStorage.setItem('koula_products', JSON.stringify(existingProducts));
+                
+                log(`✅ Produit créé: ${testProduct.name}`);
+                log(`📊 Total produits: ${existingProducts.length}`);
+                
+                // Vérifier immédiatement
+                const verification = JSON.parse(localStorage.getItem('koula_products') || '[]');
+                log(`✅ Vérification: ${verification.length} produits trouvés`);
+                
+            } catch (error) {
+                log(`❌ Erreur: ${error.message}`);
+            }
+        }
+
+        function showCurrentProducts() {
+            log('📦 PRODUITS ACTUELS:', 'products');
+            log('='.repeat(30), 'products');
+            
+            const products = JSON.parse(localStorage.getItem('koula_products') || '[]');
+            
+            if (products.length === 0) {
+                log('⚪ Aucun produit trouvé', 'products');
+            } else {
+                products.forEach((product, index) => {
+                    log(`\n${index + 1}. ${product.name || 'Sans nom'}`, 'products');
+                    log(`   ID: ${product._id}`, 'products');
+                    log(`   Prix: ${product.price || 'N/A'} FG`, 'products');
+                    log(`   Stock: ${product.stock || 'N/A'}`, 'products');
+                    log(`   Créé: ${product.createdAt ? new Date(product.createdAt).toLocaleString() : 'N/A'}`, 'products');
+                });
+            }
+        }
+
+        function addTestProduct() {
+            const testProduct = {
+                _id: Date.now().toString(),
+                name: 'Test ' + Math.random().toString(36).substr(2, 5),
+                description: 'Produit de test',
+                price: Math.floor(Math.random() * 50000) + 5000,
+                stock: Math.floor(Math.random() * 20) + 1,
+                productType: 'construction',
+                category: 'Test',
+                featured: false,
+                isPublished: true,
+                images: [],
+                createdAt: new Date().toISOString(),
+                updatedAt: new Date().toISOString()
+            };
+            
+            const products = JSON.parse(localStorage.getItem('koula_products') || '[]');
+            products.push(testProduct);
+            localStorage.setItem('koula_products', JSON.stringify(products));
+            
+            log(`✅ Produit de test ajouté: ${testProduct.name}`, 'products');
+            showCurrentProducts();
+        }
+
+        function fixProductPersistence() {
+            log('🔧 CORRECTION DE LA PERSISTANCE:', 'solutions');
+            log('='.repeat(40), 'solutions');
+            
+            try {
+                // 1. Sauvegarder les données actuelles
+                const currentProducts = JSON.parse(localStorage.getItem('koula_products') || '[]');
+                backupData = currentProducts;
+                log('✅ Données sauvegardées', 'solutions');
+                
+                // 2. Nettoyer les clés conflictuelles
+                const keysToClean = ['adminProducts', 'productsData', 'products'];
+                keysToClean.forEach(key => {
+                    if (localStorage.getItem(key)) {
+                        localStorage.removeItem(key);
+                        log(`✅ Clé ${key} nettoyée`, 'solutions');
+                    }
+                });
+                
+                // 3. S'assurer que koula_products est la source unique
+                if (currentProducts.length > 0) {
+                    localStorage.setItem('koula_products', JSON.stringify(currentProducts));
+                    log(`✅ ${currentProducts.length} produits consolidés dans koula_products`, 'solutions');
+                }
+                
+                // 4. Vérifier la cohérence
+                const verification = JSON.parse(localStorage.getItem('koula_products') || '[]');
+                log(`✅ Vérification: ${verification.length} produits persistants`, 'solutions');
+                
+                updateStatus('Correction appliquée avec succès', 'success');
+                
+            } catch (error) {
+                log(`❌ Erreur lors de la correction: ${error.message}`, 'solutions');
+                updateStatus('Erreur lors de la correction', 'error');
+            }
+        }
+
+        function clearAllData() {
+            if (confirm('Êtes-vous sûr de vouloir vider toutes les données ?')) {
+                localStorage.clear();
+                log('✅ Toutes les données supprimées', 'solutions');
+                updateStatus('Toutes les données supprimées', 'success');
+            }
+        }
+
+        function backupProducts() {
+            const products = JSON.parse(localStorage.getItem('koula_products') || '[]');
+            backupData = products;
+            log(`✅ ${products.length} produits sauvegardés`, 'solutions');
+        }
+
+        function restoreProducts() {
+            if (backupData) {
+                localStorage.setItem('koula_products', JSON.stringify(backupData));
+                log(`✅ ${backupData.length} produits restaurés`, 'solutions');
+            } else {
+                log('❌ Aucune sauvegarde disponible', 'solutions');
+            }
+        }
+
+        function testPersistence() {
+            log('🧪 TEST DE PERSISTANCE:', 'test');
+            log('='.repeat(30), 'test');
+            
+            // Créer un produit de test
+            const testProduct = {
+                _id: 'test-' + Date.now(),
+                name: 'Test Persistance',
+                description: 'Test de persistance des données',
+                price: 15000,
+                stock: 10,
+                productType: 'construction',
+                category: 'Test',
+                featured: false,
+                isPublished: true,
+                images: [],
+                createdAt: new Date().toISOString(),
+                updatedAt: new Date().toISOString()
+            };
+            
+            try {
+                // Sauvegarder
+                const products = JSON.parse(localStorage.getItem('koula_products') || '[]');
+                products.push(testProduct);
+                localStorage.setItem('koula_products', JSON.stringify(products));
+                
+                log('✅ Produit sauvegardé', 'test');
+                
+                // Vérifier immédiatement
+                const verification = JSON.parse(localStorage.getItem('koula_products') || '[]');
+                const found = verification.find(p => p._id === testProduct._id);
+                
+                if (found) {
+                    log('✅ Produit trouvé après sauvegarde', 'test');
+                    log('✅ Test de persistance RÉUSSI', 'test');
+                } else {
+                    log('❌ Produit non trouvé après sauvegarde', 'test');
+                    log('❌ Test de persistance ÉCHOUÉ', 'test');
+                }
+                
+            } catch (error) {
+                log(`❌ Erreur: ${error.message}`, 'test');
+            }
+        }
+
+        function goToProductManagement() {
+            window.location.href = '/admin/products';
+        }
+
+        // Diagnostic automatique au chargement
+        window.onload = function() {
+            log('🚀 Page de diagnostic chargée');
+            diagnoseProblem();
+        };
+    </script>
+</body>
+</html>

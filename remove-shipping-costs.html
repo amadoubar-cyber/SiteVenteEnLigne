@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Suppression des Frais de Livraison</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        .success {
+            background: #d4edda;
+            color: #155724;
+            padding: 15px;
+            border-radius: 4px;
+            margin: 10px 0;
+        }
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 15px;
+            border-radius: 4px;
+            margin: 10px 0;
+        }
+        .warning {
+            background: #fff3cd;
+            color: #856404;
+            padding: 15px;
+            border-radius: 4px;
+            margin: 10px 0;
+        }
+        .info {
+            background: #d1ecf1;
+            color: #0c5460;
+            padding: 15px;
+            border-radius: 4px;
+            margin: 10px 0;
+        }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+            font-size: 14px;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+        .danger {
+            background: #dc3545;
+        }
+        .danger:hover {
+            background: #c82333;
+        }
+        .success-btn {
+            background: #28a745;
+        }
+        .success-btn:hover {
+            background: #218838;
+        }
+        .order-list {
+            max-height: 400px;
+            overflow-y: auto;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 10px;
+            margin: 10px 0;
+        }
+        .order-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            border-bottom: 1px solid #eee;
+            background: white;
+            margin: 5px 0;
+            border-radius: 4px;
+        }
+        .order-info {
+            flex: 1;
+        }
+        .order-id {
+            font-weight: bold;
+            color: #333;
+        }
+        .order-details {
+            font-size: 12px;
+            color: #666;
+            margin-top: 2px;
+        }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        .stat-card {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 6px;
+            border-left: 4px solid #007bff;
+            text-align: center;
+        }
+        .stat-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: #333;
+        }
+        .stat-label {
+            color: #666;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🚚 Suppression des Frais de Livraison</h1>
+        <p>Ce script supprime les frais de livraison de 5000 FG de toutes les commandes existantes.</p>
+        
+        <div class="info">
+            <strong>📋 Action :</strong> Mettre les frais de livraison à 0 FG pour toutes les commandes.
+        </div>
+
+        <div class="container">
+            <h3>📊 État Actuel</h3>
+            <div class="stats-grid" id="currentStats"></div>
+        </div>
+
+        <div class="container">
+            <h3>📋 Commandes avec Frais de Livraison</h3>
+            <div class="order-list" id="ordersWithShipping">
+                <p>Cliquez sur "Analyser les Commandes" pour voir les commandes.</p>
+            </div>
+        </div>
+
+        <div class="container">
+            <h3>🔧 Actions</h3>
+            <button onclick="analyzeOrders()" class="success-btn">
+                📊 Analyser les Commandes
+            </button>
+            <button onclick="removeShippingCosts()" class="success-btn">
+                🚚 Supprimer les Frais de Livraison
+            </button>
+            <button onclick="verifyChanges()" class="success-btn">
+                ✅ Vérifier les Modifications
+            </button>
+        </div>
+
+        <div class="container">
+            <h3>📝 Résultats</h3>
+            <div id="results">
+                <p>Aucune action effectuée pour le moment.</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        class ShippingCostRemover {
+            constructor() {
+                this.orders = [];
+                this.results = [];
+                this.init();
+            }
+
+            init() {
+                this.analyzeOrders();
+            }
+
+            analyzeOrders() {
+                try {
+                    const ordersData = localStorage.getItem('clientOrders');
+                    this.orders = ordersData ? JSON.parse(ordersData) : [];
+                    
+                    this.displayStats();
+                    this.displayOrdersWithShipping();
+                    
+                    showSuccess(`✅ ${this.orders.length} commandes analysées`);
+                } catch (error) {
+                    console.error('Erreur lors de l\'analyse:', error);
+                    showError('Erreur lors de l\'analyse des commandes: ' + error.message);
+                }
+            }
+
+            displayStats() {
+                const stats = {
+                    total: this.orders.length,
+                    withShipping: this.orders.filter(o => o.shippingCost > 0).length,
+                    withoutShipping: this.orders.filter(o => o.shippingCost === 0).length,
+                    totalShipping: this.orders.reduce((sum, o) => sum + (o.shippingCost || 0), 0)
+                };
+
+                const statsGrid = document.getElementById('currentStats');
+                statsGrid.innerHTML = `
+                    <div class="stat-card">
+                        <div class="stat-value">${stats.total}</div>
+                        <div class="stat-label">Total Commandes</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">${stats.withShipping}</div>
+                        <div class="stat-label">Avec Frais</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">${stats.withoutShipping}</div>
+                        <div class="stat-label">Sans Frais</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">${stats.totalShipping.toLocaleString()}</div>
+                        <div class="stat-label">Total Frais (FG)</div>
+                    </div>
+                `;
+            }
+
+            displayOrdersWithShipping() {
+                const ordersWithShipping = this.orders.filter(o => o.shippingCost > 0);
+                const ordersList = document.getElementById('ordersWithShipping');
+                
+                if (ordersWithShipping.length === 0) {
+                    ordersList.innerHTML = '<p class="success">✅ Aucune commande avec frais de livraison trouvée.</p>';
+                    return;
+                }
+
+                ordersList.innerHTML = ordersWithShipping.map(order => `
+                    <div class="order-item">
+                        <div class="order-info">
+                            <div class="order-id">Commande #${order.trackingNumber || order._id}</div>
+                            <div class="order-details">
+                                Client: ${order.user?.firstName || ''} ${order.user?.lastName || ''} | 
+                                Total: ${order.total ? order.total.toLocaleString() : 0} FG | 
+                                Frais: ${order.shippingCost || 0} FG
+                            </div>
+                        </div>
+                        <div class="order-details">
+                            ${order.shippingCost || 0} FG
+                        </div>
+                    </div>
+                `).join('');
+            }
+
+            removeShippingCosts() {
+                if (this.orders.length === 0) {
+                    showWarning('⚠️ Aucune commande à traiter.');
+                    return;
+                }
+
+                let updatedCount = 0;
+                let totalSaved = 0;
+
+                this.orders.forEach(order => {
+                    if (order.shippingCost > 0) {
+                        const oldShipping = order.shippingCost;
+                        order.shippingCost = 0;
+                        order.total = (order.total || 0) - oldShipping;
+                        order.updatedAt = new Date().toISOString();
+                        
+                        updatedCount++;
+                        totalSaved += oldShipping;
+                    }
+                });
+
+                if (updatedCount > 0) {
+                    localStorage.setItem('clientOrders', JSON.stringify(this.orders));
+                    
+                    showSuccess(`✅ ${updatedCount} commandes mises à jour`);
+                    showSuccess(`💰 ${totalSaved.toLocaleString()} FG de frais supprimés`);
+                    
+                    this.addResult('Suppression des frais', 'SUCCESS', 
+                        `${updatedCount} commandes mises à jour, ${totalSaved.toLocaleString()} FG économisés`);
+                    
+                    this.analyzeOrders();
+                } else {
+                    showInfo('ℹ️ Aucune commande avec frais de livraison trouvée.');
+                }
+            }
+
+            verifyChanges() {
+                const ordersWithShipping = this.orders.filter(o => o.shippingCost > 0);
+                
+                if (ordersWithShipping.length === 0) {
+                    showSuccess('✅ Vérification réussie : Aucune commande avec frais de livraison.');
+                    this.addResult('Vérification', 'SUCCESS', 'Toutes les commandes ont des frais de livraison à 0 FG');
+                } else {
+                    showWarning(`⚠️ ${ordersWithShipping.length} commandes ont encore des frais de livraison.`);
+                    this.addResult('Vérification', 'WARNING', `${ordersWithShipping.length} commandes avec frais restants`);
+                }
+                
+                this.displayResults();
+            }
+
+            addResult(action, status, message) {
+                this.results.push({
+                    action,
+                    status,
+                    message,
+                    timestamp: new Date().toLocaleString('fr-FR')
+                });
+            }
+
+            displayResults() {
+                const resultsDiv = document.getElementById('results');
+                
+                if (this.results.length === 0) {
+                    resultsDiv.innerHTML = '<p>Aucune action effectuée pour le moment.</p>';
+                    return;
+                }
+
+                resultsDiv.innerHTML = `
+                    <div class="order-list">
+                        ${this.results.map(result => `
+                            <div class="order-item">
+                                <div class="order-info">
+                                    <div class="order-id">${result.action}</div>
+                                    <div class="order-details">${result.message} - ${result.timestamp}</div>
+                                </div>
+                                <div class="order-details" style="color: ${result.status === 'SUCCESS' ? '#28a745' : result.status === 'WARNING' ? '#ffc107' : '#dc3545'};">
+                                    ${result.status}
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+            }
+        }
+
+        // Initialiser le suppresseur de frais
+        const remover = new ShippingCostRemover();
+
+        // Fonctions globales
+        function analyzeOrders() {
+            remover.analyzeOrders();
+        }
+
+        function removeShippingCosts() {
+            if (confirm('Êtes-vous sûr de vouloir supprimer les frais de livraison de toutes les commandes ?')) {
+                remover.removeShippingCosts();
+            }
+        }
+
+        function verifyChanges() {
+            remover.verifyChanges();
+        }
+
+        function showSuccess(message) {
+            const div = document.createElement('div');
+            div.className = 'success';
+            div.textContent = message;
+            document.querySelector('.container').appendChild(div);
+            setTimeout(() => div.remove(), 5000);
+        }
+
+        function showError(message) {
+            const div = document.createElement('div');
+            div.className = 'error';
+            div.textContent = message;
+            document.querySelector('.container').appendChild(div);
+            setTimeout(() => div.remove(), 5000);
+        }
+
+        function showWarning(message) {
+            const div = document.createElement('div');
+            div.className = 'warning';
+            div.textContent = message;
+            document.querySelector('.container').appendChild(div);
+            setTimeout(() => div.remove(), 5000);
+        }
+
+        function showInfo(message) {
+            const div = document.createElement('div');
+            div.className = 'info';
+            div.textContent = message;
+            document.querySelector('.container').appendChild(div);
+            setTimeout(() => div.remove(), 5000);
+        }
+    </script>
+</body>
+</html>

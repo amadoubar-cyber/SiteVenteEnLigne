@@ -1,30 +1,15 @@
 // API locale pour les produits côté client
-const LOCAL_PRODUCTS_KEY = 'adminProducts';
+const LOCAL_PRODUCTS_KEY = 'koula_products';
 
 // Simuler un délai de réseau
 const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 
-// Charger les produits depuis localStorage ou depuis le fichier JSON
+// Charger les produits depuis localStorage uniquement
 const loadProducts = async () => {
   try {
-    // D'abord essayer localStorage
-    let products = JSON.parse(localStorage.getItem(LOCAL_PRODUCTS_KEY) || '[]');
-    
-    // Si localStorage est vide, charger depuis le fichier JSON
-    if (products.length === 0) {
-      try {
-        const response = await fetch('/adminProducts.json');
-        if (response.ok) {
-          products = await response.json();
-          // Sauvegarder dans localStorage pour la prochaine fois
-          localStorage.setItem(LOCAL_PRODUCTS_KEY, JSON.stringify(products));
-          console.log('📦 Produits chargés depuis adminProducts.json et sauvegardés dans localStorage');
-        }
-      } catch (error) {
-        console.error('Erreur lors du chargement depuis adminProducts.json:', error);
-      }
-    }
-    
+    // Charger uniquement depuis localStorage
+    const products = JSON.parse(localStorage.getItem(LOCAL_PRODUCTS_KEY) || '[]');
+    console.log(`📦 ${products.length} produits chargés depuis localStorage`);
     return products;
   } catch (error) {
     console.error('Erreur lors du chargement des produits:', error);
@@ -83,7 +68,7 @@ const filterProducts = (products, filters) => {
 
   // Filtrer par produits vedettes
   if (filters.featured === 'true') {
-    filtered = filtered.filter(product => product.isFeatured === true);
+    filtered = filtered.filter(product => product.featured === true);
   }
 
   // Filtrer par produits publiés seulement

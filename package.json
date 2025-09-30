@@ -5,12 +5,22 @@
   "main": "server/index.js",
   "scripts": {
     "dev": "concurrently \"npm run server\" \"npm run client\"",
-    "server": "cd server && npm run dev",
+    "server": "cd server && npm start",
     "client": "cd client && npm start",
     "build": "cd client && npm run build",
-    "install-all": "npm install && cd server && npm install && cd ../client && npm install"
+    "install-all": "npm install && cd server && npm install && cd ../client && npm install",
+    "start": "node start.js",
+    "test": "node test-automatise-fonctionnalites.js",
+    "test-complete": "node test-automatise-fonctionnalites.js",
+    "fix-issues": "node fix-critical-issues.js"
   },
-  "keywords": ["ecommerce", "guinea", "koula", "react", "nodejs"],
+  "keywords": [
+    "ecommerce",
+    "guinea",
+    "koula",
+    "react",
+    "nodejs"
+  ],
   "author": "Koula Team",
   "license": "MIT",
   "devDependencies": {

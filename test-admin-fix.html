@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test - Correction Admin</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1000px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .button {
+            background: #007bff;
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 10px 5px;
+        }
+        .button:hover {
+            background: #0056b3;
+        }
+        .success {
+            background: #28a745;
+        }
+        .success:hover {
+            background: #218838;
+        }
+        .danger {
+            background: #dc3545;
+        }
+        .danger:hover {
+            background: #c82333;
+        }
+        .warning {
+            background: #ffc107;
+            color: #212529;
+        }
+        .warning:hover {
+            background: #e0a800;
+        }
+        .log {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 5px;
+            padding: 15px;
+            margin: 20px 0;
+            font-family: monospace;
+            white-space: pre-wrap;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        .section {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 5px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+        .status {
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+        .status.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .status.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .status.warning {
+            background: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeaa7;
+        }
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧪 Test - Correction Admin</h1>
+        <p>Test de la correction définitive du problème de persistance des données admin.</p>
+        
+        <div id="status" class="status warning">
+            Prêt à tester la correction...
+        </div>
+        
+        <div class="grid">
+            <div class="section">
+                <h2>🔧 Correction</h2>
+                <button class="button success" onclick="runFix()">Exécuter la correction</button>
+                <button class="button" onclick="verifyFix()">Vérifier la correction</button>
+                <button class="button warning" onclick="testPersistence()">Tester la persistance</button>
+                <div id="fix" class="log"></div>
+            </div>
+            
+            <div class="section">
+                <h2>📊 Données</h2>
+                <button class="button" onclick="showData()">Afficher les données</button>
+                <button class="button success" onclick="addTestData()">Ajouter données test</button>
+                <button class="button danger" onclick="clearData()">Vider les données</button>
+                <div id="data" class="log"></div>
+            </div>
+        </div>
+        
+        <div class="section">
+            <h2>🧪 Test Complet</h2>
+            <button class="button success" onclick="fullTest()">Test complet</button>
+            <button class="button" onclick="goToAdmin()">Aller à l'admin</button>
+            <div id="test" class="log"></div>
+        </div>
+    </div>
+
+    <script src="fix-admin-persistence.js"></script>
+    <script>
+        function log(message, targetId = 'fix') {
+            const logElement = document.getElementById(targetId);
+            const timestamp = new Date().toLocaleTimeString();
+            logElement.textContent += `[${timestamp}] ${message}\n`;
+            logElement.scrollTop = logElement.scrollHeight;
+        }
+
+        function updateStatus(message, type = 'warning') {
+            const statusElement = document.getElementById('status');
+            statusElement.textContent = message;
+            statusElement.className = `status ${type}`;
+        }
+
+        function runFix() {
+            log('🔧 Exécution de la correction...');
+            
+            if (window.fixAdminPersistence) {
+                const success = window.fixAdminPersistence.fixAll();
+                if (success) {
+                    log('✅ Correction exécutée avec succès');
+                    updateStatus('✅ Correction appliquée', 'success');
+                } else {
+                    log('❌ Erreur lors de la correction');
+                    updateStatus('❌ Erreur lors de la correction', 'error');
+                }
+            } else {
+                log('❌ Script de correction non chargé');
+                updateStatus('❌ Script non chargé', 'error');
+            }
+        }
+
+        function verifyFix() {
+            log('🔍 Vérification de la correction...');
+            
+            if (window.fixAdminPersistence) {
+                window.fixAdminPersistence.verify();
+                log('✅ Vérification terminée');
+                updateStatus('✅ Vérification terminée', 'success');
+            } else {
+                log('❌ Script de correction non chargé');
+                updateStatus('❌ Script non chargé', 'error');
+            }
+        }
+
+        function testPersistence() {
+            log('🧪 Test de persistance...');
+            
+            const testProduct = {
+                _id: 'test-persistence-' + Date.now(),
+                name: 'Test Persistance Admin',
+                description: 'Test de persistance pour l\'admin',
+                price: 40000,
+                stock: 25,
+                productType: 'construction',
+                category: 'Test',
+                featured: false,
+                isPublished: true,
+                images: [],
+                createdAt: new Date().toISOString(),
+                updatedAt: new Date().toISOString()
+            };
+            
+            try {
+                // Ajouter le produit
+                const products = JSON.parse(localStorage.getItem('koula_products') || '[]');
+                products.push(testProduct);
+                localStorage.setItem('koula_products', JSON.stringify(products));
+                
+                log('✅ Produit ajouté');
+                
+                // Vérifier immédiatement
+                const verification = JSON.parse(localStorage.getItem('koula_products') || '[]');
+                const found = verification.find(p => p._id === testProduct._id);
+                
+                if (found) {
+                    log('✅ Produit trouvé après ajout');
+                    
+                    // Attendre 3 secondes et vérifier à nouveau
+                    setTimeout(() => {
+                        const finalCheck = JSON.parse(localStorage.getItem('koula_products') || '[]');
+                        const stillThere = finalCheck.find(p => p._id === testProduct._id);
+                        
+                        if (stillThere) {
+                            log('✅ Produit toujours présent après 3 secondes');
+                            log('🎉 TEST DE PERSISTANCE RÉUSSI');
+                            updateStatus('✅ Test de persistance réussi', 'success');
+                        } else {
+                            log('❌ Produit disparu après 3 secondes');
+                            updateStatus('❌ Test de persistance échoué', 'error');
+                        }
+                    }, 3000);
+                    
+                } else {
+                    log('❌ Produit non trouvé après ajout');
+                    updateStatus('❌ Test de persistance échoué', 'error');
+                }
+                
+            } catch (error) {
+                log(`❌ Erreur: ${error.message}`);
+                updateStatus('❌ Erreur lors du test', 'error');
+            }
+        }
+
+        function showData() {
+            log('📊 DONNÉES ACTUELLES:', 'data');
+            log('='.repeat(30), 'data');
+            
+            const dataTypes = [
+                { key: 'koula_products', name: 'Produits' },
+                { key: 'salesData', name: 'Ventes' },
+                { key: 'ordersData', name: 'Commandes' },
+                { key: 'users', name: 'Utilisateurs' },
+                { key: 'categories', name: 'Catégories' },
+                { key: 'debts', name: 'Dettes' }
+            ];
+            
+            dataTypes.forEach(({ key, name }) => {
+                const value = localStorage.getItem(key);
+                if (value) {
+                    try {
+                        const parsed = JSON.parse(value);
+                        const count = Array.isArray(parsed) ? parsed.length : 'N/A';
+                        log(`${name}: ${count} éléments`, 'data');
+                    } catch (e) {
+                        log(`${name}: Données corrompues`, 'data');
+                    }
+                } else {
+                    log(`${name}: Aucune donnée`, 'data');
+                }
+            });
+        }
+
+        function addTestData() {
+            log('➕ Ajout de données de test...', 'data');
+            
+            const testData = {
+                product: {
+                    _id: 'test-' + Date.now(),
+                    name: 'Produit Test Admin',
+                    description: 'Produit de test pour l\'admin',
+                    price: 30000,
+                    stock: 15,
+                    productType: 'construction',
+                    category: 'Test',
+                    featured: false,
+                    isPublished: true,
+                    images: [],
+                    createdAt: new Date().toISOString(),
+                    updatedAt: new Date().toISOString()
+                },
+                sale: {
+                    _id: 'sale-' + Date.now(),
+                    productName: 'Produit Test Admin',
+                    customerName: 'Client Test',
+                    amount: 30000,
+                    status: 'completed',
+                    createdAt: new Date().toISOString()
+                }
+            };
+            
+            try {
+                // Ajouter produit
+                const products = JSON.parse(localStorage.getItem('koula_products') || '[]');
+                products.push(testData.product);
+                localStorage.setItem('koula_products', JSON.stringify(products));
+                log('✅ Produit de test ajouté', 'data');
+                
+                // Ajouter vente
+                const sales = JSON.parse(localStorage.getItem('salesData') || '[]');
+                sales.push(testData.sale);
+                localStorage.setItem('salesData', JSON.stringify(sales));
+                log('✅ Vente de test ajoutée', 'data');
+                
+                updateStatus('Données de test ajoutées', 'success');
+                
+            } catch (error) {
+                log(`❌ Erreur: ${error.message}`, 'data');
+                updateStatus('Erreur lors de l\'ajout', 'error');
+            }
+        }
+
+        function clearData() {
+            if (confirm('Êtes-vous sûr de vouloir vider toutes les données ?')) {
+                localStorage.clear();
+                log('✅ Toutes les données supprimées', 'data');
+                updateStatus('Données supprimées', 'warning');
+            }
+        }
+
+        function fullTest() {
+            log('🧪 TEST COMPLET DE L\'ADMIN:', 'test');
+            log('='.repeat(35), 'test');
+            
+            // 1. Exécuter la correction
+            log('Étape 1: Exécution de la correction...', 'test');
+            if (window.fixAdminPersistence) {
+                window.fixAdminPersistence.fixAll();
+                log('✅ Correction exécutée', 'test');
+            } else {
+                log('❌ Script de correction non disponible', 'test');
+                return;
+            }
+            
+            // 2. Ajouter des données de test
+            log('Étape 2: Ajout de données de test...', 'test');
+            addTestData();
+            
+            // 3. Vérifier la persistance
+            log('Étape 3: Test de persistance...', 'test');
+            testPersistence();
+            
+            // 4. Vérifier l'intégrité
+            setTimeout(() => {
+                log('Étape 4: Vérification de l\'intégrité...', 'test');
+                if (window.fixAdminPersistence) {
+                    window.fixAdminPersistence.verify();
+                }
+                log('✅ Test complet terminé', 'test');
+                updateStatus('✅ Test complet terminé', 'success');
+            }, 5000);
+        }
+
+        function goToAdmin() {
+            window.location.href = '/admin';
+        }
+
+        // Test automatique au chargement
+        window.onload = function() {
+            log('🚀 Page de test de correction chargée');
+            showData();
+        };
+    </script>
+</body>
+</html>

@@ -1,0 +1,623 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Interface Client Complète - Bowoye Multi Services</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        .header {
+            background: linear-gradient(135deg, #ff6b6b, #ffa500);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 2.5em;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        .content {
+            padding: 30px;
+        }
+        .test-section {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 25px;
+            margin: 20px 0;
+            border-left: 5px solid #ff6b6b;
+        }
+        .test-section h2 {
+            color: #ff6b6b;
+            margin-top: 0;
+            display: flex;
+            align-items: center;
+        }
+        .test-section h2::before {
+            content: "🛒";
+            margin-right: 10px;
+            font-size: 1.2em;
+        }
+        .success {
+            background: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 10px 0;
+        }
+        .success::before {
+            content: "✅ ";
+            font-weight: bold;
+        }
+        .error {
+            background: #f8d7da;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 10px 0;
+        }
+        .error::before {
+            content: "❌ ";
+            font-weight: bold;
+        }
+        .info {
+            background: #d1ecf1;
+            border: 1px solid #bee5eb;
+            color: #0c5460;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 10px 0;
+        }
+        .info::before {
+            content: "ℹ️ ";
+            font-weight: bold;
+        }
+        .warning {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            color: #856404;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 10px 0;
+        }
+        .warning::before {
+            content: "⚠️ ";
+            font-weight: bold;
+        }
+        .btn {
+            background: linear-gradient(135deg, #ff6b6b, #ffa500);
+            color: white;
+            padding: 12px 25px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 10px 5px;
+            text-decoration: none;
+            display: inline-block;
+            transition: transform 0.2s;
+        }
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        .btn-success {
+            background: linear-gradient(135deg, #28a745, #20c997);
+        }
+        .btn-danger {
+            background: linear-gradient(135deg, #dc3545, #e74c3c);
+        }
+        .btn-info {
+            background: linear-gradient(135deg, #17a2b8, #6f42c1);
+        }
+        .checklist {
+            list-style: none;
+            padding: 0;
+        }
+        .checklist li {
+            padding: 8px 0;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            align-items: center;
+        }
+        .checklist li::before {
+            content: "☐";
+            margin-right: 10px;
+            font-size: 1.2em;
+        }
+        .checklist li.checked::before {
+            content: "☑️";
+        }
+        .step {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 15px 0;
+            border: 1px solid #e9ecef;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+        .step h3 {
+            color: #495057;
+            margin-top: 0;
+            display: flex;
+            align-items: center;
+        }
+        .step h3::before {
+            content: "📋";
+            margin-right: 8px;
+        }
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+        .feature-card {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            border: 2px solid #e9ecef;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        .feature-card h3 {
+            color: #495057;
+            margin-top: 0;
+            display: flex;
+            align-items: center;
+        }
+        .feature-card h3::before {
+            content: "🔧";
+            margin-right: 8px;
+        }
+        .footer {
+            background: #343a40;
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+        .status-indicator {
+            display: inline-block;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-weight: bold;
+            margin: 5px;
+        }
+        .status-indicator.pending {
+            background: #fff3cd;
+            color: #856404;
+        }
+        .status-indicator.success {
+            background: #d4edda;
+            color: #155724;
+        }
+        .status-indicator.error {
+            background: #f8d7da;
+            color: #721c24;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🛒 Test Interface Client Complète</h1>
+            <p>Vérification de toutes les fonctionnalités du front-office</p>
+        </div>
+
+        <div class="content">
+            <!-- Vue d'ensemble -->
+            <div class="test-section">
+                <h2>Vue d'Ensemble des Fonctionnalités</h2>
+                
+                <div class="info">
+                    ℹ️ <strong>Objectif :</strong> Vérifier que toutes les fonctionnalités de l'interface client fonctionnent correctement.
+                </div>
+
+                <div class="feature-grid">
+                    <div class="feature-card">
+                        <h3>1. Inscription / Connexion</h3>
+                        <ul class="checklist">
+                            <li>☐ Formulaire d'inscription fonctionnel</li>
+                            <li>☐ Formulaire de connexion fonctionnel</li>
+                            <li>☐ Validation des données</li>
+                            <li>☐ Gestion des erreurs</li>
+                            <li>☐ Redirection après connexion</li>
+                        </ul>
+                    </div>
+
+                    <div class="feature-card">
+                        <h3>2. Consultation des Produits</h3>
+                        <ul class="checklist">
+                            <li>☐ Affichage de la liste des produits</li>
+                            <li>☐ Filtres par catégorie</li>
+                            <li>☐ Recherche de produits</li>
+                            <li>☐ Détails des produits</li>
+                            <li>☐ Images des produits</li>
+                        </ul>
+                    </div>
+
+                    <div class="feature-card">
+                        <h3>3. Ajout au Panier</h3>
+                        <ul class="checklist">
+                            <li>☐ Bouton "Ajouter au panier"</li>
+                            <li>☐ Sélection de quantité</li>
+                            <li>☐ Mise à jour du panier</li>
+                            <li>☐ Persistance des données</li>
+                            <li>☐ Indicateur de quantité</li>
+                        </ul>
+                    </div>
+
+                    <div class="feature-card">
+                        <h3>4. Passage de Commande</h3>
+                        <ul class="checklist">
+                            <li>☐ Page de panier</li>
+                            <li>☐ Formulaire de commande</li>
+                            <li>☐ Calcul du total</li>
+                            <li>☐ Confirmation de commande</li>
+                            <li>☐ Sauvegarde en base</li>
+                        </ul>
+                    </div>
+
+                    <div class="feature-card">
+                        <h3>5. Historique des Achats</h3>
+                        <ul class="checklist">
+                            <li>☐ Page "Mes Commandes"</li>
+                            <li>☐ Liste des commandes</li>
+                            <li>☐ Détails des commandes</li>
+                            <li>☐ Statut des commandes</li>
+                            <li>☐ Historique complet</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Test 1: Inscription/Connexion -->
+            <div class="test-section">
+                <h2>1. Test Inscription / Connexion</h2>
+                
+                <div class="step">
+                    <h3>Test d'Inscription</h3>
+                    <div class="info">
+                        ℹ️ <strong>Étapes :</strong>
+                    </div>
+                    <ul class="checklist">
+                        <li>☐ Aller sur la page d'inscription</li>
+                        <li>☐ Remplir le formulaire avec des données valides</li>
+                        <li>☐ Vérifier la validation des champs</li>
+                        <li>☐ Soumettre le formulaire</li>
+                        <li>☐ Vérifier la création du compte</li>
+                        <li>☐ Vérifier la redirection après inscription</li>
+                    </ul>
+                    
+                    <div class="success">
+                        ✅ <strong>Comptes de test disponibles :</strong>
+                    </div>
+                    <ul>
+                        <li><strong>Client 1 :</strong> client@bowoye.gn / password123</li>
+                        <li><strong>Client 2 :</strong> mamadou@bowoye.gn / password123</li>
+                        <li><strong>Admin :</strong> amadou@bowoye.gn / password123</li>
+                    </ul>
+                </div>
+
+                <div class="step">
+                    <h3>Test de Connexion</h3>
+                    <ul class="checklist">
+                        <li>☐ Aller sur la page de connexion</li>
+                        <li>☐ Saisir les identifiants de test</li>
+                        <li>☐ Vérifier la connexion</li>
+                        <li>☐ Vérifier l'affichage du nom utilisateur</li>
+                        <li>☐ Vérifier l'accès aux pages protégées</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Test 2: Consultation des Produits -->
+            <div class="test-section">
+                <h2>2. Test Consultation des Produits</h2>
+                
+                <div class="step">
+                    <h3>Page d'Accueil</h3>
+                    <ul class="checklist">
+                        <li>☐ Carrousel d'images fonctionnel</li>
+                        <li>☐ Section produits vedettes</li>
+                        <li>☐ Navigation vers les catégories</li>
+                        <li>☐ Liens vers les produits</li>
+                    </ul>
+                </div>
+
+                <div class="step">
+                    <h3>Page Produits</h3>
+                    <ul class="checklist">
+                        <li>☐ Affichage de la liste des produits</li>
+                        <li>☐ Images des produits visibles</li>
+                        <li>☐ Prix et descriptions affichés</li>
+                        <li>☐ Boutons "Ajouter au panier"</li>
+                        <li>☐ Filtres par catégorie</li>
+                        <li>☐ Barre de recherche</li>
+                    </ul>
+                </div>
+
+                <div class="step">
+                    <h3>Détails des Produits</h3>
+                    <ul class="checklist">
+                        <li>☐ Page de détail du produit</li>
+                        <li>☐ Images en haute résolution</li>
+                        <li>☐ Description complète</li>
+                        <li>☐ Prix et stock</li>
+                        <li>☐ Bouton d'ajout au panier</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Test 3: Ajout au Panier -->
+            <div class="test-section">
+                <h2>3. Test Ajout au Panier</h2>
+                
+                <div class="step">
+                    <h3>Fonctionnalités du Panier</h3>
+                    <ul class="checklist">
+                        <li>☐ Ajouter un produit au panier</li>
+                        <li>☐ Vérifier l'indicateur de quantité</li>
+                        <li>☐ Modifier la quantité</li>
+                        <li>☐ Supprimer un produit</li>
+                        <li>☐ Calcul du total</li>
+                        <li>☐ Persistance des données</li>
+                    </ul>
+                </div>
+
+                <div class="step">
+                    <h3>Page Panier</h3>
+                    <ul class="checklist">
+                        <li>☐ Affichage des produits ajoutés</li>
+                        <li>☐ Quantités modifiables</li>
+                        <li>☐ Prix unitaires et totaux</li>
+                        <li>☐ Bouton de suppression</li>
+                        <li>☐ Bouton "Passer commande"</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Test 4: Passage de Commande -->
+            <div class="test-section">
+                <h2>4. Test Passage de Commande</h2>
+                
+                <div class="step">
+                    <h3>Processus de Commande</h3>
+                    <ul class="checklist">
+                        <li>☐ Page de récapitulatif</li>
+                        <li>☐ Formulaire d'adresse de livraison</li>
+                        <li>☐ Validation des données</li>
+                        <li>☐ Confirmation de commande</li>
+                        <li>☐ Sauvegarde en base de données</li>
+                        <li>☐ Email de confirmation (simulé)</li>
+                    </ul>
+                </div>
+
+                <div class="step">
+                    <h3>Confirmation de Commande</h3>
+                    <ul class="checklist">
+                        <li>☐ Numéro de commande généré</li>
+                        <li>☐ Détails de la commande</li>
+                        <li>☐ Total de la commande</li>
+                        <li>☐ Statut de la commande</li>
+                        <li>☐ Liens vers l'historique</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Test 5: Historique des Achats -->
+            <div class="test-section">
+                <h2>5. Test Historique des Achats</h2>
+                
+                <div class="step">
+                    <h3>Page "Mes Commandes"</h3>
+                    <ul class="checklist">
+                        <li>☐ Accès via le menu utilisateur</li>
+                        <li>☐ Liste des commandes passées</li>
+                        <li>☐ Dates des commandes</li>
+                        <li>☐ Statuts des commandes</li>
+                        <li>☐ Totaux des commandes</li>
+                    </ul>
+                </div>
+
+                <div class="step">
+                    <h3>Détails des Commandes</h3>
+                    <ul class="checklist">
+                        <li>☐ Page de détail d'une commande</li>
+                        <li>☐ Liste des produits commandés</li>
+                        <li>☐ Quantités et prix</li>
+                        <li>☐ Adresse de livraison</li>
+                        <li>☐ Statut de suivi</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Actions de test -->
+            <div class="test-section">
+                <h2>Actions de Test</h2>
+                
+                <div class="success">
+                    ✅ <strong>Liens de test disponibles :</strong>
+                </div>
+                
+                <a href="http://localhost:3000" class="btn" target="_blank">
+                    🏠 Page d'Accueil
+                </a>
+                <a href="http://localhost:3000/login" class="btn" target="_blank">
+                    🔑 Connexion
+                </a>
+                <a href="http://localhost:3000/register" class="btn" target="_blank">
+                    📝 Inscription
+                </a>
+                <a href="http://localhost:3000/products" class="btn" target="_blank">
+                    📦 Produits
+                </a>
+                <a href="http://localhost:3000/cart" class="btn" target="_blank">
+                    🛒 Panier
+                </a>
+                <a href="http://localhost:3000/orders" class="btn" target="_blank">
+                    📋 Mes Commandes
+                </a>
+            </div>
+
+            <!-- Comptes de test -->
+            <div class="test-section">
+                <h2>Comptes de Test</h2>
+                
+                <div class="info">
+                    ℹ️ <strong>Utilisez ces comptes pour tester les fonctionnalités :</strong>
+                </div>
+                
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; margin: 20px 0;">
+                    <div style="background: #e8f5e8; padding: 15px; border-radius: 8px; border: 2px solid #4caf50;">
+                        <h4 style="margin-top: 0; color: #2e7d32;">👤 Client Test 1</h4>
+                        <p><strong>Email :</strong> client@bowoye.gn</p>
+                        <p><strong>Mot de passe :</strong> password123</p>
+                        <p><strong>Rôle :</strong> Client</p>
+                    </div>
+                    
+                    <div style="background: #e8f5e8; padding: 15px; border-radius: 8px; border: 2px solid #4caf50;">
+                        <h4 style="margin-top: 0; color: #2e7d32;">👤 Client Test 2</h4>
+                        <p><strong>Email :</strong> mamadou@bowoye.gn</p>
+                        <p><strong>Mot de passe :</strong> password123</p>
+                        <p><strong>Rôle :</strong> Client</p>
+                    </div>
+                    
+                    <div style="background: #fff3cd; padding: 15px; border-radius: 8px; border: 2px solid #ffc107;">
+                        <h4 style="margin-top: 0; color: #856404;">👑 Admin Test</h4>
+                        <p><strong>Email :</strong> amadou@bowoye.gn</p>
+                        <p><strong>Mot de passe :</strong> password123</p>
+                        <p><strong>Rôle :</strong> Administrateur</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Checklist de validation -->
+            <div class="test-section">
+                <h2>Checklist de Validation Complète</h2>
+                
+                <div class="warning">
+                    ⚠️ <strong>Marquez chaque étape comme terminée :</strong>
+                </div>
+                
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 20px;">
+                    <div>
+                        <h4>🔐 Authentification</h4>
+                        <ul class="checklist">
+                            <li>☐ Inscription fonctionnelle</li>
+                            <li>☐ Connexion fonctionnelle</li>
+                            <li>☐ Déconnexion fonctionnelle</li>
+                            <li>☐ Gestion des erreurs</li>
+                        </ul>
+                    </div>
+                    
+                    <div>
+                        <h4>📦 Produits</h4>
+                        <ul class="checklist">
+                            <li>☐ Liste des produits</li>
+                            <li>☐ Détails des produits</li>
+                            <li>☐ Recherche de produits</li>
+                            <li>☐ Filtres par catégorie</li>
+                        </ul>
+                    </div>
+                    
+                    <div>
+                        <h4>🛒 Panier</h4>
+                        <ul class="checklist">
+                            <li>☐ Ajout au panier</li>
+                            <li>☐ Modification des quantités</li>
+                            <li>☐ Suppression d'articles</li>
+                            <li>☐ Calcul des totaux</li>
+                        </ul>
+                    </div>
+                    
+                    <div>
+                        <h4>💳 Commandes</h4>
+                        <ul class="checklist">
+                            <li>☐ Processus de commande</li>
+                            <li>☐ Validation des données</li>
+                            <li>☐ Confirmation de commande</li>
+                            <li>☐ Sauvegarde en base</li>
+                        </ul>
+                    </div>
+                    
+                    <div>
+                        <h4>📋 Historique</h4>
+                        <ul class="checklist">
+                            <li>☐ Page "Mes Commandes"</li>
+                            <li>☐ Détails des commandes</li>
+                            <li>☐ Statuts des commandes</li>
+                            <li>☐ Navigation utilisateur</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p><strong>Test Interface Client Complète</strong> - Bowoye Multi Services</p>
+            <p>Vérification de toutes les fonctionnalités du front-office</p>
+        </div>
+    </div>
+
+    <script>
+        // Animation des cartes
+        document.addEventListener('DOMContentLoaded', function() {
+            const cards = document.querySelectorAll('.feature-card, .step, .test-section');
+            cards.forEach((card, index) => {
+                card.style.opacity = '0';
+                card.style.transform = 'translateY(20px)';
+                setTimeout(() => {
+                    card.style.transition = 'all 0.5s ease';
+                    card.style.opacity = '1';
+                    card.style.transform = 'translateY(0)';
+                }, index * 100);
+            });
+        });
+
+        // Test de connectivité
+        function testConnectivity() {
+            fetch('http://localhost:3001/api/health')
+                .then(response => {
+                    if (response.ok) {
+                        console.log('✅ Serveur backend accessible');
+                        updateStatus('Backend: ✅ Connecté');
+                    } else {
+                        console.log('⚠️ Serveur backend avec problèmes');
+                        updateStatus('Backend: ⚠️ Problème');
+                    }
+                })
+                .catch(error => {
+                    console.log('❌ Serveur backend inaccessible:', error);
+                    updateStatus('Backend: ❌ Hors ligne');
+                });
+        }
+
+        function updateStatus(message) {
+            const footer = document.querySelector('.footer p:last-child');
+            if (footer) {
+                footer.innerHTML = `Vérification de toutes les fonctionnalités du front-office | ${message}`;
+            }
+        }
+
+        // Test de connectivité au chargement
+        testConnectivity();
+    </script>
+</body>
+</html>

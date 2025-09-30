@@ -16,8 +16,12 @@ import {
   UserCheck,
   UserX,
   Save,
-  X
+  X,
+  RefreshCw,
+  Download,
+  Upload
 } from 'lucide-react';
+import UserConfirmationModal from '../../components/UserConfirmationModal';
 
 const AdminUsersComplete = () => {
   const [users, setUsers] = useState([]);
@@ -29,6 +33,15 @@ const AdminUsersComplete = () => {
   const [showEditModal, setShowEditModal] = useState(false);
   const [editingUser, setEditingUser] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [confirmationModal, setConfirmationModal] = useState({
+    isOpen: false,
+    title: '',
+    message: '',
+    type: 'warning',
+    onConfirm: null
+  });
+  const [selectedUsers, setSelectedUsers] = useState([]);
+  const [showBulkActions, setShowBulkActions] = useState(false);
 
   const [newUser, setNewUser] = useState({
     firstName: '',
@@ -52,16 +65,24 @@ const AdminUsersComplete = () => {
     { value: 'inactive', label: 'Inactif' }
   ];
 
-  // Simuler le chargement des données
+  // Charger les données réelles depuis localStorage
   useEffect(() => {
     const loadUsers = async () => {
       setLoading(true);
-      await new Promise(resolve => setTimeout(resolve, 1000));
       
-      const mockUsers = [];
-
-      setUsers(mockUsers);
-      setFilteredUsers(mockUsers);
+      try {
+        // Charger les utilisateurs depuis localStorage
+        const savedUsers = localStorage.getItem('users');
+        const users = savedUsers ? JSON.parse(savedUsers) : [];
+        
+        setUsers(users);
+        setFilteredUsers(users);
+      } catch (error) {
+        console.error('Erreur lors du chargement des utilisateurs:', error);
+        setUsers([]);
+        setFilteredUsers([]);
+      }
+      
       setLoading(false);
     };
 
@@ -96,6 +117,7 @@ const AdminUsersComplete = () => {
   const handleAddUser = () => {
     if (newUser.firstName && newUser.lastName && newUser.email) {
       const user = {
+        _id: Date.now().toString(),
         id: Date.now(),
         ...newUser,
         createdAt: new Date().toISOString(),
@@ -104,7 +126,10 @@ const AdminUsersComplete = () => {
         totalSpent: 0
       };
       
-      setUsers([user, ...users]);
+      const updatedUsers = [user, ...users];
+      setUsers(updatedUsers);
+      localStorage.setItem('users', JSON.stringify(updatedUsers));
+      
       setNewUser({
         firstName: '',
         lastName: '',
@@ -135,7 +160,7 @@ const AdminUsersComplete = () => {
   const handleUpdateUser = () => {
     if (editingUser && newUser.firstName && newUser.lastName && newUser.email) {
       const updatedUsers = users.map(user =>
-        user.id === editingUser.id
+        (user.id === editingUser.id || user._id === editingUser._id)
           ? {
               ...user,
               firstName: newUser.firstName,
@@ -144,12 +169,15 @@ const AdminUsersComplete = () => {
               phone: newUser.phone,
               address: newUser.address,
               role: newUser.role,
-              isActive: newUser.isActive
+              isActive: newUser.isActive,
+              updatedAt: new Date().toISOString()
             }
           : user
       );
       
       setUsers(updatedUsers);
+      localStorage.setItem('users', JSON.stringify(updatedUsers));
+      
       setShowEditModal(false);
       setEditingUser(null);
       setNewUser({
@@ -165,24 +193,63 @@ const AdminUsersComplete = () => {
   };
 
   const handleDeleteUser = (userId) => {
-    if (window.confirm('Êtes-vous sûr de vouloir supprimer cet utilisateur ?')) {
-      setUsers(users.filter(user => user.id !== userId));
+    const user = users.find(u => u.id === userId || u._id === userId);
+    if (!user) {
+      console.error('Utilisateur non trouvé:', userId);
+      return;
     }
+    
+    setConfirmationModal({
+      isOpen: true,
+      title: 'Supprimer l\'utilisateur',
+      message: `Êtes-vous sûr de vouloir supprimer ${user.firstName} ${user.lastName} ? Cette action est irréversible.`,
+      type: 'danger',
+      onConfirm: () => {
+        try {
+          const updatedUsers = users.filter(u => u.id !== userId && u._id !== userId);
+          setUsers(updatedUsers);
+          
+          // Appliquer les filtres existants aux utilisateurs mis à jour
+          let filtered = updatedUsers;
+          if (searchTerm) {
+            filtered = filtered.filter(user =>
+              user.firstName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+              user.lastName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+              user.email.toLowerCase().includes(searchTerm.toLowerCase())
+            );
+          }
+          if (selectedRole) {
+            filtered = filtered.filter(user => user.role === selectedRole);
+          }
+          if (selectedStatus) {
+            filtered = filtered.filter(user => 
+              selectedStatus === 'active' ? user.isActive : !user.isActive
+            );
+          }
+          setFilteredUsers(filtered);
+          
+          localStorage.setItem('users', JSON.stringify(updatedUsers));
+          setConfirmationModal({ isOpen: false, title: '', message: '', type: 'warning', onConfirm: null });
+          console.log('Utilisateur supprimé avec succès:', user.firstName, user.lastName);
+        } catch (error) {
+          console.error('Erreur lors de la suppression:', error);
+        }
+      }
+    });
   };
 
   const toggleUserStatus = (userId) => {
-    setUsers(users.map(user =>
-      user.id === userId
-        ? { ...user, isActive: !user.isActive }
+    const updatedUsers = users.map(user =>
+      (user.id === userId || user._id === userId)
+        ? { ...user, isActive: !user.isActive, updatedAt: new Date().toISOString() }
         : user
-    ));
+    );
+    setUsers(updatedUsers);
+    localStorage.setItem('users', JSON.stringify(updatedUsers));
   };
 
   const formatCurrency = (amount) => {
-    return new Intl.NumberFormat('fr-FR', {
-      style: 'currency',
-      currency: 'GNF'
-    }).format(amount);
+    return `${(amount || 0).toLocaleString('fr-FR')} FG`;
   };
 
   const formatDate = (dateString) => {
@@ -192,6 +259,84 @@ const AdminUsersComplete = () => {
       month: 'short',
       day: 'numeric'
     });
+  };
+
+  // Fonctions pour la gestion en lot
+  const handleSelectUser = (userId) => {
+    setSelectedUsers(prev => 
+      prev.includes(userId) 
+        ? prev.filter(id => id !== userId)
+        : [...prev, userId]
+    );
+  };
+
+  const handleSelectAll = () => {
+    if (selectedUsers.length === filteredUsers.length) {
+      setSelectedUsers([]);
+    } else {
+      setSelectedUsers(filteredUsers.map(user => user.id || user._id));
+    }
+  };
+
+  const handleBulkDelete = () => {
+    setConfirmationModal({
+      isOpen: true,
+      title: 'Supprimer les utilisateurs sélectionnés',
+      message: `Êtes-vous sûr de vouloir supprimer ${selectedUsers.length} utilisateur(s) ? Cette action est irréversible.`,
+      type: 'danger',
+      onConfirm: () => {
+        const updatedUsers = users.filter(user => !selectedUsers.includes(user.id || user._id));
+        setUsers(updatedUsers);
+        localStorage.setItem('users', JSON.stringify(updatedUsers));
+        setSelectedUsers([]);
+        setShowBulkActions(false);
+        setConfirmationModal({ isOpen: false, title: '', message: '', type: 'warning', onConfirm: null });
+      }
+    });
+  };
+
+  const handleBulkStatusChange = (isActive) => {
+    const updatedUsers = users.map(user => 
+      selectedUsers.includes(user.id || user._id)
+        ? { ...user, isActive, updatedAt: new Date().toISOString() }
+        : user
+    );
+    setUsers(updatedUsers);
+    localStorage.setItem('users', JSON.stringify(updatedUsers));
+    setSelectedUsers([]);
+    setShowBulkActions(false);
+  };
+
+  const handleExportUsers = () => {
+    const csvContent = [
+      ['Nom', 'Prénom', 'Email', 'Téléphone', 'Rôle', 'Statut', 'Date de création'],
+      ...filteredUsers.map(user => [
+        user.lastName || '',
+        user.firstName || '',
+        user.email || '',
+        user.phone || '',
+        user.role || '',
+        user.isActive ? 'Actif' : 'Inactif',
+        formatDate(user.createdAt)
+      ])
+    ].map(row => row.join(',')).join('\n');
+
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+    link.setAttribute('href', url);
+    link.setAttribute('download', `utilisateurs_${new Date().toISOString().split('T')[0]}.csv`);
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
+  const handleRefresh = () => {
+    const savedUsers = localStorage.getItem('users');
+    const users = savedUsers ? JSON.parse(savedUsers) : [];
+    setUsers(users);
+    setFilteredUsers(users);
   };
 
   const getRoleColor = (role) => {
@@ -402,13 +547,13 @@ const AdminUsersComplete = () => {
                           <Edit className="h-4 w-4" />
                         </button>
                         <button
-                          onClick={() => toggleUserStatus(user.id)}
+                          onClick={() => toggleUserStatus(user.id || user._id)}
                           className={`${user.isActive ? 'text-red-600 hover:text-red-900' : 'text-green-600 hover:text-green-900'}`}
                         >
                           {user.isActive ? <UserX className="h-4 w-4" /> : <UserCheck className="h-4 w-4" />}
                         </button>
                         <button
-                          onClick={() => handleDeleteUser(user.id)}
+                          onClick={() => handleDeleteUser(user.id || user._id)}
                           className="text-red-600 hover:text-red-900"
                         >
                           <Trash2 className="h-4 w-4" />
@@ -635,6 +780,16 @@ const AdminUsersComplete = () => {
             </div>
           </div>
         )}
+
+        {/* Modal de confirmation */}
+        <UserConfirmationModal
+          isOpen={confirmationModal.isOpen}
+          title={confirmationModal.title}
+          message={confirmationModal.message}
+          type={confirmationModal.type}
+          onConfirm={confirmationModal.onConfirm}
+          onClose={() => setConfirmationModal({ isOpen: false, title: '', message: '', type: 'warning', onConfirm: null })}
+        />
       </div>
     </div>
   );

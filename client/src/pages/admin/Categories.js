@@ -3,6 +3,7 @@ import { useQuery, useMutation, useQueryClient } from 'react-query';
 import { categoriesAPI } from '../../services/api';
 import { Plus, Edit, Trash2, Package } from 'lucide-react';
 import toast from 'react-hot-toast';
+import ResetButton from '../../components/ResetButton';
 
 const AdminCategories = () => {
   const [isAdding, setIsAdding] = useState(false);
@@ -85,8 +86,50 @@ const AdminCategories = () => {
   };
 
   const handleDelete = (categoryId) => {
-    if (window.confirm('Êtes-vous sûr de vouloir supprimer cette catégorie ?')) {
-      deleteCategoryMutation.mutate(categoryId);
+    // Utiliser une confirmation moderne avec toast
+    toast((t) => (
+      <div className="flex flex-col space-y-2">
+        <span className="font-medium">Confirmer la suppression</span>
+        <span className="text-sm text-gray-600">Êtes-vous sûr de vouloir supprimer cette catégorie ?</span>
+        <div className="flex space-x-2 mt-2">
+          <button
+            onClick={() => {
+              deleteCategoryMutation.mutate(categoryId);
+              toast.dismiss(t.id);
+            }}
+            className="px-3 py-1 text-xs bg-red-600 text-white rounded hover:bg-red-700"
+          >
+            Supprimer
+          </button>
+          <button
+            onClick={() => toast.dismiss(t.id)}
+            className="px-3 py-1 text-xs bg-gray-300 text-gray-700 rounded hover:bg-gray-400"
+          >
+            Annuler
+          </button>
+        </div>
+      </div>
+    ), {
+      duration: 10000,
+      position: 'top-center',
+    });
+  };
+
+  // Fonction de réinitialisation des catégories
+  const handleResetCategories = async () => {
+    try {
+      // Vider toutes les données de catégories
+      localStorage.removeItem('categories');
+      localStorage.removeItem('adminCategories');
+      localStorage.removeItem('categoryData');
+      
+      // Invalider le cache des requêtes
+      queryClient.invalidateQueries('admin-categories');
+      
+      console.log('✅ Données de catégories réinitialisées avec succès');
+    } catch (error) {
+      console.error('❌ Erreur lors de la réinitialisation des catégories:', error);
+      throw error;
     }
   };
 
@@ -110,7 +153,7 @@ const AdminCategories = () => {
                 Organisez vos produits par catégories
               </p>
             </div>
-            <div className="mt-4 sm:mt-0">
+            <div className="mt-4 sm:mt-0 flex flex-col sm:flex-row gap-3">
               <button
                 onClick={() => setIsAdding(true)}
                 className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 flex items-center"
@@ -118,6 +161,12 @@ const AdminCategories = () => {
                 <Plus className="h-4 w-4 mr-2" />
                 Ajouter une catégorie
               </button>
+              <ResetButton
+                onReset={handleResetCategories}
+                resetType="catégories"
+                confirmMessage="Êtes-vous sûr de vouloir réinitialiser toutes les catégories ? Cette action supprimera définitivement toutes les catégories et leurs données."
+                variant="warning"
+              />
             </div>
           </div>
         </div>

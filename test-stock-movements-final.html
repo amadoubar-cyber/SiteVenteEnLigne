@@ -1,0 +1,531 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Final - Mouvements de Stock</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1000px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .button {
+            background: #007bff;
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 10px 5px;
+        }
+        .button:hover {
+            background: #0056b3;
+        }
+        .success {
+            background: #28a745;
+        }
+        .success:hover {
+            background: #218838;
+        }
+        .danger {
+            background: #dc3545;
+        }
+        .danger:hover {
+            background: #c82333;
+        }
+        .warning {
+            background: #ffc107;
+            color: #212529;
+        }
+        .warning:hover {
+            background: #e0a800;
+        }
+        .log {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 5px;
+            padding: 15px;
+            margin: 20px 0;
+            font-family: monospace;
+            white-space: pre-wrap;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        .section {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 5px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+        .status {
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+        .status.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .status.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .status.warning {
+            background: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeaa7;
+        }
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        .stats-card {
+            background: white;
+            border: 1px solid #dee2e6;
+            border-radius: 5px;
+            padding: 15px;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧪 Test Final - Mouvements de Stock</h1>
+        <p>Test complet de la correction des mouvements de stock qui affichaient des zéros.</p>
+        
+        <div id="status" class="status warning">
+            Prêt à tester les mouvements de stock...
+        </div>
+        
+        <div class="grid">
+            <div class="section">
+                <h2>🔍 Diagnostic</h2>
+                <button class="button" onclick="diagnoseStock()">Diagnostiquer</button>
+                <button class="button" onclick="checkData()">Vérifier les données</button>
+                <button class="button warning" onclick="calculateStats()">Calculer les stats</button>
+                <div id="diagnosis" class="log"></div>
+            </div>
+            
+            <div class="section">
+                <h2>🔧 Correction</h2>
+                <button class="button success" onclick="fixStockMovements()">Corriger</button>
+                <button class="button" onclick="createInitialMovements()">Créer mouvements initiaux</button>
+                <button class="button" onclick="syncData()">Synchroniser</button>
+                <div id="fix" class="log"></div>
+            </div>
+        </div>
+        
+        <div class="section">
+            <h2>📊 Statistiques</h2>
+            <button class="button" onclick="showStats()">Afficher les statistiques</button>
+            <button class="button success" onclick="addTestData()">Ajouter données test</button>
+            <div id="stats" class="log"></div>
+        </div>
+        
+        <div class="section">
+            <h2>🧪 Test Complet</h2>
+            <button class="button success" onclick="fullTest()">Test complet</button>
+            <button class="button" onclick="goToStockMovement()">Aller aux mouvements</button>
+            <div id="test" class="log"></div>
+        </div>
+    </div>
+
+    <script>
+        function log(message, targetId = 'diagnosis') {
+            const logElement = document.getElementById(targetId);
+            const timestamp = new Date().toLocaleTimeString();
+            logElement.textContent += `[${timestamp}] ${message}\n`;
+            logElement.scrollTop = logElement.scrollHeight;
+        }
+
+        function updateStatus(message, type = 'warning') {
+            const statusElement = document.getElementById('status');
+            statusElement.textContent = message;
+            statusElement.className = `status ${type}`;
+        }
+
+        function diagnoseStock() {
+            log('🔍 DIAGNOSTIC DES MOUVEMENTS DE STOCK');
+            log('='.repeat(45));
+            
+            const products = JSON.parse(localStorage.getItem('koula_products') || '[]');
+            const movements = JSON.parse(localStorage.getItem('stockMovements') || '[]');
+            
+            log(`📦 Produits: ${products.length}`);
+            log(`📊 Mouvements: ${movements.length}`);
+            
+            if (products.length > 0) {
+                const constructionProducts = products.filter(p => p.productType === 'construction');
+                const electronicsProducts = products.filter(p => p.productType === 'electronics');
+                
+                log(`- Construction: ${constructionProducts.length} produits`);
+                log(`- Électronique: ${electronicsProducts.length} produits`);
+            }
+            
+            if (movements.length > 0) {
+                const inMovements = movements.filter(m => m.type === 'in');
+                const outMovements = movements.filter(m => m.type === 'out');
+                
+                log(`- Entrées: ${inMovements.length}`);
+                log(`- Sorties: ${outMovements.length}`);
+            }
+            
+            // Vérifier la synchronisation
+            if (products.length > 0 && movements.length === 0) {
+                log('⚠️  PROBLÈME: Produits existent mais aucun mouvement');
+            } else if (products.length === 0) {
+                log('⚠️  PROBLÈME: Aucun produit trouvé');
+            } else if (movements.length > 0) {
+                log('✅ Produits et mouvements synchronisés');
+            }
+            
+            updateStatus('Diagnostic terminé', 'success');
+        }
+
+        function checkData() {
+            log('🔍 VÉRIFICATION DES DONNÉES:', 'diagnosis');
+            
+            const products = JSON.parse(localStorage.getItem('koula_products') || '[]');
+            const movements = JSON.parse(localStorage.getItem('stockMovements') || '[]');
+            
+            log(`Produits: ${products.length}`, 'diagnosis');
+            log(`Mouvements: ${movements.length}`, 'diagnosis');
+            
+            // Vérifier les mouvements orphelins
+            const validProductIds = products.map(p => p._id);
+            const orphanMovements = movements.filter(m => !validProductIds.includes(m.productId));
+            
+            if (orphanMovements.length > 0) {
+                log(`⚠️  ${orphanMovements.length} mouvements orphelins détectés`, 'diagnosis');
+            } else {
+                log('✅ Aucun mouvement orphelin', 'diagnosis');
+            }
+            
+            // Vérifier les produits sans mouvements
+            const productsWithoutMovements = products.filter(product => 
+                !movements.some(m => m.productId === product._id)
+            );
+            
+            if (productsWithoutMovements.length > 0) {
+                log(`⚠️  ${productsWithoutMovements.length} produits sans mouvements`, 'diagnosis');
+            } else {
+                log('✅ Tous les produits ont des mouvements', 'diagnosis');
+            }
+        }
+
+        function calculateStats() {
+            log('📊 CALCUL DES STATISTIQUES:', 'diagnosis');
+            
+            const movements = JSON.parse(localStorage.getItem('stockMovements') || '[]');
+            
+            if (movements.length === 0) {
+                log('❌ Aucun mouvement pour calculer les statistiques', 'diagnosis');
+                return;
+            }
+            
+            // Calculer les statistiques comme dans StockMovement.js
+            const stats = {
+                totalEntries: 0,
+                totalExits: 0,
+                constructionEntries: 0,
+                constructionExits: 0,
+                electronicsEntries: 0,
+                electronicsExits: 0,
+                constructionStock: 0,
+                electronicsStock: 0,
+                constructionProducts: 0,
+                electronicsProducts: 0
+            };
+            
+            movements.forEach(movement => {
+                if (movement.type === 'in') {
+                    stats.totalEntries += movement.quantity || 0;
+                    if (movement.category === 'construction') {
+                        stats.constructionEntries += movement.quantity || 0;
+                    } else if (movement.category === 'electronics') {
+                        stats.electronicsEntries += movement.quantity || 0;
+                    }
+                } else {
+                    stats.totalExits += movement.quantity || 0;
+                    if (movement.category === 'construction') {
+                        stats.constructionExits += movement.quantity || 0;
+                    } else if (movement.category === 'electronics') {
+                        stats.electronicsExits += movement.quantity || 0;
+                    }
+                }
+            });
+            
+            // Calculer le stock actuel par catégorie
+            stats.constructionStock = stats.constructionEntries - stats.constructionExits;
+            stats.electronicsStock = stats.electronicsEntries - stats.electronicsExits;
+            
+            // Compter les produits uniques par catégorie
+            const constructionProducts = new Set();
+            const electronicsProducts = new Set();
+            
+            movements.forEach(movement => {
+                if (movement.category === 'construction') {
+                    constructionProducts.add(movement.productId);
+                } else if (movement.category === 'electronics') {
+                    electronicsProducts.add(movement.productId);
+                }
+            });
+            
+            stats.constructionProducts = constructionProducts.size;
+            stats.electronicsProducts = electronicsProducts.size;
+            
+            log(`📊 STATISTIQUES CALCULÉES:`, 'diagnosis');
+            log(`Entrées totales: ${stats.totalEntries}`, 'diagnosis');
+            log(`Sorties totales: ${stats.totalExits}`, 'diagnosis');
+            log(`Construction - Entrées: ${stats.constructionEntries}, Sorties: ${stats.constructionExits}`, 'diagnosis');
+            log(`Électronique - Entrées: ${stats.electronicsEntries}, Sorties: ${stats.electronicsExits}`, 'diagnosis');
+            log(`Stock Construction: ${stats.constructionStock}`, 'diagnosis');
+            log(`Stock Électronique: ${stats.electronicsStock}`, 'diagnosis');
+            log(`Produits Construction: ${stats.constructionProducts}`, 'diagnosis');
+            log(`Produits Électronique: ${stats.electronicsProducts}`, 'diagnosis');
+        }
+
+        function fixStockMovements() {
+            log('🔧 CORRECTION DES MOUVEMENTS DE STOCK:', 'fix');
+            
+            const products = JSON.parse(localStorage.getItem('koula_products') || '[]');
+            const movements = JSON.parse(localStorage.getItem('stockMovements') || '[]');
+            
+            // 1. Nettoyer les mouvements orphelins
+            const validProductIds = products.map(p => p._id);
+            const validMovements = movements.filter(m => validProductIds.includes(m.productId));
+            
+            if (validMovements.length !== movements.length) {
+                localStorage.setItem('stockMovements', JSON.stringify(validMovements));
+                log(`✅ ${movements.length - validMovements.length} mouvements orphelins supprimés`, 'fix');
+            }
+            
+            // 2. Créer des mouvements initiaux pour les produits sans mouvements
+            const productsWithoutMovements = products.filter(product => 
+                !validMovements.some(m => m.productId === product._id)
+            );
+            
+            if (productsWithoutMovements.length > 0) {
+                const newMovements = productsWithoutMovements.map(product => ({
+                    _id: 'initial-' + product._id + '-' + Date.now(),
+                    productId: product._id,
+                    productName: product.name,
+                    type: 'in',
+                    quantity: product.stock || 0,
+                    reason: 'Stock initial',
+                    category: product.productType || 'construction',
+                    notes: 'Mouvement initial créé automatiquement',
+                    date: product.createdAt || new Date().toISOString(),
+                    createdAt: new Date().toISOString()
+                }));
+                
+                const allMovements = [...validMovements, ...newMovements];
+                localStorage.setItem('stockMovements', JSON.stringify(allMovements));
+                
+                log(`✅ ${newMovements.length} mouvements initiaux créés`, 'fix');
+            }
+            
+            log('✅ Correction terminée', 'fix');
+            updateStatus('Correction appliquée', 'success');
+        }
+
+        function createInitialMovements() {
+            log('➕ CRÉATION DE MOUVEMENTS INITIAUX:', 'fix');
+            
+            const products = JSON.parse(localStorage.getItem('koula_products') || '[]');
+            
+            if (products.length === 0) {
+                log('❌ Aucun produit trouvé. Ajoutez des produits d\'abord.', 'fix');
+                return;
+            }
+            
+            const movements = products.map(product => ({
+                _id: 'initial-' + product._id + '-' + Date.now(),
+                productId: product._id,
+                productName: product.name,
+                type: 'in',
+                quantity: product.stock || 0,
+                reason: 'Stock initial',
+                category: product.productType || 'construction',
+                notes: 'Mouvement initial créé automatiquement',
+                date: product.createdAt || new Date().toISOString(),
+                createdAt: new Date().toISOString()
+            }));
+            
+            localStorage.setItem('stockMovements', JSON.stringify(movements));
+            
+            log(`✅ ${movements.length} mouvements initiaux créés`, 'fix');
+            updateStatus('Mouvements initiaux créés', 'success');
+        }
+
+        function syncData() {
+            log('🔄 SYNCHRONISATION DES DONNÉES:', 'fix');
+            
+            const products = JSON.parse(localStorage.getItem('koula_products') || '[]');
+            const movements = JSON.parse(localStorage.getItem('stockMovements') || '[]');
+            
+            // Mettre à jour les noms des produits dans les mouvements
+            const updatedMovements = movements.map(movement => {
+                const product = products.find(p => p._id === movement.productId);
+                if (product) {
+                    return {
+                        ...movement,
+                        productName: product.name,
+                        category: product.productType || 'construction'
+                    };
+                }
+                return movement;
+            });
+            
+            localStorage.setItem('stockMovements', JSON.stringify(updatedMovements));
+            
+            log(`✅ ${updatedMovements.length} mouvements synchronisés`, 'fix');
+            updateStatus('Synchronisation terminée', 'success');
+        }
+
+        function showStats() {
+            log('📊 STATISTIQUES ACTUELLES:', 'stats');
+            log('='.repeat(30), 'stats');
+            
+            const movements = JSON.parse(localStorage.getItem('stockMovements') || '[]');
+            
+            if (movements.length === 0) {
+                log('Aucun mouvement trouvé', 'stats');
+                return;
+            }
+            
+            // Calculer les statistiques
+            const inMovements = movements.filter(m => m.type === 'in');
+            const outMovements = movements.filter(m => m.type === 'out');
+            
+            const totalIn = inMovements.reduce((sum, m) => sum + (m.quantity || 0), 0);
+            const totalOut = outMovements.reduce((sum, m) => sum + (m.quantity || 0), 0);
+            
+            const constructionMovements = movements.filter(m => m.category === 'construction');
+            const electronicsMovements = movements.filter(m => m.category === 'electronics');
+            
+            const constructionIn = constructionMovements.filter(m => m.type === 'in').reduce((sum, m) => sum + (m.quantity || 0), 0);
+            const constructionOut = constructionMovements.filter(m => m.type === 'out').reduce((sum, m) => sum + (m.quantity || 0), 0);
+            
+            const electronicsIn = electronicsMovements.filter(m => m.type === 'in').reduce((sum, m) => sum + (m.quantity || 0), 0);
+            const electronicsOut = electronicsMovements.filter(m => m.type === 'out').reduce((sum, m) => sum + (m.quantity || 0), 0);
+            
+            log(`ENTRÉES TOTAL: ${totalIn}`, 'stats');
+            log(`SORTIES TOTAL: ${totalOut}`, 'stats');
+            log('', 'stats');
+            log(`CONSTRUCTION:`, 'stats');
+            log(`  Entrées: ${constructionIn}`, 'stats');
+            log(`  Sorties: ${constructionOut}`, 'stats');
+            log(`  Stock actuel: ${constructionIn - constructionOut}`, 'stats');
+            log(`  Produits: ${new Set(constructionMovements.map(m => m.productId)).size}`, 'stats');
+            log('', 'stats');
+            log(`ÉLECTRONIQUE:`, 'stats');
+            log(`  Entrées: ${electronicsIn}`, 'stats');
+            log(`  Sorties: ${electronicsOut}`, 'stats');
+            log(`  Stock actuel: ${electronicsIn - electronicsOut}`, 'stats');
+            log(`  Produits: ${new Set(electronicsMovements.map(m => m.productId)).size}`, 'stats');
+        }
+
+        function addTestData() {
+            log('➕ AJOUT DE DONNÉES DE TEST:', 'stats');
+            
+            const products = JSON.parse(localStorage.getItem('koula_products') || '[]');
+            const movements = JSON.parse(localStorage.getItem('stockMovements') || '[]');
+            
+            if (products.length === 0) {
+                log('❌ Aucun produit trouvé. Ajoutez des produits d\'abord.', 'stats');
+                return;
+            }
+            
+            // Ajouter des mouvements de test
+            const testMovements = [
+                {
+                    _id: 'test-in-' + Date.now(),
+                    productId: products[0]._id,
+                    productName: products[0].name,
+                    type: 'in',
+                    quantity: 50,
+                    reason: 'Livraison fournisseur',
+                    category: products[0].productType || 'construction',
+                    notes: 'Mouvement de test - entrée',
+                    date: new Date().toISOString(),
+                    createdAt: new Date().toISOString()
+                },
+                {
+                    _id: 'test-out-' + Date.now(),
+                    productId: products[0]._id,
+                    productName: products[0].name,
+                    type: 'out',
+                    quantity: 10,
+                    reason: 'Vente client',
+                    category: products[0].productType || 'construction',
+                    notes: 'Mouvement de test - sortie',
+                    date: new Date().toISOString(),
+                    createdAt: new Date().toISOString()
+                }
+            ];
+            
+            const allMovements = [...movements, ...testMovements];
+            localStorage.setItem('stockMovements', JSON.stringify(allMovements));
+            
+            log(`✅ ${testMovements.length} mouvements de test ajoutés`, 'stats');
+            updateStatus('Données de test ajoutées', 'success');
+        }
+
+        function fullTest() {
+            log('🧪 TEST COMPLET DES MOUVEMENTS DE STOCK:', 'test');
+            log('='.repeat(45), 'test');
+            
+            // 1. Diagnostic
+            log('Étape 1: Diagnostic...', 'test');
+            diagnoseStock();
+            
+            // 2. Correction
+            setTimeout(() => {
+                log('Étape 2: Correction...', 'test');
+                fixStockMovements();
+                
+                // 3. Vérification
+                setTimeout(() => {
+                    log('Étape 3: Vérification...', 'test');
+                    const movements = JSON.parse(localStorage.getItem('stockMovements') || '[]');
+                    
+                    if (movements.length > 0) {
+                        log('✅ Mouvements trouvés', 'test');
+                        calculateStats();
+                        log('✅ Test complet réussi', 'test');
+                        updateStatus('✅ Test complet réussi', 'success');
+                    } else {
+                        log('❌ Aucun mouvement trouvé', 'test');
+                        updateStatus('❌ Test échoué', 'error');
+                    }
+                }, 1000);
+            }, 1000);
+        }
+
+        function goToStockMovement() {
+            window.location.href = '/admin/stock-movements';
+        }
+
+        // Test automatique au chargement
+        window.onload = function() {
+            log('🚀 Page de test final des mouvements de stock chargée');
+            diagnoseStock();
+        };
+    </script>
+</body>
+</html>

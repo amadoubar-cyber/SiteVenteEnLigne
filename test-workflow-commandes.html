@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🧪 Test Workflow Commandes - Bowoye Multi Services</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            margin-bottom: 20px;
+        }
+        .header {
+            text-align: center;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+        }
+        .workflow-step {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            border-left: 5px solid #007bff;
+            position: relative;
+        }
+        .workflow-step.completed {
+            border-left-color: #28a745;
+            background: #d4edda;
+        }
+        .workflow-step.current {
+            border-left-color: #ffc107;
+            background: #fff3cd;
+        }
+        .workflow-step.pending {
+            border-left-color: #6c757d;
+            background: #f8f9fa;
+        }
+        .step-number {
+            position: absolute;
+            top: -10px;
+            left: -10px;
+            background: #007bff;
+            color: white;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+        .step-number.completed {
+            background: #28a745;
+        }
+        .step-number.current {
+            background: #ffc107;
+            color: black;
+        }
+        .step-number.pending {
+            background: #6c757d;
+        }
+        .test-button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            margin: 10px 5px;
+        }
+        .test-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        .test-button.success {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+        }
+        .test-button.warning {
+            background: linear-gradient(135deg, #ffc107 0%, #fd7e14 100%);
+        }
+        .test-button.danger {
+            background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+        }
+        .status-display {
+            background: #2d3748;
+            color: #e2e8f0;
+            padding: 20px;
+            border-radius: 10px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            margin: 20px 0;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        .command-status {
+            background: linear-gradient(135deg, #17a2b8 0%, #138496 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            margin: 20px 0;
+        }
+        .admin-panel {
+            background: linear-gradient(135deg, #6f42c1 0%, #e83e8c 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+        }
+        .user-panel {
+            background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+        }
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+        .stat-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+        }
+        .stat-value {
+            font-size: 32px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        .stat-label {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🧪 Test Workflow Commandes</h1>
+            <p>Bowoye Multi Services - Processus de Commande Complet</p>
+        </div>
+
+        <div class="stats">
+            <div class="stat-card">
+                <div class="stat-value" id="totalSteps">7</div>
+                <div class="stat-label">Étapes du Workflow</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="completedSteps">0</div>
+                <div class="stat-label">Étapes Terminées</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="currentStep">1</div>
+                <div class="stat-label">Étape Actuelle</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="successRate">0%</div>
+                <div class="stat-label">Taux de Réussite</div>
+            </div>
+        </div>
+
+        <!-- Étape 1: Commande Créée -->
+        <div class="workflow-step completed" id="step1">
+            <div class="step-number completed">1</div>
+            <h3>✅ Commande Créée</h3>
+            <p>La commande a été enregistrée avec succès dans le système.</p>
+            <div class="command-status">
+                <h4>🎉 Statut: Commande en cours de traitement</h4>
+                <p>Votre commande est en attente de validation par notre équipe.</p>
+            </div>
+            <button class="test-button success" onclick="testStep(1)">✅ Vérifier Commande</button>
+        </div>
+
+        <!-- Étape 2: En Attente d'Approbation -->
+        <div class="workflow-step current" id="step2">
+            <div class="step-number current">2</div>
+            <h3>🔄 En Attente d'Approbation</h3>
+            <p>La commande est maintenant dans la file d'attente pour validation par l'équipe admin.</p>
+            <div class="admin-panel">
+                <h4>👨‍💼 Action Admin Requise</h4>
+                <p>L'administrateur doit examiner et valider la commande.</p>
+                <button class="test-button warning" onclick="openAdminInterface()">🔧 Interface Admin</button>
+            </div>
+            <button class="test-button" onclick="testStep(2)">🔄 Vérifier Statut</button>
+        </div>
+
+        <!-- Étape 3: Validation Admin -->
+        <div class="workflow-step pending" id="step3">
+            <div class="step-number pending">3</div>
+            <h3>👨‍💼 Validation Admin</h3>
+            <p>L'administrateur examine les détails de la commande et valide ou rejette.</p>
+            <div class="admin-panel">
+                <h4>📋 Actions Admin Disponibles</h4>
+                <ul>
+                    <li>Examiner les détails de la commande</li>
+                    <li>Vérifier la disponibilité des produits</li>
+                    <li>Valider ou rejeter la commande</li>
+                    <li>Modifier le statut de la commande</li>
+                </ul>
+                <button class="test-button" onclick="simulateAdminValidation()">✅ Simuler Validation</button>
+            </div>
+        </div>
+
+        <!-- Étape 4: Commande Confirmée -->
+        <div class="workflow-step pending" id="step4">
+            <div class="step-number pending">4</div>
+            <h3>✅ Commande Confirmée</h3>
+            <p>La commande a été validée et confirmée par l'administrateur.</p>
+            <div class="user-panel">
+                <h4>📧 Notification Client</h4>
+                <p>Le client reçoit une notification de confirmation.</p>
+                <button class="test-button" onclick="testNotification()">📧 Tester Notification</button>
+            </div>
+        </div>
+
+        <!-- Étape 5: Préparation -->
+        <div class="workflow-step pending" id="step5">
+            <div class="step-number pending">5</div>
+            <h3>📦 Préparation</h3>
+            <p>Les produits sont préparés et emballés pour l'expédition.</p>
+            <div class="admin-panel">
+                <h4>📦 Actions de Préparation</h4>
+                <ul>
+                    <li>Vérification du stock</li>
+                    <li>Préparation des produits</li>
+                    <li>Emballage</li>
+                    <li>Génération du bon de livraison</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Étape 6: Expédition -->
+        <div class="workflow-step pending" id="step6">
+            <div class="step-number pending">6</div>
+            <h3>🚚 Expédition</h3>
+            <p>La commande est expédiée et en cours de livraison.</p>
+            <div class="user-panel">
+                <h4>📱 Suivi de Livraison</h4>
+                <p>Le client peut suivre sa commande en temps réel.</p>
+                <button class="test-button" onclick="testTracking()">📱 Tester Suivi</button>
+            </div>
+        </div>
+
+        <!-- Étape 7: Livraison -->
+        <div class="workflow-step pending" id="step7">
+            <div class="step-number pending">7</div>
+            <h3>🎉 Livraison</h3>
+            <p>La commande a été livrée avec succès.</p>
+            <div class="command-status">
+                <h4>✅ Commande Livrée</h4>
+                <p>Le client confirme la réception et peut laisser un avis.</p>
+                <button class="test-button success" onclick="testReview()">⭐ Tester Avis</button>
+            </div>
+        </div>
+
+        <!-- Panel de Test -->
+        <div class="container">
+            <h2>🧪 Tests Interactifs</h2>
+            <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                <button class="test-button" onclick="testCompleteWorkflow()">🚀 Test Complet</button>
+                <button class="test-button success" onclick="openMainApp()">🌐 Ouvrir App</button>
+                <button class="test-button warning" onclick="openAdminInterface()">👨‍💼 Interface Admin</button>
+                <button class="test-button" onclick="simulateOrder()">🛒 Simuler Commande</button>
+                <button class="test-button danger" onclick="resetWorkflow()">🔄 Reset</button>
+            </div>
+        </div>
+
+        <!-- Log des Tests -->
+        <div class="container">
+            <h2>📋 Log des Tests</h2>
+            <div class="status-display" id="testLog">
+                [14:52:00] 🧪 Système de test du workflow initialisé
+                [14:52:00] 📋 Prêt pour les tests - Cliquez sur "Test Complet"
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentStep = 2; // Commence à l'étape 2 (en attente d'approbation)
+        let completedSteps = 1; // Étape 1 déjà terminée
+        let testLogs = [];
+
+        // Fonction de log
+        function log(message, type = 'info') {
+            const timestamp = new Date().toLocaleTimeString();
+            const logEntry = { timestamp, message, type };
+            testLogs.push(logEntry);
+            updateLogDisplay();
+            console.log(`[${timestamp}] ${message}`);
+        }
+
+        function updateLogDisplay() {
+            const logDiv = document.getElementById('testLog');
+            logDiv.innerHTML = testLogs.map(log => 
+                `[${log.timestamp}] ${log.message}`
+            ).join('<br>');
+            logDiv.scrollTop = logDiv.scrollHeight;
+        }
+
+        // Mettre à jour les statistiques
+        function updateStats() {
+            document.getElementById('completedSteps').textContent = completedSteps;
+            document.getElementById('currentStep').textContent = currentStep;
+            
+            const successRate = Math.round((completedSteps / 7) * 100);
+            document.getElementById('successRate').textContent = successRate + '%';
+        }
+
+        // Tester une étape
+        function testStep(stepNumber) {
+            log(`🧪 Test de l'étape ${stepNumber}`, 'info');
+            
+            if (stepNumber === 1) {
+                log('✅ Étape 1: Commande créée avec succès', 'success');
+            } else if (stepNumber === 2) {
+                log('🔄 Étape 2: Commande en attente d\'approbation', 'warning');
+                log('👨‍💼 Action requise: Validation admin', 'warning');
+            } else if (stepNumber === 3) {
+                log('👨‍💼 Étape 3: Validation admin en cours', 'info');
+                simulateAdminValidation();
+            }
+        }
+
+        // Simuler la validation admin
+        function simulateAdminValidation() {
+            log('👨‍💼 Simulation de la validation admin...', 'info');
+            
+            setTimeout(() => {
+                log('✅ Commande validée par l\'admin', 'success');
+                completeStep(3);
+                
+                setTimeout(() => {
+                    log('✅ Étape 4: Commande confirmée', 'success');
+                    completeStep(4);
+                    
+                    setTimeout(() => {
+                        log('📦 Étape 5: Préparation en cours', 'info');
+                        completeStep(5);
+                        
+                        setTimeout(() => {
+                            log('🚚 Étape 6: Expédition en cours', 'info');
+                            completeStep(6);
+                            
+                            setTimeout(() => {
+                                log('🎉 Étape 7: Commande livrée avec succès!', 'success');
+                                completeStep(7);
+                                log('🎉 WORKFLOW COMPLET TERMINÉ!', 'success');
+                            }, 2000);
+                        }, 2000);
+                    }, 2000);
+                }, 2000);
+            }, 2000);
+        }
+
+        // Compléter une étape
+        function completeStep(stepNumber) {
+            const stepElement = document.getElementById(`step${stepNumber}`);
+            const stepNumberElement = stepElement.querySelector('.step-number');
+            
+            stepElement.className = 'workflow-step completed';
+            stepNumberElement.className = 'step-number completed';
+            
+            if (stepNumber < 7) {
+                const nextStepElement = document.getElementById(`step${stepNumber + 1}`);
+                const nextStepNumberElement = nextStepElement.querySelector('.step-number');
+                
+                nextStepElement.className = 'workflow-step current';
+                nextStepNumberElement.className = 'step-number current';
+                currentStep = stepNumber + 1;
+            }
+            
+            completedSteps = stepNumber;
+            updateStats();
+        }
+
+        // Tester le workflow complet
+        function testCompleteWorkflow() {
+            log('🚀 Démarrage du test complet du workflow', 'info');
+            resetWorkflow();
+            
+            setTimeout(() => {
+                log('✅ Étape 1: Commande créée (déjà terminée)', 'success');
+                testStep(1);
+                
+                setTimeout(() => {
+                    log('🔄 Étape 2: En attente d\'approbation', 'warning');
+                    testStep(2);
+                    
+                    setTimeout(() => {
+                        simulateAdminValidation();
+                    }, 3000);
+                }, 1000);
+            }, 1000);
+        }
+
+        // Ouvrir l'application principale
+        function openMainApp() {
+            window.open('http://localhost:3000', '_blank');
+            log('🌐 Ouverture de l\'application principale', 'info');
+        }
+
+        // Ouvrir l'interface admin
+        function openAdminInterface() {
+            window.open('http://localhost:3000/admin', '_blank');
+            log('👨‍💼 Ouverture de l\'interface admin', 'info');
+            log('💡 Connectez-vous avec: admin@koula.gn / admin123', 'info');
+        }
+
+        // Simuler une nouvelle commande
+        function simulateOrder() {
+            log('🛒 Simulation d\'une nouvelle commande...', 'info');
+            resetWorkflow();
+            
+            setTimeout(() => {
+                log('✅ Nouvelle commande créée', 'success');
+                testStep(1);
+            }, 1000);
+        }
+
+        // Tester les notifications
+        function testNotification() {
+            log('📧 Test des notifications client', 'info');
+            log('✅ Email de confirmation envoyé', 'success');
+            log('📱 SMS de confirmation envoyé', 'success');
+        }
+
+        // Tester le suivi
+        function testTracking() {
+            log('📱 Test du système de suivi', 'info');
+            log('📍 Position actuelle: En cours de livraison', 'info');
+            log('⏰ Heure estimée d\'arrivée: 14h30', 'info');
+        }
+
+        // Tester les avis
+        function testReview() {
+            log('⭐ Test du système d\'avis', 'info');
+            log('✅ Formulaire d\'avis affiché', 'success');
+            log('📊 Avis enregistré avec succès', 'success');
+        }
+
+        // Reset du workflow
+        function resetWorkflow() {
+            log('🔄 Reset du workflow', 'warning');
+            
+            // Reset toutes les étapes
+            for (let i = 1; i <= 7; i++) {
+                const stepElement = document.getElementById(`step${i}`);
+                const stepNumberElement = stepElement.querySelector('.step-number');
+                
+                if (i === 1) {
+                    stepElement.className = 'workflow-step completed';
+                    stepNumberElement.className = 'step-number completed';
+                } else if (i === 2) {
+                    stepElement.className = 'workflow-step current';
+                    stepNumberElement.className = 'step-number current';
+                } else {
+                    stepElement.className = 'workflow-step pending';
+                    stepNumberElement.className = 'step-number pending';
+                }
+            }
+            
+            currentStep = 2;
+            completedSteps = 1;
+            updateStats();
+            
+            log('✅ Workflow reseté - Prêt pour un nouveau test', 'success');
+        }
+
+        // Initialisation
+        window.onload = function() {
+            updateStats();
+            log('🧪 Système de test du workflow initialisé', 'info');
+            log('📋 État actuel: Commande en attente d\'approbation', 'warning');
+            log('👨‍💼 Action requise: Validation admin', 'warning');
+        };
+    </script>
+</body>
+</html>

@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nettoyage des données de vente</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .button {
+            background: #dc3545;
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 10px 5px;
+        }
+        .button:hover {
+            background: #c82333;
+        }
+        .success {
+            background: #28a745;
+        }
+        .success:hover {
+            background: #218838;
+        }
+        .info {
+            background: #17a2b8;
+        }
+        .info:hover {
+            background: #138496;
+        }
+        .status {
+            margin: 20px 0;
+            padding: 15px;
+            border-radius: 5px;
+            background: #e9ecef;
+        }
+        .log {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 5px;
+            padding: 15px;
+            margin: 20px 0;
+            font-family: monospace;
+            white-space: pre-wrap;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧹 Nettoyage des données de vente</h1>
+        <p>Ce script va vider toutes les données de vente et de commandes stockées dans le navigateur.</p>
+        
+        <div class="status" id="status">
+            Prêt à nettoyer les données...
+        </div>
+        
+        <div>
+            <button class="button" onclick="clearSalesData()">Vider les données de vente</button>
+            <button class="button info" onclick="checkCurrentData()">Vérifier les données actuelles</button>
+            <button class="button success" onclick="goToSalesPage()">Aller à la page des ventes</button>
+        </div>
+        
+        <div class="log" id="log"></div>
+    </div>
+
+    <script>
+        function log(message) {
+            const logElement = document.getElementById('log');
+            const timestamp = new Date().toLocaleTimeString();
+            logElement.textContent += `[${timestamp}] ${message}\n`;
+            logElement.scrollTop = logElement.scrollHeight;
+        }
+
+        function updateStatus(message, type = 'info') {
+            const statusElement = document.getElementById('status');
+            statusElement.textContent = message;
+            statusElement.style.background = type === 'success' ? '#d4edda' : 
+                                           type === 'error' ? '#f8d7da' : '#e9ecef';
+        }
+
+        function clearSalesData() {
+            log('🧹 Début du nettoyage des données de vente...');
+            updateStatus('Nettoyage en cours...', 'info');
+            
+            try {
+                // Vider les données de vente
+                localStorage.removeItem('salesData');
+                log('✅ Données de vente supprimées (salesData)');
+                
+                // Vider les données de commandes
+                localStorage.removeItem('ordersData');
+                localStorage.removeItem('adminOrders');
+                log('✅ Données de commandes supprimées (ordersData, adminOrders)');
+                
+                // Vider d'autres données liées aux ventes
+                localStorage.removeItem('revenueData');
+                localStorage.removeItem('salesStats');
+                log('✅ Statistiques de vente supprimées');
+                
+                // Vérifier que tout est vide
+                const remainingSales = localStorage.getItem('salesData');
+                const remainingOrders = localStorage.getItem('ordersData');
+                
+                if (!remainingSales && !remainingOrders) {
+                    log('🎉 Nettoyage terminé avec succès !');
+                    updateStatus('✅ Données vidées avec succès !', 'success');
+                } else {
+                    log('⚠️ Certaines données pourraient encore exister');
+                    updateStatus('⚠️ Nettoyage partiel', 'error');
+                }
+                
+            } catch (error) {
+                log('❌ Erreur lors du nettoyage: ' + error.message);
+                updateStatus('❌ Erreur lors du nettoyage', 'error');
+            }
+        }
+
+        function checkCurrentData() {
+            log('🔍 Vérification des données actuelles...');
+            
+            const salesData = localStorage.getItem('salesData');
+            const ordersData = localStorage.getItem('ordersData');
+            const adminOrders = localStorage.getItem('adminOrders');
+            
+            if (salesData) {
+                const sales = JSON.parse(salesData);
+                log(`📊 Données de vente: ${sales.length} ventes trouvées`);
+                if (sales.length > 0) {
+                    const totalRevenue = sales.reduce((sum, sale) => sum + (sale.totalPrice || 0), 0);
+                    log(`💰 Chiffre d'affaires total: ${totalRevenue.toLocaleString()} FG`);
+                }
+            } else {
+                log('📊 Aucune donnée de vente trouvée');
+            }
+            
+            if (ordersData) {
+                const orders = JSON.parse(ordersData);
+                log(`📦 Données de commandes: ${orders.length} commandes trouvées`);
+            } else {
+                log('📦 Aucune donnée de commande trouvée');
+            }
+            
+            if (adminOrders) {
+                const adminOrdersData = JSON.parse(adminOrders);
+                log(`👨‍💼 Commandes admin: ${adminOrdersData.length} commandes trouvées`);
+            } else {
+                log('👨‍💼 Aucune commande admin trouvée');
+            }
+            
+            updateStatus('Vérification terminée', 'info');
+        }
+
+        function goToSalesPage() {
+            log('🔗 Redirection vers la page de gestion des ventes...');
+            window.location.href = '/admin/sales';
+        }
+
+        // Vérifier les données au chargement de la page
+        window.onload = function() {
+            log('🚀 Page de nettoyage chargée');
+            checkCurrentData();
+        };
+    </script>
+</body>
+</html>

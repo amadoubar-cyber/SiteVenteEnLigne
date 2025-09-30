@@ -3,8 +3,52 @@ import toast from 'react-hot-toast';
 
 const CartContext = createContext();
 
+// Fonction utilitaire pour gérer le localStorage de manière sécurisée
+const getLocalStorageItem = (key, defaultValue = null) => {
+  try {
+    const item = localStorage.getItem(key);
+    return item ? JSON.parse(item) : defaultValue;
+  } catch (error) {
+    console.warn(`Erreur lors de la lecture de ${key} depuis localStorage:`, error);
+    // Nettoyer les données corrompues
+    try {
+      localStorage.removeItem(key);
+    } catch (removeError) {
+      console.error(`Impossible de supprimer ${key} du localStorage:`, removeError);
+    }
+    return defaultValue;
+  }
+};
+
+const setLocalStorageItem = (key, value) => {
+  try {
+    const serializedValue = JSON.stringify(value);
+    // Vérifier la taille avant d'écrire
+    if (serializedValue.length > 1024 * 1024) { // 1MB limite
+      console.warn(`Les données ${key} sont trop volumineuses (${serializedValue.length} bytes). Nettoyage...`);
+      localStorage.removeItem(key);
+      toast.error('Panier trop volumineux, nettoyage automatique effectué');
+      return false;
+    }
+    localStorage.setItem(key, serializedValue);
+    return true;
+  } catch (error) {
+    console.error(`Erreur lors de l'écriture de ${key} dans localStorage:`, error);
+    if (error.name === 'QuotaExceededError') {
+      // Nettoyer le localStorage en cas de quota dépassé
+      try {
+        localStorage.clear();
+        toast.error('Espace de stockage insuffisant, nettoyage effectué');
+      } catch (clearError) {
+        console.error('Impossible de vider le localStorage:', clearError);
+      }
+    }
+    return false;
+  }
+};
+
 const initialState = {
-  items: JSON.parse(localStorage.getItem('cartItems')) || [],
+  items: getLocalStorageItem('cartItems', []),
   totalItems: 0,
   totalPrice: 0,
   isOpen: false
@@ -94,9 +138,9 @@ export const CartProvider = ({ children }) => {
     dispatch({ type: 'CALCULATE_TOTALS' });
   }, [state.items]);
 
-  // Sauvegarder dans localStorage
+  // Sauvegarder dans localStorage de manière sécurisée
   useEffect(() => {
-    localStorage.setItem('cartItems', JSON.stringify(state.items));
+    setLocalStorageItem('cartItems', state.items);
   }, [state.items]);
 
   const addToCart = (product, quantity = 1) => {

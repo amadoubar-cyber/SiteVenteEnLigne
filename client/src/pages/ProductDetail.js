@@ -7,6 +7,7 @@ import { useCart } from '../contexts/CartContext';
 import { useAuth } from '../contexts/AuthContext';
 import { Star, ShoppingCart, Heart, Share2, Truck, Shield, RotateCcw, ChevronLeft, ChevronRight } from 'lucide-react';
 import ConfirmationMessage from '../components/ConfirmationMessage';
+import CommentSection from '../components/CommentSection';
 import useConfirmationMessage from '../hooks/useConfirmationMessage';
 import { getProductImage } from '../utils/imageUtils';
 
@@ -496,6 +497,15 @@ const ProductDetail = () => {
         </div>
 
         {/* Recommended Products */}
+        {/* Section des commentaires */}
+        <div className="mt-16">
+          <CommentSection 
+            productId={product._id || product.id} 
+            productName={product.name} 
+          />
+        </div>
+
+        {/* Produits recommandés */}
         {recommendedProducts.length > 0 && (
           <div className="mt-16">
             <h2 className="text-2xl font-bold text-secondary-900 mb-8">

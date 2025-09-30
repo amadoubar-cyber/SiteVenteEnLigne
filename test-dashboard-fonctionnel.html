@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Dashboard Fonctionnel - Bowoye Multi Services</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        .header {
+            background: linear-gradient(135deg, #ff6b6b, #ffa500);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 2.5em;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        .content {
+            padding: 30px;
+        }
+        .test-section {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 25px;
+            margin: 20px 0;
+            border-left: 5px solid #ff6b6b;
+        }
+        .test-section h2 {
+            color: #ff6b6b;
+            margin-top: 0;
+            display: flex;
+            align-items: center;
+        }
+        .test-section h2::before {
+            content: "📊";
+            margin-right: 10px;
+            font-size: 1.2em;
+        }
+        .success {
+            background: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 10px 0;
+        }
+        .success::before {
+            content: "✅ ";
+            font-weight: bold;
+        }
+        .info {
+            background: #d1ecf1;
+            border: 1px solid #bee5eb;
+            color: #0c5460;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 10px 0;
+        }
+        .info::before {
+            content: "ℹ️ ";
+            font-weight: bold;
+        }
+        .warning {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            color: #856404;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 10px 0;
+        }
+        .warning::before {
+            content: "⚠️ ";
+            font-weight: bold;
+        }
+        .btn {
+            background: linear-gradient(135deg, #ff6b6b, #ffa500);
+            color: white;
+            padding: 12px 25px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 10px 5px;
+            text-decoration: none;
+            display: inline-block;
+            transition: transform 0.2s;
+        }
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        .btn-success {
+            background: linear-gradient(135deg, #28a745, #20c997);
+        }
+        .btn-danger {
+            background: linear-gradient(135deg, #dc3545, #e74c3c);
+        }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+        .stat-card {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            border-top: 4px solid #ff6b6b;
+        }
+        .stat-number {
+            font-size: 2.5em;
+            font-weight: bold;
+            color: #ff6b6b;
+            margin: 10px 0;
+        }
+        .checklist {
+            list-style: none;
+            padding: 0;
+        }
+        .checklist li {
+            padding: 8px 0;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            align-items: center;
+        }
+        .checklist li::before {
+            content: "☐";
+            margin-right: 10px;
+            font-size: 1.2em;
+        }
+        .checklist li.checked::before {
+            content: "☑️";
+        }
+        .footer {
+            background: #343a40;
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+        .step {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 15px 0;
+            border: 1px solid #e9ecef;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+        .step h3 {
+            color: #495057;
+            margin-top: 0;
+            display: flex;
+            align-items: center;
+        }
+        .step h3::before {
+            content: "📋";
+            margin-right: 8px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📊 Test Dashboard Fonctionnel</h1>
+            <p>Vérification que le tableau de bord affiche les données correctement</p>
+        </div>
+
+        <div class="content">
+            <!-- Problème résolu -->
+            <div class="test-section">
+                <h2>Problème Résolu</h2>
+                
+                <div class="success">
+                    ✅ <strong>Problème identifié :</strong> Le tableau de bord était vide car aucune donnée n'était sauvegardée en base.
+                </div>
+
+                <div class="success">
+                    ✅ <strong>Solution appliquée :</strong> Données de test créées dans MongoDB.
+                </div>
+
+                <div class="info">
+                    ℹ️ <strong>Données maintenant disponibles :</strong> 1 utilisateur, 1 produit, 1 commande
+                </div>
+            </div>
+
+            <!-- Statistiques actuelles -->
+            <div class="test-section">
+                <h2>Statistiques Actuelles en Base</h2>
+                
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-number">1</div>
+                        <div>Utilisateurs</div>
+                        <div style="font-size: 0.9em; color: #666;">Amadou Diallo (admin)</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">1</div>
+                        <div>Produits</div>
+                        <div style="font-size: 0.9em; color: #666;">Produit Test Dashboard</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">1</div>
+                        <div>Commandes</div>
+                        <div style="font-size: 0.9em; color: #666;">100,000 GNF</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">100K</div>
+                        <div>Chiffre d'Affaires</div>
+                        <div style="font-size: 0.9em; color: #666;">GNF</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tests à effectuer -->
+            <div class="test-section">
+                <h2>Tests à Effectuer</h2>
+                
+                <div class="step">
+                    <h3>Test 1 : Connexion Admin</h3>
+                    <ul class="checklist">
+                        <li>☐ Se connecter avec amadou@bowoye.gn / password123</li>
+                        <li>☐ Vérifier que le rôle admin est reconnu</li>
+                        <li>☐ Accéder à l'interface d'administration</li>
+                    </ul>
+                </div>
+
+                <div class="step">
+                    <h3>Test 2 : Tableau de Bord</h3>
+                    <ul class="checklist">
+                        <li>☐ Aller sur le tableau de bord admin</li>
+                        <li>☐ Vérifier que les statistiques s'affichent</li>
+                        <li>☐ Vérifier le nombre d'utilisateurs (1)</li>
+                        <li>☐ Vérifier le nombre de produits (1)</li>
+                        <li>☐ Vérifier le nombre de commandes (1)</li>
+                        <li>☐ Vérifier le chiffre d'affaires (100,000 GNF)</li>
+                    </ul>
+                </div>
+
+                <div class="step">
+                    <h3>Test 3 : Création de Nouveau Produit</h3>
+                    <ul class="checklist">
+                        <li>☐ Créer un nouveau produit via l'interface</li>
+                        <li>☐ Vérifier qu'il est sauvegardé en base</li>
+                        <li>☐ Vérifier qu'il apparaît dans le tableau de bord</li>
+                    </ul>
+                </div>
+
+                <div class="step">
+                    <h3>Test 4 : Passage de Commande</h3>
+                    <ul class="checklist">
+                        <li>☐ Se connecter avec un compte client</li>
+                        <li>☐ Ajouter un produit au panier</li>
+                        <li>☐ Passer la commande</li>
+                        <li>☐ Vérifier qu'elle est sauvegardée en base</li>
+                        <li>☐ Vérifier qu'elle apparaît dans le tableau de bord</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Commandes de diagnostic -->
+            <div class="test-section">
+                <h2>Commandes de Diagnostic</h2>
+                
+                <div class="info">
+                    ℹ️ <strong>Vérifier les données en base :</strong>
+                </div>
+                <div style="background: #2d3748; color: #e2e8f0; padding: 15px; border-radius: 8px; font-family: monospace; margin: 10px 0;">
+cd server<br>
+node diagnostic-dashboard.js diagnose
+                </div>
+
+                <div class="info">
+                    ℹ️ <strong>Créer des données de test supplémentaires :</strong>
+                </div>
+                <div style="background: #2d3748; color: #e2e8f0; padding: 15px; border-radius: 8px; font-family: monospace; margin: 10px 0;">
+cd server<br>
+node diagnostic-dashboard.js test-data
+                </div>
+            </div>
+
+            <!-- Actions rapides -->
+            <div class="test-section">
+                <h2>Actions Rapides</h2>
+                <a href="http://localhost:3000/login" class="btn" target="_blank">
+                    🔑 Connexion Admin
+                </a>
+                <a href="http://localhost:3000/admin" class="btn" target="_blank">
+                    📊 Tableau de Bord
+                </a>
+                <a href="http://localhost:3000/products" class="btn" target="_blank">
+                    📦 Produits
+                </a>
+                <a href="http://localhost:3000/cart" class="btn" target="_blank">
+                    🛒 Panier
+                </a>
+            </div>
+
+            <!-- Comptes de test -->
+            <div class="test-section">
+                <h2>Comptes de Test</h2>
+                
+                <div class="success">
+                    ✅ <strong>Admin :</strong> amadou@bowoye.gn / password123
+                </div>
+                
+                <div class="info">
+                    ℹ️ <strong>Client :</strong> client@bowoye.gn / password123
+                </div>
+            </div>
+
+            <!-- Résolution de problèmes -->
+            <div class="test-section">
+                <h2>Résolution de Problèmes</h2>
+                
+                <div class="warning">
+                    ⚠️ <strong>Si le tableau de bord est encore vide :</strong>
+                </div>
+                <ul>
+                    <li>Vérifiez que les serveurs sont démarrés (frontend + backend)</li>
+                    <li>Vérifiez la console du navigateur pour les erreurs</li>
+                    <li>Videz le cache du navigateur (Ctrl+F5)</li>
+                    <li>Exécutez le diagnostic pour vérifier les données</li>
+                </ul>
+
+                <div class="warning">
+                    ⚠️ <strong>Si les données ne se sauvegardent pas :</strong>
+                </div>
+                <ul>
+                    <li>Vérifiez que MongoDB est démarré</li>
+                    <li>Vérifiez les routes API du backend</li>
+                    <li>Vérifiez la console du navigateur pour les erreurs 500</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p><strong>Test Dashboard Fonctionnel</strong> - Bowoye Multi Services</p>
+            <p>Vérification que le tableau de bord affiche les données correctement</p>
+        </div>
+    </div>
+
+    <script>
+        // Animation des cartes
+        document.addEventListener('DOMContentLoaded', function() {
+            const cards = document.querySelectorAll('.stat-card, .step, .test-section');
+            cards.forEach((card, index) => {
+                card.style.opacity = '0';
+                card.style.transform = 'translateY(20px)';
+                setTimeout(() => {
+                    card.style.transition = 'all 0.5s ease';
+                    card.style.opacity = '1';
+                    card.style.transform = 'translateY(0)';
+                }, index * 100);
+            });
+        });
+
+        // Test de connectivité
+        function testConnectivity() {
+            fetch('http://localhost:3001/api/health')
+                .then(response => {
+                    if (response.ok) {
+                        console.log('✅ Serveur backend accessible');
+                        updateStatus('Backend: ✅ Connecté');
+                    } else {
+                        console.log('⚠️ Serveur backend avec problèmes');
+                        updateStatus('Backend: ⚠️ Problème');
+                    }
+                })
+                .catch(error => {
+                    console.log('❌ Serveur backend inaccessible:', error);
+                    updateStatus('Backend: ❌ Hors ligne');
+                });
+        }
+
+        function updateStatus(message) {
+            const footer = document.querySelector('.footer p:last-child');
+            if (footer) {
+                footer.innerHTML = `Vérification que le tableau de bord affiche les données correctement | ${message}`;
+            }
+        }
+
+        // Test de connectivité au chargement
+        testConnectivity();
+    </script>
+</body>
+</html>

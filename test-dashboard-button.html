@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Dashboard Button</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 30px;
+        }
+        .title {
+            font-size: 24px;
+            font-weight: bold;
+            color: #333;
+        }
+        .subtitle {
+            color: #666;
+            margin-top: 5px;
+        }
+        .reset-button {
+            background: #dc2626;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .reset-button:hover {
+            background: #b91c1c;
+        }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        .stat-card {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            border: 1px solid #e5e5e5;
+        }
+        .actions-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+        .action-button {
+            background: white;
+            border: 1px solid #e5e5e5;
+            padding: 15px;
+            border-radius: 6px;
+            cursor: pointer;
+            text-decoration: none;
+            color: #333;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .action-button:hover {
+            background: #f9f9f9;
+        }
+        .reset-action {
+            border-color: #fca5a5;
+            background: #fef2f2;
+        }
+        .reset-action:hover {
+            background: #fee2e2;
+        }
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+        .modal-content {
+            background: white;
+            padding: 24px;
+            border-radius: 8px;
+            max-width: 400px;
+            width: 90%;
+        }
+        .modal-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+        .modal-title {
+            font-size: 18px;
+            font-weight: bold;
+        }
+        .warning-box {
+            background: #fef3c7;
+            border: 1px solid #f59e0b;
+            padding: 12px;
+            border-radius: 6px;
+            margin: 16px 0;
+        }
+        .modal-buttons {
+            display: flex;
+            gap: 12px;
+            justify-content: flex-end;
+            margin-top: 20px;
+        }
+        .btn {
+            padding: 8px 16px;
+            border-radius: 6px;
+            border: none;
+            cursor: pointer;
+        }
+        .btn-secondary {
+            background: #f3f4f6;
+            color: #374151;
+        }
+        .btn-danger {
+            background: #dc2626;
+            color: white;
+        }
+        .btn:hover {
+            opacity: 0.9;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div>
+                <div class="title">Tableau de bord</div>
+                <div class="subtitle">Vue d'ensemble de votre boutique en ligne</div>
+            </div>
+            <button class="reset-button" onclick="showResetModal()">
+                🗑️ Réinitialiser les données
+            </button>
+        </div>
+
+        <div class="stats-grid">
+            <div class="stat-card">
+                <h3>Chiffre d'affaires</h3>
+                <div style="font-size: 24px; font-weight: bold; color: #059669;">1 680 000 FG</div>
+            </div>
+            <div class="stat-card">
+                <h3>Commandes</h3>
+                <div style="font-size: 24px; font-weight: bold; color: #2563eb;">3</div>
+            </div>
+            <div class="stat-card">
+                <h3>Produits</h3>
+                <div style="font-size: 24px; font-weight: bold; color: #7c3aed;">0</div>
+            </div>
+            <div class="stat-card">
+                <h3>Utilisateurs</h3>
+                <div style="font-size: 24px; font-weight: bold; color: #ea580c;">1</div>
+            </div>
+        </div>
+
+        <h2 style="margin-bottom: 20px;">Actions rapides</h2>
+        <div class="actions-grid">
+            <a href="#" class="action-button">
+                📦 Gérer les produits
+            </a>
+            <a href="#" class="action-button">
+                🛒 Gérer les commandes
+            </a>
+            <a href="#" class="action-button">
+                📋 Catégories
+            </a>
+            <a href="#" class="action-button">
+                👥 Utilisateurs
+            </a>
+            <button class="action-button reset-action" onclick="showResetModal()">
+                🗑️ Réinitialiser les données
+            </button>
+        </div>
+    </div>
+
+    <!-- Modal de confirmation -->
+    <div id="resetModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                ⚠️ Confirmer la réinitialisation
+            </div>
+            
+            <p>Êtes-vous sûr de vouloir supprimer toutes les données de test ?</p>
+            
+            <div class="warning-box">
+                <strong>⚠️ Attention :</strong> Cette action supprimera :
+                <ul style="margin: 8px 0 0 20px;">
+                    <li>Toutes les données localStorage</li>
+                    <li>Toutes les données sessionStorage</li>
+                    <li>Tous les cookies</li>
+                    <li>Les données de test du tableau de bord</li>
+                </ul>
+            </div>
+            
+            <div class="modal-buttons">
+                <button class="btn btn-secondary" onclick="hideResetModal()">
+                    Annuler
+                </button>
+                <button class="btn btn-danger" onclick="resetData()">
+                    Confirmer
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function showResetModal() {
+            document.getElementById('resetModal').style.display = 'flex';
+        }
+
+        function hideResetModal() {
+            document.getElementById('resetModal').style.display = 'none';
+        }
+
+        function resetData() {
+            alert('Fonctionnalité de réinitialisation activée !\n\nDans l\'application réelle, cela supprimerait toutes les données et rechargerait la page.');
+            hideResetModal();
+        }
+
+        // Fermer la modal en cliquant à l'extérieur
+        document.getElementById('resetModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                hideResetModal();
+            }
+        });
+    </script>
+</body>
+</html>

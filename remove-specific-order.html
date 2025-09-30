@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Supprimer Commande Spécifique</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        .success {
+            background: #d4edda;
+            color: #155724;
+            padding: 10px;
+            border-radius: 4px;
+            margin: 10px 0;
+        }
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 10px;
+            border-radius: 4px;
+            margin: 10px 0;
+        }
+        .warning {
+            background: #fff3cd;
+            color: #856404;
+            padding: 10px;
+            border-radius: 4px;
+            margin: 10px 0;
+        }
+        .info {
+            background: #d1ecf1;
+            color: #0c5460;
+            padding: 10px;
+            border-radius: 4px;
+            margin: 10px 0;
+        }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+        .danger {
+            background: #dc3545;
+        }
+        .danger:hover {
+            background: #c82333;
+        }
+        .order-list {
+            margin: 20px 0;
+        }
+        .order-item {
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            padding: 15px;
+            margin: 10px 0;
+            background: white;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .order-info {
+            flex: 1;
+        }
+        .order-number {
+            font-weight: bold;
+            color: #333;
+            font-size: 16px;
+        }
+        .order-status {
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: bold;
+            margin-left: 10px;
+        }
+        .status-pending {
+            background: #fff3cd;
+            color: #856404;
+        }
+        .status-approved {
+            background: #d4edda;
+            color: #155724;
+        }
+        .status-rejected {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        .delete-btn {
+            background: #dc3545;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+        .delete-btn:hover {
+            background: #c82333;
+        }
+        .search-box {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            margin: 10px 0;
+            font-size: 16px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🗑️ Supprimer Commande Spécifique</h1>
+        <p>Ce script permet de supprimer une commande spécifique du système de validation.</p>
+        
+        <div class="info">
+            <strong>Commande à supprimer :</strong> ON90704467
+        </div>
+
+        <div class="warning">
+            <strong>⚠️ Attention :</strong> Cette action est irréversible. La commande sera définitivement supprimée.
+        </div>
+
+        <div>
+            <input 
+                type="text" 
+                id="searchInput" 
+                class="search-box" 
+                placeholder="Rechercher une commande par numéro..."
+                onkeyup="filterOrders()"
+            >
+        </div>
+
+        <div>
+            <button onclick="loadOrders()" class="success">
+                🔄 Charger les Commandes
+            </button>
+            <button onclick="removeSpecificOrder()" class="danger">
+                🗑️ Supprimer ON90704467
+            </button>
+            <button onclick="removeAllOrders()" class="danger">
+                🗑️ Supprimer Toutes les Commandes
+            </button>
+        </div>
+
+        <div class="order-list" id="orderList">
+            <p>Cliquez sur "Charger les Commandes" pour voir la liste.</p>
+        </div>
+    </div>
+
+    <script>
+        let allOrders = [];
+
+        function loadOrders() {
+            try {
+                const ordersData = localStorage.getItem('clientOrders');
+                allOrders = ordersData ? JSON.parse(ordersData) : [];
+                
+                console.log('Commandes chargées:', allOrders.length);
+                
+                if (allOrders.length === 0) {
+                    document.getElementById('orderList').innerHTML = '<p class="warning">Aucune commande trouvée dans le localStorage.</p>';
+                    return;
+                }
+
+                displayOrders(allOrders);
+                showSuccess(`${allOrders.length} commande(s) chargée(s).`);
+                
+                // Vérifier si la commande spécifique existe
+                const specificOrder = allOrders.find(order => order.trackingNumber === 'ON90704467');
+                if (specificOrder) {
+                    showWarning(`Commande ON90704467 trouvée (${specificOrder.orderStatus})`);
+                } else {
+                    showInfo('Commande ON90704467 non trouvée.');
+                }
+                
+            } catch (error) {
+                console.error('Erreur lors du chargement:', error);
+                showError('Erreur lors du chargement des commandes: ' + error.message);
+            }
+        }
+
+        function displayOrders(orders) {
+            const orderList = document.getElementById('orderList');
+            
+            if (orders.length === 0) {
+                orderList.innerHTML = '<p class="warning">Aucune commande trouvée.</p>';
+                return;
+            }
+
+            orderList.innerHTML = orders.map(order => {
+                const statusClass = order.orderStatus === 'pending_approval' ? 'status-pending' :
+                                  order.orderStatus === 'approved' ? 'status-approved' : 'status-rejected';
+                const statusText = order.orderStatus === 'pending_approval' ? 'En Attente' :
+                                 order.orderStatus === 'approved' ? 'Approuvée' : 'Rejetée';
+                
+                const isTarget = order.trackingNumber === 'ON90704467';
+                const highlightStyle = isTarget ? 'border: 3px solid #dc3545; background: #fff5f5;' : '';
+
+                return `
+                    <div class="order-item" style="${highlightStyle}">
+                        <div class="order-info">
+                            <div class="order-number">
+                                ${order.trackingNumber}
+                                ${isTarget ? ' <strong>(CIBLE À SUPPRIMER)</strong>' : ''}
+                            </div>
+                            <div>
+                                <span class="order-status ${statusClass}">${statusText}</span>
+                                <span style="margin-left: 10px; color: #666;">
+                                    ${order.user?.firstName} ${order.user?.lastName} - 
+                                    ${new Date(order.createdAt).toLocaleDateString('fr-FR')}
+                                </span>
+                            </div>
+                        </div>
+                        <button onclick="removeOrder('${order._id}')" class="delete-btn">
+                            Supprimer
+                        </button>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function filterOrders() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            
+            if (!searchTerm) {
+                displayOrders(allOrders);
+                return;
+            }
+
+            const filteredOrders = allOrders.filter(order => 
+                order.trackingNumber.toLowerCase().includes(searchTerm) ||
+                `${order.user?.firstName} ${order.user?.lastName}`.toLowerCase().includes(searchTerm)
+            );
+
+            displayOrders(filteredOrders);
+        }
+
+        function removeSpecificOrder() {
+            if (!confirm('Êtes-vous sûr de vouloir supprimer la commande ON90704467 ?')) {
+                return;
+            }
+
+            try {
+                const initialCount = allOrders.length;
+                allOrders = allOrders.filter(order => order.trackingNumber !== 'ON90704467');
+                const removedCount = initialCount - allOrders.length;
+
+                if (removedCount > 0) {
+                    localStorage.setItem('clientOrders', JSON.stringify(allOrders));
+                    displayOrders(allOrders);
+                    showSuccess(`Commande ON90704467 supprimée avec succès ! (${removedCount} commande(s) supprimée(s))`);
+                } else {
+                    showWarning('Commande ON90704467 non trouvée.');
+                }
+
+            } catch (error) {
+                console.error('Erreur lors de la suppression:', error);
+                showError('Erreur lors de la suppression: ' + error.message);
+            }
+        }
+
+        function removeOrder(orderId) {
+            const order = allOrders.find(o => o._id === orderId);
+            if (!order) return;
+
+            if (!confirm(`Êtes-vous sûr de vouloir supprimer la commande ${order.trackingNumber} ?`)) {
+                return;
+            }
+
+            try {
+                allOrders = allOrders.filter(o => o._id !== orderId);
+                localStorage.setItem('clientOrders', JSON.stringify(allOrders));
+                displayOrders(allOrders);
+                showSuccess(`Commande ${order.trackingNumber} supprimée avec succès !`);
+
+            } catch (error) {
+                console.error('Erreur lors de la suppression:', error);
+                showError('Erreur lors de la suppression: ' + error.message);
+            }
+        }
+
+        function removeAllOrders() {
+            if (!confirm('Êtes-vous sûr de vouloir supprimer TOUTES les commandes ? Cette action est irréversible !')) {
+                return;
+            }
+
+            try {
+                localStorage.removeItem('clientOrders');
+                allOrders = [];
+                displayOrders([]);
+                showSuccess('Toutes les commandes ont été supprimées !');
+
+            } catch (error) {
+                console.error('Erreur lors de la suppression:', error);
+                showError('Erreur lors de la suppression: ' + error.message);
+            }
+        }
+
+        function showSuccess(message) {
+            const successDiv = document.createElement('div');
+            successDiv.className = 'success';
+            successDiv.textContent = message;
+            document.querySelector('.container').appendChild(successDiv);
+            setTimeout(() => successDiv.remove(), 5000);
+        }
+
+        function showError(message) {
+            const errorDiv = document.createElement('div');
+            errorDiv.className = 'error';
+            errorDiv.textContent = message;
+            document.querySelector('.container').appendChild(errorDiv);
+            setTimeout(() => errorDiv.remove(), 5000);
+        }
+
+        function showWarning(message) {
+            const warningDiv = document.createElement('div');
+            warningDiv.className = 'warning';
+            warningDiv.textContent = message;
+            document.querySelector('.container').appendChild(warningDiv);
+            setTimeout(() => warningDiv.remove(), 5000);
+        }
+
+        function showInfo(message) {
+            const infoDiv = document.createElement('div');
+            infoDiv.className = 'info';
+            infoDiv.textContent = message;
+            document.querySelector('.container').appendChild(infoDiv);
+            setTimeout(() => infoDiv.remove(), 5000);
+        }
+
+        // Charger automatiquement les commandes au démarrage
+        window.onload = function() {
+            loadOrders();
+        };
+    </script>
+</body>
+</html>

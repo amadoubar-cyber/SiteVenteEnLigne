@@ -20,51 +20,39 @@ const ConstructionMaterials = () => {
   const page = searchParams.get('page') || '1';
   const search = searchParams.get('search') || '';
   const category = searchParams.get('category') || '';
-  const minPrice = searchParams.get('minPrice') || '';
-  const maxPrice = searchParams.get('maxPrice') || '';
   const sort = searchParams.get('sort') || 'createdAt';
   const order = searchParams.get('order') || 'desc';
   const brand = searchParams.get('brand') || '';
 
   // Récupérer les produits de construction
   const { data: productsData, isLoading } = useQuery(
-    ['construction-products', { page, search, category, minPrice, maxPrice, sort, order, brand }],
+    ['construction-products', { page, search, category, sort, order, brand }],
     async () => {
       try {
         // Essayer d'abord l'API locale
-        return await localProductsAPI.getProducts({
+        const localData = await localProductsAPI.getProducts({
           page,
           search,
           category,
-          minPrice,
-          maxPrice,
           sort,
           order,
           brand,
           productType: 'matériau'
         });
+        return localData;
       } catch (error) {
+        console.error('Erreur API locale:', error);
         // Si l'API locale échoue, essayer l'API serveur
-        return await productsAPI.getProducts({
+        const serverResponse = await productsAPI.getProducts({
           page,
           search,
           category,
-          minPrice,
-          maxPrice,
           sort,
           order,
+          brand,
           productType: 'construction'
         });
-      }
-    },
-    {
-      select: (response) => {
-        // Si c'est l'API locale, retourner directement
-        if (response.products) {
-          return response;
-        }
-        // Si c'est l'API serveur, extraire data.data
-        return response.data.data;
+        return serverResponse.data.data;
       }
     }
   );
@@ -293,26 +281,6 @@ const ConstructionMaterials = () => {
                 />
               </div>
 
-              {/* Price Range */}
-              <div className="mb-6">
-                <label className="block text-sm font-medium mb-2">Prix</label>
-                <div className="space-y-2">
-                  <input
-                    type="number"
-                    placeholder="Prix min"
-                    value={minPrice}
-                    onChange={(e) => handleFilterChange('minPrice', e.target.value)}
-                    className="input w-full"
-                  />
-                  <input
-                    type="number"
-                    placeholder="Prix max"
-                    value={maxPrice}
-                    onChange={(e) => handleFilterChange('maxPrice', e.target.value)}
-                    className="input w-full"
-                  />
-                </div>
-              </div>
 
               {/* Sort */}
               <div className="mb-6">

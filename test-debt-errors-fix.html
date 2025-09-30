@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test - Correction des Erreurs Dettes</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .button {
+            background: #dc3545;
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 10px 5px;
+        }
+        .button:hover {
+            background: #c82333;
+        }
+        .success {
+            background: #28a745;
+        }
+        .success:hover {
+            background: #218838;
+        }
+        .info {
+            background: #17a2b8;
+        }
+        .info:hover {
+            background: #138496;
+        }
+        .status {
+            margin: 20px 0;
+            padding: 15px;
+            border-radius: 5px;
+            background: #e9ecef;
+        }
+        .log {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 5px;
+            padding: 15px;
+            margin: 20px 0;
+            font-family: monospace;
+            white-space: pre-wrap;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        .test-section {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 5px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧪 Test - Correction des Erreurs Dettes</h1>
+        <p>Test des corrections apportées pour éliminer les erreurs "Cannot read properties of undefined".</p>
+        
+        <div class="status" id="status">
+            Prêt à tester les corrections...
+        </div>
+        
+        <div class="test-section">
+            <h2>Test de la fonction formatCurrency</h2>
+            <button class="button info" onclick="testFormatCurrency()">Tester formatCurrency</button>
+            <div id="formatTest" class="log"></div>
+        </div>
+        
+        <div class="test-section">
+            <h2>Test de la fonction formatDate</h2>
+            <button class="button info" onclick="testFormatDate()">Tester formatDate</button>
+            <div id="dateTest" class="log"></div>
+        </div>
+        
+        <div class="test-section">
+            <h2>Test avec données vides</h2>
+            <button class="button" onclick="testEmptyData()">Tester avec données vides</button>
+            <button class="button success" onclick="testWithData()">Tester avec données</button>
+            <div id="emptyTest" class="log"></div>
+        </div>
+        
+        <div class="test-section">
+            <h2>Actions</h2>
+            <button class="button" onclick="clearAllData()">Vider toutes les données</button>
+            <button class="button success" onclick="goToDebtManagement()">Aller à la gestion des dettes</button>
+        </div>
+        
+        <div class="log" id="log"></div>
+    </div>
+
+    <script>
+        function log(message) {
+            const logElement = document.getElementById('log');
+            const timestamp = new Date().toLocaleTimeString();
+            logElement.textContent += `[${timestamp}] ${message}\n`;
+            logElement.scrollTop = logElement.scrollHeight;
+        }
+
+        function updateStatus(message, type = 'info') {
+            const statusElement = document.getElementById('status');
+            statusElement.textContent = message;
+            statusElement.style.background = type === 'success' ? '#d4edda' : 
+                                           type === 'error' ? '#f8d7da' : '#e9ecef';
+        }
+
+        // Fonction formatCurrency corrigée (copie de celle du composant)
+        function formatCurrency(amount) {
+            // Gérer les valeurs NaN, undefined, null
+            const safeAmount = isNaN(amount) || amount === null || amount === undefined ? 0 : Number(amount) || 0;
+            return new Intl.NumberFormat('fr-FR').format(safeAmount) + ' FG';
+        }
+
+        // Fonction formatDate corrigée (copie de celle du composant)
+        function formatDate(date) {
+            if (!date) return 'Date non spécifiée';
+            try {
+                return new Date(date).toLocaleDateString('fr-FR');
+            } catch (error) {
+                return 'Date invalide';
+            }
+        }
+
+        function testFormatCurrency() {
+            log('🧪 Test de la fonction formatCurrency...');
+            
+            const testValues = [
+                { input: 150000, expected: '150 000 FG' },
+                { input: 0, expected: '0 FG' },
+                { input: NaN, expected: '0 FG' },
+                { input: null, expected: '0 FG' },
+                { input: undefined, expected: '0 FG' },
+                { input: 'invalid', expected: '0 FG' },
+                { input: '', expected: '0 FG' },
+                { input: false, expected: '0 FG' },
+                { input: true, expected: '1 FG' },
+                { input: 250000.50, expected: '250 000,5 FG' }
+            ];
+            
+            let allPassed = true;
+            testValues.forEach((test, index) => {
+                try {
+                    const result = formatCurrency(test.input);
+                    const passed = result === test.expected;
+                    allPassed = allPassed && passed;
+                    
+                    const status = passed ? '✅' : '❌';
+                    log(`${status} Test ${index + 1}: ${JSON.stringify(test.input)} → ${result} (attendu: ${test.expected})`);
+                } catch (error) {
+                    allPassed = false;
+                    log(`❌ Test ${index + 1}: ${JSON.stringify(test.input)} → ERREUR: ${error.message}`);
+                }
+            });
+            
+            const testElement = document.getElementById('formatTest');
+            testElement.textContent = allPassed ? '✅ Tous les tests formatCurrency ont réussi' : '❌ Certains tests formatCurrency ont échoué';
+            
+            updateStatus(allPassed ? 'Tests formatCurrency réussis' : 'Tests formatCurrency échoués', allPassed ? 'success' : 'error');
+        }
+
+        function testFormatDate() {
+            log('🧪 Test de la fonction formatDate...');
+            
+            const testValues = [
+                { input: new Date().toISOString(), expected: 'Date valide' },
+                { input: '2023-12-25', expected: 'Date valide' },
+                { input: null, expected: 'Date non spécifiée' },
+                { input: undefined, expected: 'Date non spécifiée' },
+                { input: '', expected: 'Date non spécifiée' },
+                { input: 'invalid-date', expected: 'Date invalide' },
+                { input: 1234567890, expected: 'Date valide' },
+                { input: NaN, expected: 'Date invalide' }
+            ];
+            
+            let allPassed = true;
+            testValues.forEach((test, index) => {
+                try {
+                    const result = formatDate(test.input);
+                    const passed = result !== 'ERREUR' && (result.includes('Date') || result.includes('25/12/2023') || result.includes('17/01/1970'));
+                    allPassed = allPassed && passed;
+                    
+                    const status = passed ? '✅' : '❌';
+                    log(`${status} Test ${index + 1}: ${JSON.stringify(test.input)} → ${result}`);
+                } catch (error) {
+                    allPassed = false;
+                    log(`❌ Test ${index + 1}: ${JSON.stringify(test.input)} → ERREUR: ${error.message}`);
+                }
+            });
+            
+            const testElement = document.getElementById('dateTest');
+            testElement.textContent = allPassed ? '✅ Tous les tests formatDate ont réussi' : '❌ Certains tests formatDate ont échoué';
+            
+            updateStatus(allPassed ? 'Tests formatDate réussis' : 'Tests formatDate échoués', allPassed ? 'success' : 'error');
+        }
+
+        function testEmptyData() {
+            log('🧪 Test avec données vides...');
+            
+            // Simuler des stats vides
+            const emptyStats = {
+                summary: undefined
+            };
+            
+            try {
+                // Test des calculs avec données vides
+                const totalAmount = emptyStats.summary?.totalAmount || 0;
+                const totalPaid = emptyStats.summary?.totalPaid || 0;
+                const totalRemaining = emptyStats.summary?.totalRemaining || 0;
+                const totalDebts = emptyStats.summary?.totalDebts || 0;
+                const overdueCount = emptyStats.summary?.overdueCount || 0;
+                
+                const paidPercentage = totalAmount > 0 ? Math.round((totalPaid / totalAmount) * 100) : 0;
+                const remainingPercentage = totalAmount > 0 ? Math.round((totalRemaining / totalAmount) * 100) : 0;
+                
+                log(`📊 Données vides:`);
+                log(`  - Total dettes: ${totalDebts}`);
+                log(`  - Montant total: ${formatCurrency(totalAmount)}`);
+                log(`  - Montant payé: ${formatCurrency(totalPaid)}`);
+                log(`  - Montant restant: ${formatCurrency(totalRemaining)}`);
+                log(`  - En retard: ${overdueCount}`);
+                log(`  - Pourcentage payé: ${paidPercentage}%`);
+                log(`  - Pourcentage restant: ${remainingPercentage}%`);
+                
+                const hasError = isNaN(paidPercentage) || isNaN(remainingPercentage);
+                const testElement = document.getElementById('emptyTest');
+                testElement.textContent = hasError ? '❌ Des erreurs détectées avec des données vides' : '✅ Aucune erreur avec des données vides';
+                
+                updateStatus(hasError ? 'Problème détecté avec données vides' : 'OK avec données vides', hasError ? 'error' : 'success');
+                
+            } catch (error) {
+                log(`❌ Erreur lors du test: ${error.message}`);
+                updateStatus('Erreur lors du test', 'error');
+            }
+        }
+
+        function testWithData() {
+            log('🧪 Test avec données de test...');
+            
+            // Créer des données de test
+            const testStats = {
+                summary: {
+                    totalDebts: 2,
+                    totalAmount: 300000,
+                    totalPaid: 100000,
+                    totalRemaining: 200000,
+                    overdueCount: 1
+                }
+            };
+            
+            try {
+                const totalAmount = testStats.summary?.totalAmount || 0;
+                const totalPaid = testStats.summary?.totalPaid || 0;
+                const totalRemaining = testStats.summary?.totalRemaining || 0;
+                const totalDebts = testStats.summary?.totalDebts || 0;
+                const overdueCount = testStats.summary?.overdueCount || 0;
+                
+                const paidPercentage = totalAmount > 0 ? Math.round((totalPaid / totalAmount) * 100) : 0;
+                const remainingPercentage = totalAmount > 0 ? Math.round((totalRemaining / totalAmount) * 100) : 0;
+                
+                log(`📊 Données de test:`);
+                log(`  - Total dettes: ${totalDebts}`);
+                log(`  - Montant total: ${formatCurrency(totalAmount)}`);
+                log(`  - Montant payé: ${formatCurrency(totalPaid)}`);
+                log(`  - Montant restant: ${formatCurrency(totalRemaining)}`);
+                log(`  - En retard: ${overdueCount}`);
+                log(`  - Pourcentage payé: ${paidPercentage}%`);
+                log(`  - Pourcentage restant: ${remainingPercentage}%`);
+                
+                const hasError = isNaN(paidPercentage) || isNaN(remainingPercentage);
+                const testElement = document.getElementById('emptyTest');
+                testElement.textContent = hasError ? '❌ Des erreurs détectées avec des données' : '✅ Aucune erreur avec des données';
+                
+                updateStatus(hasError ? 'Problème détecté avec données' : 'OK avec données', hasError ? 'error' : 'success');
+                
+            } catch (error) {
+                log(`❌ Erreur lors du test: ${error.message}`);
+                updateStatus('Erreur lors du test', 'error');
+            }
+        }
+
+        function clearAllData() {
+            log('🧹 Nettoyage complet...');
+            try {
+                localStorage.clear();
+                sessionStorage.clear();
+                log('✅ Toutes les données supprimées');
+                updateStatus('✅ Toutes les données supprimées', 'success');
+            } catch (error) {
+                log('❌ Erreur: ' + error.message);
+                updateStatus('❌ Erreur', 'error');
+            }
+        }
+
+        function goToDebtManagement() {
+            log('🔗 Redirection vers la gestion des dettes...');
+            window.location.href = '/admin/debts';
+        }
+
+        // Tests automatiques au chargement
+        window.onload = function() {
+            log('🚀 Page de test des corrections d\'erreurs chargée');
+            testFormatCurrency();
+            testFormatDate();
+            testEmptyData();
+        };
+    </script>
+</body>
+</html>

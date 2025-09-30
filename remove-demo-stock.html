@@ -1,0 +1,542 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Suppression - Démo Stock Admin</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1000px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .button {
+            background: #007bff;
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 10px 5px;
+        }
+        .button:hover {
+            background: #0056b3;
+        }
+        .success {
+            background: #28a745;
+        }
+        .success:hover {
+            background: #218838;
+        }
+        .danger {
+            background: #dc3545;
+        }
+        .danger:hover {
+            background: #c82333;
+        }
+        .warning {
+            background: #ffc107;
+            color: #212529;
+        }
+        .warning:hover {
+            background: #e0a800;
+        }
+        .log {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 5px;
+            padding: 15px;
+            margin: 20px 0;
+            font-family: monospace;
+            white-space: pre-wrap;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        .section {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 5px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+        .status {
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+        .status.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .status.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .status.warning {
+            background: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeaa7;
+        }
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🗑️ Suppression - Démo Stock Admin</h1>
+        <p><strong>Suppression complète de toutes les données de démonstration dans l'interface admin.</strong></p>
+        
+        <div id="status" class="status warning">
+            Prêt à supprimer les données de démo...
+        </div>
+        
+        <div class="grid">
+            <div class="section">
+                <h2>🔍 Identification</h2>
+                <button class="button" onclick="identifyDemoData()">Identifier les données de démo</button>
+                <button class="button" onclick="checkAdminInterface()">Vérifier l'interface admin</button>
+                <div id="identification" class="log"></div>
+            </div>
+            
+            <div class="section">
+                <h2>🗑️ Suppression</h2>
+                <button class="button danger" onclick="removeDemoStock()">Supprimer Démo Stock</button>
+                <button class="button danger" onclick="removeAllDemoData()">Supprimer toutes les données de démo</button>
+                <button class="button warning" onclick="cleanAdminInterface()">Nettoyer l'interface admin</button>
+                <div id="removal" class="log"></div>
+            </div>
+        </div>
+        
+        <div class="section">
+            <h2>🧹 Nettoyage</h2>
+            <button class="button" onclick="cleanLocalStorage()">Nettoyer localStorage</button>
+            <button class="button" onclick="removeTestFiles()">Supprimer fichiers de test</button>
+            <button class="button success" onclick="verifyCleanState()">Vérifier l'état propre</button>
+            <div id="cleanup" class="log"></div>
+        </div>
+        
+        <div class="section">
+            <h2>🧪 Test Final</h2>
+            <button class="button success" onclick="finalTest()">Test final</button>
+            <button class="button" onclick="goToAdmin()">Aller à l'admin</button>
+            <div id="test" class="log"></div>
+        </div>
+    </div>
+
+    <script>
+        function log(message, targetId = 'identification') {
+            const logElement = document.getElementById(targetId);
+            const timestamp = new Date().toLocaleTimeString();
+            logElement.textContent += `[${timestamp}] ${message}\n`;
+            logElement.scrollTop = logElement.scrollHeight;
+        }
+
+        function updateStatus(message, type = 'warning') {
+            const statusElement = document.getElementById('status');
+            statusElement.textContent = message;
+            statusElement.className = `status ${type}`;
+        }
+
+        function identifyDemoData() {
+            log('🔍 IDENTIFICATION DES DONNÉES DE DÉMO');
+            log('='.repeat(45));
+            
+            // Vérifier les clés localStorage liées aux démos
+            const demoKeys = [
+                'demoProducts',
+                'demoSales',
+                'demoOrders',
+                'demoUsers',
+                'demoStockMovements',
+                'demoData',
+                'testData',
+                'sampleData'
+            ];
+            
+            log('\n📊 CLÉS LOCALSTORAGE DE DÉMO:');
+            let foundDemoData = false;
+            
+            demoKeys.forEach(key => {
+                const value = localStorage.getItem(key);
+                if (value) {
+                    try {
+                        const parsed = JSON.parse(value);
+                        const count = Array.isArray(parsed) ? parsed.length : 'N/A';
+                        log(`❌ ${key}: ${count} éléments de démo trouvés`);
+                        foundDemoData = true;
+                    } catch (e) {
+                        log(`❌ ${key}: Données corrompues`);
+                        foundDemoData = true;
+                    }
+                } else {
+                    log(`✅ ${key}: Aucune donnée de démo`);
+                }
+            });
+            
+            // Vérifier les données régulières pour des éléments de test
+            const regularKeys = [
+                'koula_products',
+                'salesData',
+                'ordersData',
+                'users',
+                'stockMovements'
+            ];
+            
+            log('\n📊 VÉRIFICATION DES DONNÉES RÉGULIÈRES:');
+            regularKeys.forEach(key => {
+                const value = localStorage.getItem(key);
+                if (value) {
+                    try {
+                        const parsed = JSON.parse(value);
+                        if (Array.isArray(parsed)) {
+                            // Vérifier s'il y a des éléments de test
+                            const testItems = parsed.filter(item => 
+                                item.name && (
+                                    item.name.toLowerCase().includes('test') ||
+                                    item.name.toLowerCase().includes('demo') ||
+                                    item.name.toLowerCase().includes('exemple') ||
+                                    item.name.toLowerCase().includes('sample')
+                                )
+                            );
+                            
+                            if (testItems.length > 0) {
+                                log(`⚠️  ${key}: ${testItems.length} éléments de test trouvés`);
+                                testItems.forEach(item => {
+                                    log(`   - ${item.name}`);
+                                });
+                                foundDemoData = true;
+                            } else {
+                                log(`✅ ${key}: Aucun élément de test (${parsed.length} éléments)`);
+                            }
+                        }
+                    } catch (e) {
+                        log(`❌ ${key}: Données corrompues`);
+                    }
+                } else {
+                    log(`✅ ${key}: Aucune donnée`);
+                }
+            });
+            
+            if (foundDemoData) {
+                log('\n⚠️  DONNÉES DE DÉMO DÉTECTÉES - Suppression recommandée');
+                updateStatus('Données de démo détectées', 'error');
+            } else {
+                log('\n✅ AUCUNE DONNÉE DE DÉMO DÉTECTÉE');
+                updateStatus('Aucune donnée de démo détectée', 'success');
+            }
+        }
+
+        function checkAdminInterface() {
+            log('🔍 VÉRIFICATION DE L\'INTERFACE ADMIN:', 'identification');
+            log('='.repeat(40), 'identification');
+            
+            // Vérifier si la page StockDemo existe
+            log('📄 Fichiers admin à vérifier:', 'identification');
+            log('   - StockDemo.js (à supprimer)', 'identification');
+            log('   - AdminSimpleComplete.js (à nettoyer)', 'identification');
+            log('', 'identification');
+            
+            // Vérifier les routes admin
+            log('🛣️  Routes admin à vérifier:', 'identification');
+            log('   - /admin/stock-demo (à supprimer)', 'identification');
+            log('   - Démo Stock dans le menu (à supprimer)', 'identification');
+            log('', 'identification');
+            
+            log('💡 ACTIONS NÉCESSAIRES:', 'identification');
+            log('   1. Supprimer le fichier StockDemo.js', 'identification');
+            log('   2. Retirer "Démo Stock" du menu admin', 'identification');
+            log('   3. Nettoyer les imports dans AdminSimpleComplete.js', 'identification');
+            log('   4. Supprimer les données de démo du localStorage', 'identification');
+        }
+
+        function removeDemoStock() {
+            log('🗑️ SUPPRESSION DE LA DÉMO STOCK:', 'removal');
+            log('='.repeat(35), 'removal');
+            
+            try {
+                // 1. Supprimer les données de démo du localStorage
+                const demoKeys = [
+                    'demoProducts',
+                    'demoSales',
+                    'demoOrders',
+                    'demoUsers',
+                    'demoStockMovements',
+                    'demoData',
+                    'testData',
+                    'sampleData'
+                ];
+                
+                let removedCount = 0;
+                demoKeys.forEach(key => {
+                    if (localStorage.getItem(key)) {
+                        localStorage.removeItem(key);
+                        removedCount++;
+                        log(`✅ Clé ${key} supprimée`, 'removal');
+                    }
+                });
+                
+                // 2. Nettoyer les données régulières des éléments de test
+                const regularKeys = [
+                    'koula_products',
+                    'salesData',
+                    'ordersData',
+                    'users',
+                    'stockMovements'
+                ];
+                
+                regularKeys.forEach(key => {
+                    const value = localStorage.getItem(key);
+                    if (value) {
+                        try {
+                            const parsed = JSON.parse(value);
+                            if (Array.isArray(parsed)) {
+                                // Filtrer les éléments de test
+                                const cleanedData = parsed.filter(item => 
+                                    !(item.name && (
+                                        item.name.toLowerCase().includes('test') ||
+                                        item.name.toLowerCase().includes('demo') ||
+                                        item.name.toLowerCase().includes('exemple') ||
+                                        item.name.toLowerCase().includes('sample')
+                                    ))
+                                );
+                                
+                                if (cleanedData.length !== parsed.length) {
+                                    localStorage.setItem(key, JSON.stringify(cleanedData));
+                                    log(`✅ ${parsed.length - cleanedData.length} éléments de test supprimés de ${key}`, 'removal');
+                                    removedCount++;
+                                }
+                            }
+                        } catch (e) {
+                            log(`❌ Erreur lors du nettoyage de ${key}`, 'removal');
+                        }
+                    }
+                });
+                
+                log(`✅ ${removedCount} éléments de démo supprimés`, 'removal');
+                updateStatus('Démo Stock supprimée', 'success');
+                
+            } catch (error) {
+                log(`❌ Erreur: ${error.message}`, 'removal');
+                updateStatus('Erreur lors de la suppression', 'error');
+            }
+        }
+
+        function removeAllDemoData() {
+            log('🗑️ SUPPRESSION DE TOUTES LES DONNÉES DE DÉMO:', 'removal');
+            
+            // Supprimer toutes les clés qui contiennent "demo", "test", "sample"
+            const allKeys = Object.keys(localStorage);
+            const demoKeys = allKeys.filter(key => 
+                key.toLowerCase().includes('demo') ||
+                key.toLowerCase().includes('test') ||
+                key.toLowerCase().includes('sample') ||
+                key.toLowerCase().includes('exemple')
+            );
+            
+            demoKeys.forEach(key => {
+                localStorage.removeItem(key);
+                log(`✅ ${key} supprimée`, 'removal');
+            });
+            
+            log(`✅ ${demoKeys.length} clés de démo supprimées`, 'removal');
+            updateStatus('Toutes les données de démo supprimées', 'success');
+        }
+
+        function cleanAdminInterface() {
+            log('🧹 NETTOYAGE DE L\'INTERFACE ADMIN:', 'removal');
+            log('='.repeat(40), 'removal');
+            
+            log('📋 ACTIONS À EFFECTUER MANUELLEMENT:', 'removal');
+            log('', 'removal');
+            log('1. Supprimer le fichier: client/src/pages/admin/StockDemo.js', 'removal');
+            log('2. Modifier client/src/pages/admin/AdminSimpleComplete.js:', 'removal');
+            log('   - Supprimer: import StockDemo from \'./StockDemo\';', 'removal');
+            log('   - Supprimer: { name: \'Démo Stock\', tab: \'stock-demo\', icon: Package },', 'removal');
+            log('   - Supprimer: case \'stock-demo\': return <StockDemo />;', 'removal');
+            log('', 'removal');
+            log('3. Vérifier qu\'aucune route ne pointe vers /admin/stock-demo', 'removal');
+            log('', 'removal');
+            log('✅ Ces modifications supprimeront complètement la section Démo Stock', 'removal');
+            
+            updateStatus('Instructions de nettoyage fournies', 'warning');
+        }
+
+        function cleanLocalStorage() {
+            log('🧹 NETTOYAGE DU LOCALSTORAGE:', 'cleanup');
+            
+            // Supprimer toutes les clés temporaires et de test
+            const allKeys = Object.keys(localStorage);
+            const keysToRemove = allKeys.filter(key => 
+                key.includes('temp_') ||
+                key.includes('cache_') ||
+                key.includes('backup_') ||
+                key.includes('_backup') ||
+                key.includes('test_') ||
+                key.includes('_test')
+            );
+            
+            keysToRemove.forEach(key => {
+                localStorage.removeItem(key);
+                log(`✅ ${key} supprimée`, 'cleanup');
+            });
+            
+            log(`✅ ${keysToRemove.length} clés temporaires supprimées`, 'cleanup');
+            updateStatus('localStorage nettoyé', 'success');
+        }
+
+        function removeTestFiles() {
+            log('🗑️ FICHIERS DE TEST À SUPPRIMER:', 'cleanup');
+            log('='.repeat(35), 'cleanup');
+            
+            const testFiles = [
+                'test-simple-persistence.html',
+                'test-product-persistence.html',
+                'test-stock-movements-final.html',
+                'test-admin-fix.html',
+                'debug-product-persistence.html',
+                'debug-product-disappearance.html',
+                'diagnose-complete-admin-issue.html',
+                'fix-stock-movements.html',
+                'force-fix-stock-movements.html',
+                'test-debt-reset.html',
+                'test-debt-nan-fix.html',
+                'test-real-data-only.html'
+            ];
+            
+            log('📄 Fichiers de test à supprimer manuellement:', 'cleanup');
+            testFiles.forEach(file => {
+                log(`   - ${file}`, 'cleanup');
+            });
+            
+            log('', 'cleanup');
+            log('💡 Ces fichiers peuvent être supprimés car ils ne sont plus nécessaires', 'cleanup');
+            log('   après la correction des problèmes de persistance.', 'cleanup');
+        }
+
+        function verifyCleanState() {
+            log('✅ VÉRIFICATION DE L\'ÉTAT PROPRE:', 'cleanup');
+            log('='.repeat(35), 'cleanup');
+            
+            // Vérifier qu'il n'y a plus de données de démo
+            const demoKeys = [
+                'demoProducts',
+                'demoSales',
+                'demoOrders',
+                'demoUsers',
+                'demoStockMovements',
+                'demoData',
+                'testData',
+                'sampleData'
+            ];
+            
+            let cleanState = true;
+            demoKeys.forEach(key => {
+                if (localStorage.getItem(key)) {
+                    log(`❌ ${key}: Toujours présent`, 'cleanup');
+                    cleanState = false;
+                } else {
+                    log(`✅ ${key}: Absent`, 'cleanup');
+                }
+            });
+            
+            // Vérifier les données régulières
+            const regularKeys = [
+                'koula_products',
+                'salesData',
+                'ordersData',
+                'users',
+                'stockMovements'
+            ];
+            
+            log('', 'cleanup');
+            log('📊 DONNÉES RÉGULIÈRES:', 'cleanup');
+            regularKeys.forEach(key => {
+                const value = localStorage.getItem(key);
+                if (value) {
+                    try {
+                        const parsed = JSON.parse(value);
+                        if (Array.isArray(parsed)) {
+                            const testItems = parsed.filter(item => 
+                                item.name && (
+                                    item.name.toLowerCase().includes('test') ||
+                                    item.name.toLowerCase().includes('demo') ||
+                                    item.name.toLowerCase().includes('exemple')
+                                )
+                            );
+                            
+                            if (testItems.length === 0) {
+                                log(`✅ ${key}: Propre (${parsed.length} éléments)`, 'cleanup');
+                            } else {
+                                log(`⚠️  ${key}: ${testItems.length} éléments de test restants`, 'cleanup');
+                                cleanState = false;
+                            }
+                        }
+                    } catch (e) {
+                        log(`❌ ${key}: Données corrompues`, 'cleanup');
+                        cleanState = false;
+                    }
+                } else {
+                    log(`✅ ${key}: Vide`, 'cleanup');
+                }
+            });
+            
+            if (cleanState) {
+                log('', 'cleanup');
+                log('🎉 ÉTAT PROPRE CONFIRMÉ - Aucune donnée de démo détectée', 'cleanup');
+                updateStatus('✅ État propre confirmé', 'success');
+            } else {
+                log('', 'cleanup');
+                log('⚠️  NETTOYAGE SUPPLÉMENTAIRE NÉCESSAIRE', 'cleanup');
+                updateStatus('⚠️  Nettoyage supplémentaire nécessaire', 'warning');
+            }
+        }
+
+        function finalTest() {
+            log('🧪 TEST FINAL:', 'test');
+            log('='.repeat(20), 'test');
+            
+            // Vérifier l'état final
+            const hasDemoData = Object.keys(localStorage).some(key => 
+                key.toLowerCase().includes('demo') ||
+                key.toLowerCase().includes('test') ||
+                key.toLowerCase().includes('sample')
+            );
+            
+            if (!hasDemoData) {
+                log('✅ Aucune donnée de démo détectée', 'test');
+                log('✅ Interface admin prête pour les vraies données', 'test');
+                log('🎉 TEST FINAL RÉUSSI', 'test');
+                updateStatus('✅ Test final réussi - Interface propre', 'success');
+            } else {
+                log('❌ Des données de démo sont encore présentes', 'test');
+                log('💡 Exécutez "Supprimer toutes les données de démo"', 'test');
+                updateStatus('❌ Nettoyage supplémentaire nécessaire', 'error');
+            }
+        }
+
+        function goToAdmin() {
+            window.location.href = 'http://localhost:3002/admin';
+        }
+
+        // Vérification automatique au chargement
+        window.onload = function() {
+            log('🚀 Page de suppression des données de démo chargée');
+            identifyDemoData();
+        };
+    </script>
+</body>
+</html>

@@ -1,45 +1,40 @@
 import React, { useState } from 'react';
 import { useQuery } from 'react-query';
 import { User, Mail, Phone, Calendar, Shield, Search } from 'lucide-react';
+import ResetButton from '../../components/ResetButton';
 
 const AdminUsers = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [roleFilter, setRoleFilter] = useState('');
 
-  // Note: Cette API n'existe pas encore dans le backend, mais on peut l'ajouter
+  // Charger les utilisateurs depuis localStorage
   const { data: usersData, isLoading } = useQuery(
     ['admin-users', { search: searchTerm, role: roleFilter }],
     () => {
-      // Simulation de données utilisateurs
+      // Charger depuis localStorage
+      const users = JSON.parse(localStorage.getItem('users') || '[]');
+      
+      // Filtrer selon les critères
+      let filteredUsers = users;
+      
+      if (searchTerm) {
+        filteredUsers = filteredUsers.filter(user =>
+          user.firstName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          user.lastName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          user.email?.toLowerCase().includes(searchTerm.toLowerCase())
+        );
+      }
+      
+      if (roleFilter) {
+        filteredUsers = filteredUsers.filter(user => user.role === roleFilter);
+      }
+      
       return Promise.resolve({
         data: {
           data: {
-            users: [
-              {
-                _id: '1',
-                firstName: 'John',
-                lastName: 'Doe',
-                email: 'john@example.com',
-                phone: '+224 123 456 789',
-                role: 'user',
-                isActive: true,
-                createdAt: '2024-01-15T10:00:00Z',
-                orders: []
-              },
-              {
-                _id: '2',
-                firstName: 'Jane',
-                lastName: 'Smith',
-                email: 'jane@example.com',
-                phone: '+224 987 654 321',
-                role: 'admin',
-                isActive: true,
-                createdAt: '2024-01-10T08:00:00Z',
-                orders: []
-              }
-            ],
+            users: filteredUsers,
             pagination: {
-              totalUsers: 2,
+              totalUsers: filteredUsers.length,
               currentPage: 1,
               totalPages: 1
             }
@@ -71,17 +66,42 @@ const AdminUsers = () => {
     return role === 'admin' ? 'Administrateur' : 'Utilisateur';
   };
 
+  // Fonction de réinitialisation des utilisateurs
+  const handleResetUsers = async () => {
+    try {
+      // Vider toutes les données d'utilisateurs
+      localStorage.removeItem('users');
+      localStorage.removeItem('adminUsers');
+      localStorage.removeItem('userData');
+      
+      console.log('✅ Données d\'utilisateurs réinitialisées avec succès');
+    } catch (error) {
+      console.error('❌ Erreur lors de la réinitialisation des utilisateurs:', error);
+      throw error;
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header */}
         <div className="mb-8">
+          <div className="flex justify-between items-start">
+            <div>
           <h1 className="text-3xl font-bold text-gray-900 mb-2">
             Gestion des Utilisateurs
           </h1>
           <p className="text-gray-600">
             Gérez les comptes utilisateurs de votre plateforme
           </p>
+            </div>
+            <ResetButton
+              onReset={handleResetUsers}
+              resetType="utilisateurs"
+              confirmMessage="Êtes-vous sûr de vouloir réinitialiser tous les utilisateurs ? Cette action supprimera définitivement tous les comptes utilisateurs et leurs données."
+              variant="danger"
+            />
+          </div>
         </div>
 
         {/* Filters */}

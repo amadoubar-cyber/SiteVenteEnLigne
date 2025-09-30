@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Pages de Catégories</title>
+    <style>
+        body { 
+            font-family: Arial, sans-serif; 
+            margin: 20px; 
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 { 
+            color: #333; 
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            background: #f9f9f9;
+        }
+        .test-section h2 {
+            margin-top: 0;
+            color: #333;
+        }
+        .product-card {
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 10px 0;
+            background: white;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        .product-image {
+            width: 80px;
+            height: 80px;
+            object-fit: cover;
+            border-radius: 4px;
+            background: #f0f0f0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            color: #666;
+        }
+        .product-info {
+            flex: 1;
+        }
+        .product-name {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        .product-details {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 5px;
+        }
+        .product-price {
+            font-weight: bold;
+            color: #2563eb;
+            font-size: 16px;
+        }
+        .status {
+            padding: 5px 10px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: bold;
+            margin: 5px 0;
+            display: inline-block;
+        }
+        .success { background: #d4edda; color: #155724; }
+        .error { background: #f8d7da; color: #721c24; }
+        .loading { background: #fff3cd; color: #856404; }
+        .console-log {
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 4px;
+            padding: 10px;
+            font-family: monospace;
+            font-size: 12px;
+            max-height: 200px;
+            overflow-y: auto;
+            margin: 10px 0;
+        }
+        .btn {
+            display: inline-block;
+            padding: 10px 20px;
+            background: #2563eb;
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+            margin: 5px;
+            transition: background 0.2s;
+            border: none;
+            cursor: pointer;
+        }
+        .btn:hover {
+            background: #1d4ed8;
+        }
+        .btn-secondary {
+            background: #6c757d;
+        }
+        .btn-secondary:hover {
+            background: #5a6268;
+        }
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        .stat-card {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+            text-align: center;
+        }
+        .stat-number {
+            font-size: 24px;
+            font-weight: bold;
+            color: #2563eb;
+        }
+        .stat-label {
+            color: #666;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧪 Test des Pages de Catégories</h1>
+        <p style="text-align: center; color: #666; margin-bottom: 30px;">
+            Test de l'affichage des produits par catégorie (Construction et Électronique)
+        </p>
+
+        <div class="test-section">
+            <h2>📊 Statistiques des Produits</h2>
+            <div class="stats" id="stats-container">
+                <div class="stat-card">
+                    <div class="stat-number" id="total-products">-</div>
+                    <div class="stat-label">Total Produits</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="construction-products">-</div>
+                    <div class="stat-label">Matériaux de Construction</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="electronics-products">-</div>
+                    <div class="stat-label">Produits Électroniques</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="published-products">-</div>
+                    <div class="stat-label">Produits Publiés</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="test-section">
+            <h2>🏗️ Matériaux de Construction</h2>
+            <button onclick="loadConstructionProducts()" class="btn">Charger les Produits de Construction</button>
+            <div id="construction-container">
+                <div class="status loading">Cliquez sur "Charger les Produits de Construction" pour commencer</div>
+            </div>
+        </div>
+
+        <div class="test-section">
+            <h2>📱 Produits Électroniques</h2>
+            <button onclick="loadElectronicsProducts()" class="btn">Charger les Produits Électroniques</button>
+            <div id="electronics-container">
+                <div class="status loading">Cliquez sur "Charger les Produits Électroniques" pour commencer</div>
+            </div>
+        </div>
+
+        <div class="test-section">
+            <h2>🔍 Console Log</h2>
+            <div class="console-log" id="console-log">
+                <!-- Les logs seront affichés ici -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Fonction pour logger dans la console et l'affichage
+        function log(message, type = 'info') {
+            console.log(message);
+            const logDiv = document.getElementById('console-log');
+            const timestamp = new Date().toLocaleTimeString();
+            const logEntry = document.createElement('div');
+            logEntry.innerHTML = `<span style="color: #666;">[${timestamp}]</span> ${message}`;
+            logDiv.appendChild(logEntry);
+            logDiv.scrollTop = logDiv.scrollHeight;
+        }
+
+        // Fonction pour formater le prix
+        function formatPrice(price) {
+            return new Intl.NumberFormat('fr-FR', {
+                style: 'currency',
+                currency: 'GNF',
+                minimumFractionDigits: 0
+            }).format(price);
+        }
+
+        // Fonction pour obtenir l'image du produit
+        function getProductImage(product) {
+            if (product.images && product.images.length > 0) {
+                return product.images[0].url;
+            }
+            return 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KICA8cmVjdCB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgZmlsbD0iI2Y4ZjlmYSIvPgogIDx0ZXh0IHg9IjUwJSIgeT0iNTAlIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iMTIiIGZpbGw9IiM2Yzc1N2QiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGR5PSIuM2VtIj5QYXMgZOKAmWltYWdlPC90ZXh0Pgo8L3N2Zz4K';
+        }
+
+        // Charger les statistiques
+        function loadStats() {
+            log('🔄 Chargement des statistiques...');
+            
+            try {
+                const products = JSON.parse(localStorage.getItem('adminProducts') || '[]');
+                
+                const totalProducts = products.length;
+                const constructionProducts = products.filter(p => p.productType === 'matériau').length;
+                const electronicsProducts = products.filter(p => p.productType === 'électronique').length;
+                const publishedProducts = products.filter(p => p.isPublished).length;
+                
+                document.getElementById('total-products').textContent = totalProducts;
+                document.getElementById('construction-products').textContent = constructionProducts;
+                document.getElementById('electronics-products').textContent = electronicsProducts;
+                document.getElementById('published-products').textContent = publishedProducts;
+                
+                log(`✅ Statistiques chargées: ${totalProducts} total, ${constructionProducts} construction, ${electronicsProducts} électronique, ${publishedProducts} publiés`);
+                
+            } catch (error) {
+                log(`❌ Erreur lors du chargement des statistiques: ${error.message}`);
+            }
+        }
+
+        // Charger les produits de construction
+        function loadConstructionProducts() {
+            log('🔄 Chargement des produits de construction...');
+            const container = document.getElementById('construction-container');
+            
+            try {
+                const products = JSON.parse(localStorage.getItem('adminProducts') || '[]');
+                const constructionProducts = products.filter(p => p.productType === 'matériau' && p.isPublished);
+                
+                log(`📦 ${constructionProducts.length} produits de construction trouvés`);
+                
+                if (constructionProducts.length === 0) {
+                    container.innerHTML = '<div class="status loading">Aucun produit de construction trouvé</div>';
+                    return;
+                }
+                
+                let html = '';
+                constructionProducts.forEach((product, index) => {
+                    html += `
+                        <div class="product-card">
+                            <div class="product-image">
+                                <img src="${getProductImage(product)}" alt="${product.name}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 4px;" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                                <div style="display: none; width: 100%; height: 100%; align-items: center; justify-content: center; background: #f0f0f0; color: #666; font-size: 12px;">Pas d'image</div>
+                            </div>
+                            <div class="product-info">
+                                <div class="product-name">${product.name}</div>
+                                <div class="product-details">${product.description}</div>
+                                <div class="product-details">Catégorie: ${product.category} | Marque: ${product.brand} | Stock: ${product.stock}</div>
+                                <div class="product-price">${formatPrice(product.price)}</div>
+                            </div>
+                        </div>
+                    `;
+                });
+                
+                container.innerHTML = html;
+                log('✅ Produits de construction affichés avec succès');
+                
+            } catch (error) {
+                log(`❌ Erreur lors du chargement des produits de construction: ${error.message}`);
+                container.innerHTML = `<div class="status error">Erreur: ${error.message}</div>`;
+            }
+        }
+
+        // Charger les produits électroniques
+        function loadElectronicsProducts() {
+            log('🔄 Chargement des produits électroniques...');
+            const container = document.getElementById('electronics-container');
+            
+            try {
+                const products = JSON.parse(localStorage.getItem('adminProducts') || '[]');
+                const electronicsProducts = products.filter(p => p.productType === 'électronique' && p.isPublished);
+                
+                log(`📱 ${electronicsProducts.length} produits électroniques trouvés`);
+                
+                if (electronicsProducts.length === 0) {
+                    container.innerHTML = '<div class="status loading">Aucun produit électronique trouvé</div>';
+                    return;
+                }
+                
+                let html = '';
+                electronicsProducts.forEach((product, index) => {
+                    html += `
+                        <div class="product-card">
+                            <div class="product-image">
+                                <img src="${getProductImage(product)}" alt="${product.name}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 4px;" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                                <div style="display: none; width: 100%; height: 100%; align-items: center; justify-content: center; background: #f0f0f0; color: #666; font-size: 12px;">Pas d'image</div>
+                            </div>
+                            <div class="product-info">
+                                <div class="product-name">${product.name}</div>
+                                <div class="product-details">${product.description}</div>
+                                <div class="product-details">Catégorie: ${product.category} | Marque: ${product.brand} | Stock: ${product.stock}</div>
+                                <div class="product-price">${formatPrice(product.price)}</div>
+                            </div>
+                        </div>
+                    `;
+                });
+                
+                container.innerHTML = html;
+                log('✅ Produits électroniques affichés avec succès');
+                
+            } catch (error) {
+                log(`❌ Erreur lors du chargement des produits électroniques: ${error.message}`);
+                container.innerHTML = `<div class="status error">Erreur: ${error.message}</div>`;
+            }
+        }
+
+        // Démarrer le test automatiquement
+        log('🚀 Démarrage du test des pages de catégories...');
+        loadStats();
+    </script>
+</body>
+</html>

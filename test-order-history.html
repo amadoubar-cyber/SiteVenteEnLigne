@@ -1,0 +1,597 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test - Historique des Commandes</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+        }
+        .success {
+            background: #d4edda;
+            color: #155724;
+            padding: 10px;
+            border-radius: 4px;
+            margin: 10px 0;
+        }
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 10px;
+            border-radius: 4px;
+            margin: 10px 0;
+        }
+        .warning {
+            background: #fff3cd;
+            color: #856404;
+            padding: 10px;
+            border-radius: 4px;
+            margin: 10px 0;
+        }
+        .info {
+            background: #d1ecf1;
+            color: #0c5460;
+            padding: 10px;
+            border-radius: 4px;
+            margin: 10px 0;
+        }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+        .danger {
+            background: #dc3545;
+        }
+        .danger:hover {
+            background: #c82333;
+        }
+        .success-btn {
+            background: #28a745;
+        }
+        .success-btn:hover {
+            background: #218838;
+        }
+        .warning-btn {
+            background: #ffc107;
+            color: #212529;
+        }
+        .warning-btn:hover {
+            background: #e0a800;
+        }
+        .order-card {
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 10px 0;
+            background: white;
+        }
+        .order-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        .order-id {
+            font-weight: bold;
+            color: #333;
+        }
+        .order-status {
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        .status-pending {
+            background: #fff3cd;
+            color: #856404;
+        }
+        .status-approved {
+            background: #d4edda;
+            color: #155724;
+        }
+        .status-rejected {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        .order-details {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 10px;
+            margin: 10px 0;
+        }
+        .detail-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .detail-label {
+            font-weight: bold;
+            color: #666;
+        }
+        .detail-value {
+            color: #333;
+        }
+        .filters {
+            display: flex;
+            gap: 15px;
+            margin: 20px 0;
+            flex-wrap: wrap;
+        }
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+        .filter-label {
+            font-weight: bold;
+            color: #333;
+        }
+        .filter-select, .filter-input {
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        .stat-card {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 6px;
+            border-left: 4px solid #007bff;
+            text-align: center;
+        }
+        .stat-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: #333;
+        }
+        .stat-label {
+            color: #666;
+            font-size: 14px;
+        }
+        .history-section {
+            margin: 20px 0;
+        }
+        .history-filters {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+        }
+        .order-list {
+            max-height: 600px;
+            overflow-y: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📋 Test - Historique des Commandes</h1>
+        <p>Ce script teste le système d'historique des commandes avec filtres et recherche.</p>
+        
+        <div class="test-section">
+            <h3>📊 Statistiques</h3>
+            <div class="stats" id="statsGrid"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>🧪 Tests de Commandes</h3>
+            <button onclick="createTestOrders()" class="success-btn">
+                📦 Créer Commandes Test
+            </button>
+            <button onclick="approveRandomOrder()" class="success-btn">
+                ✅ Approuver Commande Aléatoire
+            </button>
+            <button onclick="rejectRandomOrder()" class="warning-btn">
+                ❌ Rejeter Commande Aléatoire
+            </button>
+            <button onclick="clearAllData()" class="danger">
+                🗑️ Vider Toutes les Données
+            </button>
+        </div>
+
+        <div class="test-section">
+            <h3>🔍 Filtres et Recherche</h3>
+            <div class="history-filters">
+                <div class="filters">
+                    <div class="filter-group">
+                        <label class="filter-label">Rechercher</label>
+                        <input type="text" id="searchInput" class="filter-input" placeholder="Numéro, client, téléphone..." onkeyup="filterOrders()">
+                    </div>
+                    <div class="filter-group">
+                        <label class="filter-label">Statut</label>
+                        <select id="statusFilter" class="filter-select" onchange="filterOrders()">
+                            <option value="all">Tous les statuts</option>
+                            <option value="pending_approval">En attente</option>
+                            <option value="approved">Approuvées</option>
+                            <option value="rejected">Rejetées</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label class="filter-label">Période</label>
+                        <select id="dateFilter" class="filter-select" onchange="filterOrders()">
+                            <option value="all">Toutes les dates</option>
+                            <option value="today">Aujourd'hui</option>
+                            <option value="week">Cette semaine</option>
+                            <option value="month">Ce mois</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label class="filter-label">Trier par</label>
+                        <select id="sortBy" class="filter-select" onchange="filterOrders()">
+                            <option value="date">Date (récent)</option>
+                            <option value="amount">Montant (élevé)</option>
+                            <option value="status">Statut</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="test-section">
+            <h3>📋 Historique des Commandes</h3>
+            <div class="order-list" id="orderList"></div>
+        </div>
+    </div>
+
+    <script>
+        // Simuler le système d'historique des commandes
+        class OrderHistoryTest {
+            constructor() {
+                this.orders = JSON.parse(localStorage.getItem('clientOrders') || '[]');
+                this.filteredOrders = [];
+                this.init();
+            }
+
+            init() {
+                this.updateStats();
+                this.filterOrders();
+            }
+
+            // Créer des commandes de test
+            createTestOrders() {
+                const customers = [
+                    { firstName: 'Mamadou', lastName: 'Diallo', phone: '+224 111 222 333' },
+                    { firstName: 'Fatou', lastName: 'Camara', phone: '+224 444 555 666' },
+                    { firstName: 'Ibrahima', lastName: 'Bah', phone: '+224 777 888 999' },
+                    { firstName: 'Aminata', lastName: 'Traoré', phone: '+224 123 456 789' },
+                    { firstName: 'Ousmane', lastName: 'Sow', phone: '+224 987 654 321' }
+                ];
+
+                const products = [
+                    { name: 'Ciment Portland', price: 50000 },
+                    { name: 'Téléphone Samsung', price: 250000 },
+                    { name: 'Tôles Ondulées', price: 25000 },
+                    { name: 'Câbles Électriques', price: 15000 },
+                    { name: 'Peinture Blanche', price: 30000 }
+                ];
+
+                const statuses = ['pending_approval', 'approved', 'rejected'];
+
+                for (let i = 0; i < 10; i++) {
+                    const customer = customers[Math.floor(Math.random() * customers.length)];
+                    const product = products[Math.floor(Math.random() * products.length)];
+                    const status = statuses[Math.floor(Math.random() * statuses.length)];
+                    
+                    const order = {
+                        _id: 'order-' + Date.now() + '-' + i,
+                        trackingNumber: 'CMD-' + Math.random().toString(36).substr(2, 8).toUpperCase(),
+                        user: {
+                            firstName: customer.firstName,
+                            lastName: customer.lastName,
+                            phone: customer.phone
+                        },
+                        items: [{
+                            product: 'prod-' + i,
+                            name: product.name,
+                            price: product.price,
+                            quantity: Math.floor(Math.random() * 5) + 1
+                        }],
+                        orderStatus: status,
+                        createdAt: new Date(Date.now() - Math.random() * 30 * 24 * 60 * 60 * 1000).toISOString(),
+                        updatedAt: new Date().toISOString()
+                    };
+
+                    // Ajouter des dates d'approbation/rejet
+                    if (status === 'approved') {
+                        order.approvedAt = new Date(order.createdAt).toISOString();
+                        order.adminNotes = 'Commande approuvée avec succès';
+                    } else if (status === 'rejected') {
+                        order.rejectedAt = new Date(order.createdAt).toISOString();
+                        order.rejectionReason = 'Produit non disponible';
+                    }
+
+                    this.orders.unshift(order);
+                }
+
+                localStorage.setItem('clientOrders', JSON.stringify(this.orders));
+                this.updateStats();
+                this.filterOrders();
+                showSuccess('10 commandes de test créées !');
+            }
+
+            // Approuver une commande aléatoire
+            approveRandomOrder() {
+                const pendingOrders = this.orders.filter(o => o.orderStatus === 'pending_approval');
+                if (pendingOrders.length === 0) {
+                    showWarning('Aucune commande en attente');
+                    return;
+                }
+
+                const randomOrder = pendingOrders[Math.floor(Math.random() * pendingOrders.length)];
+                const orderIndex = this.orders.findIndex(o => o._id === randomOrder._id);
+                
+                this.orders[orderIndex].orderStatus = 'approved';
+                this.orders[orderIndex].approvedAt = new Date().toISOString();
+                this.orders[orderIndex].adminNotes = 'Commande approuvée automatiquement';
+
+                localStorage.setItem('clientOrders', JSON.stringify(this.orders));
+                this.updateStats();
+                this.filterOrders();
+                showSuccess(`Commande ${randomOrder.trackingNumber} approuvée !`);
+            }
+
+            // Rejeter une commande aléatoire
+            rejectRandomOrder() {
+                const pendingOrders = this.orders.filter(o => o.orderStatus === 'pending_approval');
+                if (pendingOrders.length === 0) {
+                    showWarning('Aucune commande en attente');
+                    return;
+                }
+
+                const randomOrder = pendingOrders[Math.floor(Math.random() * pendingOrders.length)];
+                const orderIndex = this.orders.findIndex(o => o._id === randomOrder._id);
+                
+                this.orders[orderIndex].orderStatus = 'rejected';
+                this.orders[orderIndex].rejectedAt = new Date().toISOString();
+                this.orders[orderIndex].rejectionReason = 'Commande rejetée automatiquement';
+
+                localStorage.setItem('clientOrders', JSON.stringify(this.orders));
+                this.updateStats();
+                this.filterOrders();
+                showSuccess(`Commande ${randomOrder.trackingNumber} rejetée !`);
+            }
+
+            // Filtrer les commandes
+            filterOrders() {
+                const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+                const statusFilter = document.getElementById('statusFilter').value;
+                const dateFilter = document.getElementById('dateFilter').value;
+                const sortBy = document.getElementById('sortBy').value;
+
+                this.filteredOrders = this.orders.filter(order => {
+                    // Filtre par statut
+                    if (statusFilter !== 'all' && order.orderStatus !== statusFilter) {
+                        return false;
+                    }
+
+                    // Filtre par date
+                    if (dateFilter !== 'all') {
+                        const orderDate = new Date(order.createdAt);
+                        const now = new Date();
+                        
+                        if (dateFilter === 'today') {
+                            return orderDate.toDateString() === now.toDateString();
+                        } else if (dateFilter === 'week') {
+                            const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+                            return orderDate >= weekAgo;
+                        } else if (dateFilter === 'month') {
+                            const monthAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+                            return orderDate >= monthAgo;
+                        }
+                    }
+
+                    // Filtre par recherche
+                    if (searchTerm) {
+                        return (
+                            order.trackingNumber.toLowerCase().includes(searchTerm) ||
+                            `${order.user?.firstName} ${order.user?.lastName}`.toLowerCase().includes(searchTerm) ||
+                            order.user?.phone?.includes(searchTerm) ||
+                            order.items?.some(item => item.name.toLowerCase().includes(searchTerm))
+                        );
+                    }
+
+                    return true;
+                }).sort((a, b) => {
+                    if (sortBy === 'date') {
+                        return new Date(b.createdAt) - new Date(a.createdAt);
+                    } else if (sortBy === 'amount') {
+                        return this.getOrderTotal(b) - this.getOrderTotal(a);
+                    } else if (sortBy === 'status') {
+                        return a.orderStatus.localeCompare(b.orderStatus);
+                    }
+                    return 0;
+                });
+
+                this.updateOrderList();
+            }
+
+            // Obtenir le total d'une commande
+            getOrderTotal(order) {
+                return order.items?.reduce((sum, item) => sum + (item.price * item.quantity), 0) || 0;
+            }
+
+            // Mettre à jour les statistiques
+            updateStats() {
+                const total = this.orders.length;
+                const pending = this.orders.filter(o => o.orderStatus === 'pending_approval').length;
+                const approved = this.orders.filter(o => o.orderStatus === 'approved').length;
+                const rejected = this.orders.filter(o => o.orderStatus === 'rejected').length;
+                const totalRevenue = this.orders
+                    .filter(o => o.orderStatus === 'approved')
+                    .reduce((sum, o) => sum + this.getOrderTotal(o), 0);
+
+                const statsGrid = document.getElementById('statsGrid');
+                statsGrid.innerHTML = `
+                    <div class="stat-card">
+                        <div class="stat-value">${total}</div>
+                        <div class="stat-label">Total</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">${pending}</div>
+                        <div class="stat-label">En Attente</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">${approved}</div>
+                        <div class="stat-label">Approuvées</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">${rejected}</div>
+                        <div class="stat-label">Rejetées</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">${totalRevenue.toLocaleString('fr-FR')} FG</div>
+                        <div class="stat-label">Chiffre d'Affaires</div>
+                    </div>
+                `;
+            }
+
+            // Mettre à jour la liste des commandes
+            updateOrderList() {
+                const orderList = document.getElementById('orderList');
+                
+                if (this.filteredOrders.length === 0) {
+                    orderList.innerHTML = '<p>Aucune commande trouvée</p>';
+                    return;
+                }
+
+                orderList.innerHTML = this.filteredOrders.map(order => {
+                    const total = this.getOrderTotal(order);
+                    const statusClass = order.orderStatus === 'pending_approval' ? 'status-pending' :
+                                      order.orderStatus === 'approved' ? 'status-approved' : 'status-rejected';
+                    const statusText = order.orderStatus === 'pending_approval' ? 'En Attente' :
+                                     order.orderStatus === 'approved' ? 'Approuvée' : 'Rejetée';
+
+                    return `
+                        <div class="order-card">
+                            <div class="order-header">
+                                <div class="order-id">#${order.trackingNumber}</div>
+                                <div class="order-status ${statusClass}">${statusText}</div>
+                            </div>
+                            <div class="order-details">
+                                <div class="detail-item">
+                                    <span class="detail-label">Client:</span>
+                                    <span class="detail-value">${order.user.firstName} ${order.user.lastName}</span>
+                                </div>
+                                <div class="detail-item">
+                                    <span class="detail-label">Téléphone:</span>
+                                    <span class="detail-value">${order.user.phone}</span>
+                                </div>
+                                <div class="detail-item">
+                                    <span class="detail-label">Total:</span>
+                                    <span class="detail-value">${total.toLocaleString('fr-FR')} FG</span>
+                                </div>
+                                <div class="detail-item">
+                                    <span class="detail-label">Date:</span>
+                                    <span class="detail-value">${new Date(order.createdAt).toLocaleDateString('fr-FR')}</span>
+                                </div>
+                                <div class="detail-item">
+                                    <span class="detail-label">Articles:</span>
+                                    <span class="detail-value">${order.items?.length || 0}</span>
+                                </div>
+                            </div>
+                            ${order.adminNotes ? `<div class="detail-item"><span class="detail-label">Notes:</span><span class="detail-value">${order.adminNotes}</span></div>` : ''}
+                            ${order.rejectionReason ? `<div class="detail-item"><span class="detail-label">Raison rejet:</span><span class="detail-value">${order.rejectionReason}</span></div>` : ''}
+                        </div>
+                    `;
+                }).join('');
+            }
+
+            // Vider toutes les données
+            clearAllData() {
+                if (confirm('Êtes-vous sûr de vouloir supprimer toutes les données ?')) {
+                    localStorage.clear();
+                    this.orders = [];
+                    this.filteredOrders = [];
+                    this.updateStats();
+                    this.updateOrderList();
+                    showSuccess('Toutes les données ont été supprimées !');
+                }
+            }
+        }
+
+        // Initialiser le système de test
+        const historyTest = new OrderHistoryTest();
+
+        // Fonctions globales pour les boutons
+        function createTestOrders() {
+            historyTest.createTestOrders();
+        }
+
+        function approveRandomOrder() {
+            historyTest.approveRandomOrder();
+        }
+
+        function rejectRandomOrder() {
+            historyTest.rejectRandomOrder();
+        }
+
+        function filterOrders() {
+            historyTest.filterOrders();
+        }
+
+        function clearAllData() {
+            historyTest.clearAllData();
+        }
+
+        function showSuccess(message) {
+            const successDiv = document.createElement('div');
+            successDiv.className = 'success';
+            successDiv.textContent = message;
+            document.querySelector('.container').appendChild(successDiv);
+            setTimeout(() => successDiv.remove(), 3000);
+        }
+
+        function showError(message) {
+            const errorDiv = document.createElement('div');
+            errorDiv.className = 'error';
+            errorDiv.textContent = message;
+            document.querySelector('.container').appendChild(errorDiv);
+            setTimeout(() => errorDiv.remove(), 3000);
+        }
+
+        function showWarning(message) {
+            const warningDiv = document.createElement('div');
+            warningDiv.className = 'warning';
+            warningDiv.textContent = message;
+            document.querySelector('.container').appendChild(warningDiv);
+            setTimeout(() => warningDiv.remove(), 3000);
+        }
+
+        // Mettre à jour l'affichage toutes les 2 secondes
+        setInterval(() => {
+            historyTest.updateStats();
+        }, 2000);
+    </script>
+</body>
+</html>

@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fix Quota localStorage - Koula E-commerce</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .status {
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+        }
+        .status.success {
+            background-color: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+        }
+        .status.error {
+            background-color: #f8d7da;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+        }
+        .status.warning {
+            background-color: #fff3cd;
+            border: 1px solid #ffeaa7;
+            color: #856404;
+        }
+        .button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 10px 5px;
+            transition: background-color 0.3s;
+        }
+        .button:hover {
+            background-color: #0056b3;
+        }
+        .button.danger {
+            background-color: #dc3545;
+        }
+        .button.danger:hover {
+            background-color: #c82333;
+        }
+        .info {
+            background-color: #e7f3ff;
+            border: 1px solid #b8daff;
+            padding: 15px;
+            border-radius: 6px;
+            margin: 15px 0;
+        }
+        .code {
+            background-color: #f8f9fa;
+            border: 1px solid #e9ecef;
+            padding: 15px;
+            border-radius: 6px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            margin: 10px 0;
+            overflow-x: auto;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 15px 0;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔧 Fix Quota localStorage</h1>
+            <p>Résolution du problème de quota dépassé dans le localStorage</p>
+        </div>
+
+        <div id="status" class="status hidden"></div>
+
+        <div class="info">
+            <h3>📋 Diagnostic actuel</h3>
+            <p>Ce script va analyser et nettoyer le localStorage pour résoudre l'erreur de quota.</p>
+        </div>
+
+        <div>
+            <button class="button" onclick="checkStorage()">🔍 Vérifier le localStorage</button>
+            <button class="button danger" onclick="clearCartOnly()">🧹 Nettoyer le panier</button>
+            <button class="button danger" onclick="clearAllStorage()">🗑️ Nettoyer tout</button>
+        </div>
+
+        <div id="results" class="hidden">
+            <h3>📊 Résultats</h3>
+            <div id="storageInfo"></div>
+        </div>
+
+        <div class="info">
+            <h3>💡 Solutions automatiques</h3>
+            <p>Si le problème persiste, utilisez ces commandes dans la console du navigateur :</p>
+            <div class="code">
+// Nettoyer le panier seulement
+localStorage.removeItem('cartItems');
+
+// Nettoyer tout le localStorage
+localStorage.clear();
+
+// Recharger la page
+window.location.reload();
+            </div>
+        </div>
+
+        <div class="info">
+            <h3>🔗 Liens utiles</h3>
+            <p>
+                <a href="http://localhost:3000/localstorage-diagnostic" target="_blank">
+                    📊 Diagnostic avancé du localStorage
+                </a>
+            </p>
+            <p>
+                <a href="http://localhost:3000" target="_blank">
+                    🏠 Retour à l'application
+                </a>
+            </p>
+        </div>
+    </div>
+
+    <script>
+        function showStatus(message, type = 'info') {
+            const status = document.getElementById('status');
+            status.className = `status ${type}`;
+            status.textContent = message;
+            status.classList.remove('hidden');
+        }
+
+        function checkStorage() {
+            try {
+                let totalSize = 0;
+                const items = {};
+                
+                for (let key in localStorage) {
+                    if (localStorage.hasOwnProperty(key)) {
+                        const size = localStorage[key].length;
+                        totalSize += size;
+                        items[key] = {
+                            size: size,
+                            sizeKB: (size / 1024).toFixed(2) + ' KB',
+                            data: localStorage[key].substring(0, 50) + (localStorage[key].length > 50 ? '...' : '')
+                        };
+                    }
+                }
+                
+                const totalSizeKB = (totalSize / 1024).toFixed(2);
+                const isOverLimit = totalSize > 1024 * 1024; // 1MB
+                
+                showStatus(
+                    `Taille totale: ${totalSizeKB} KB ${isOverLimit ? '(⚠️ Limite dépassée)' : '(✅ Normal)'}`,
+                    isOverLimit ? 'warning' : 'success'
+                );
+                
+                // Afficher les détails
+                const results = document.getElementById('results');
+                const storageInfo = document.getElementById('storageInfo');
+                
+                let html = `
+                    <h4>Éléments stockés (${Object.keys(items).length})</h4>
+                    <table>
+                        <tr>
+                            <th>Clé</th>
+                            <th>Taille</th>
+                            <th>Aperçu</th>
+                        </tr>
+                `;
+                
+                for (const [key, info] of Object.entries(items)) {
+                    html += `
+                        <tr>
+                            <td><code>${key}</code></td>
+                            <td>${info.sizeKB}</td>
+                            <td>${info.data}</td>
+                        </tr>
+                    `;
+                }
+                
+                html += '</table>';
+                storageInfo.innerHTML = html;
+                results.classList.remove('hidden');
+                
+            } catch (error) {
+                showStatus(`Erreur lors de la vérification: ${error.message}`, 'error');
+            }
+        }
+
+        function clearCartOnly() {
+            try {
+                localStorage.removeItem('cartItems');
+                showStatus('✅ Panier nettoyé avec succès', 'success');
+                setTimeout(() => {
+                    window.location.reload();
+                }, 2000);
+            } catch (error) {
+                showStatus(`❌ Erreur lors du nettoyage: ${error.message}`, 'error');
+            }
+        }
+
+        function clearAllStorage() {
+            try {
+                // Sauvegarder les données importantes
+                const authToken = localStorage.getItem('authToken');
+                const user = localStorage.getItem('user');
+                
+                // Nettoyer tout
+                localStorage.clear();
+                
+                // Restaurer les données importantes
+                if (authToken) localStorage.setItem('authToken', authToken);
+                if (user) localStorage.setItem('user', user);
+                
+                showStatus('✅ localStorage nettoyé avec succès', 'success');
+                setTimeout(() => {
+                    window.location.reload();
+                }, 2000);
+            } catch (error) {
+                showStatus(`❌ Erreur lors du nettoyage: ${error.message}`, 'error');
+            }
+        }
+
+        // Vérification automatique au chargement
+        window.addEventListener('load', () => {
+            checkStorage();
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,29 @@
+# Configuration pour le déploiement sur Render
+# Backend API pour Bowoye Multi Services
+
+services:
+  - type: web
+    name: bowoye-backend
+    env: node
+    plan: free
+    buildCommand: cd server && npm install
+    startCommand: cd server && node index.js
+    healthCheckPath: /api/health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 10000
+      - key: MONGODB_URI
+        fromDatabase:
+          name: bowoye-db
+          property: connectionString
+      - key: JWT_SECRET
+        generateValue: true
+      - key: CORS_ORIGIN
+        value: https://bowoye-frontend.vercel.app
+
+databases:
+  - name: bowoye-db
+    plan: free
+    databaseName: bowoye_production

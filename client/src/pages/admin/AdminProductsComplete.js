@@ -2,17 +2,11 @@ import React, { useState, useEffect } from 'react';
 import { 
   Plus, 
   Search, 
-  Filter, 
   Edit, 
   Trash2, 
-  Eye, 
   Package,
-  DollarSign,
-  Tag,
-  Image as ImageIcon,
   Save,
-  X,
-  Upload
+  X
 } from 'lucide-react';
 
 const AdminProductsCompleteFixed = () => {
@@ -29,6 +23,7 @@ const AdminProductsCompleteFixed = () => {
     name: '',
     description: '',
     price: '',
+    purchasePrice: '',
     category: '',
     stock: '',
     images: []
@@ -44,14 +39,18 @@ const AdminProductsCompleteFixed = () => {
     const loadProducts = async () => {
       setLoading(true);
       try {
-        // TODO: Remplacer par un appel API réel
-        // const response = await productsAPI.getProducts();
-        // setProducts(response.data);
-        // setFilteredProducts(response.data);
+        // Charger les produits depuis localStorage
+        const savedProducts = localStorage.getItem('adminProducts');
+        let productsData = [];
         
-        // Pour l'instant, commencer avec des données vides
-        setProducts([]);
-        setFilteredProducts([]);
+        if (savedProducts) {
+          productsData = JSON.parse(savedProducts);
+        }
+        // Ne pas créer de produits de test automatiquement
+        // L'utilisateur doit ajouter ses propres produits
+        
+        setProducts(productsData);
+        setFilteredProducts(productsData);
       } catch (error) {
         console.error('Erreur lors du chargement des produits:', error);
         setProducts([]);
@@ -83,7 +82,7 @@ const AdminProductsCompleteFixed = () => {
   }, [products, searchTerm, selectedCategory]);
 
   const handleAddProduct = () => {
-    if (!newProduct.name || !newProduct.description || !newProduct.price || !newProduct.category || !newProduct.stock) {
+    if (!newProduct.name || !newProduct.description || !newProduct.price || !newProduct.purchasePrice || !newProduct.category || !newProduct.stock) {
       alert('Veuillez remplir tous les champs obligatoires');
       return;
     }
@@ -92,16 +91,23 @@ const AdminProductsCompleteFixed = () => {
       id: Date.now(),
       ...newProduct,
       price: parseFloat(newProduct.price),
+      purchasePrice: parseFloat(newProduct.purchasePrice),
       stock: parseInt(newProduct.stock),
       createdAt: new Date().toISOString(),
       status: 'active'
     };
 
-    setProducts([product, ...products]);
+    const updatedProducts = [product, ...products];
+    setProducts(updatedProducts);
+    
+    // Sauvegarder dans localStorage
+    localStorage.setItem('adminProducts', JSON.stringify(updatedProducts));
+    
     setNewProduct({
       name: '',
       description: '',
       price: '',
+      purchasePrice: '',
       category: '',
       stock: '',
       images: []
@@ -115,6 +121,7 @@ const AdminProductsCompleteFixed = () => {
       name: product.name,
       description: product.description,
       price: product.price.toString(),
+      purchasePrice: product.purchasePrice ? product.purchasePrice.toString() : '',
       category: product.category,
       stock: product.stock.toString(),
       images: product.images || []
@@ -123,7 +130,7 @@ const AdminProductsCompleteFixed = () => {
   };
 
   const handleUpdateProduct = () => {
-    if (!newProduct.name || !newProduct.description || !newProduct.price || !newProduct.category || !newProduct.stock) {
+    if (!newProduct.name || !newProduct.description || !newProduct.price || !newProduct.purchasePrice || !newProduct.category || !newProduct.stock) {
       alert('Veuillez remplir tous les champs obligatoires');
       return;
     }
@@ -132,16 +139,23 @@ const AdminProductsCompleteFixed = () => {
       ...editingProduct,
       ...newProduct,
       price: parseFloat(newProduct.price),
+      purchasePrice: parseFloat(newProduct.purchasePrice),
       stock: parseInt(newProduct.stock)
     };
 
-    setProducts(products.map(p => p.id === editingProduct.id ? updatedProduct : p));
+    const updatedProducts = products.map(p => p.id === editingProduct.id ? updatedProduct : p);
+    setProducts(updatedProducts);
+    
+    // Sauvegarder dans localStorage
+    localStorage.setItem('adminProducts', JSON.stringify(updatedProducts));
+    
     setShowEditModal(false);
     setEditingProduct(null);
     setNewProduct({
       name: '',
       description: '',
       price: '',
+      purchasePrice: '',
       category: '',
       stock: '',
       images: []
@@ -150,7 +164,11 @@ const AdminProductsCompleteFixed = () => {
 
   const handleDeleteProduct = (id) => {
     if (window.confirm('Êtes-vous sûr de vouloir supprimer ce produit ?')) {
-      setProducts(products.filter(p => p.id !== id));
+      const updatedProducts = products.filter(p => p.id !== id);
+      setProducts(updatedProducts);
+      
+      // Sauvegarder dans localStorage
+      localStorage.setItem('adminProducts', JSON.stringify(updatedProducts));
     }
   };
 
@@ -248,7 +266,13 @@ const AdminProductsCompleteFixed = () => {
                     Catégorie
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Prix
+                    Prix de vente
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Prix d'achat
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Marge
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Stock
@@ -292,8 +316,23 @@ const AdminProductsCompleteFixed = () => {
                         {product.category}
                       </span>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-medium">
                       {formatPrice(product.price)}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                      {product.purchasePrice ? formatPrice(product.purchasePrice) : '-'}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm">
+                      {product.purchasePrice ? (
+                        <div>
+                          <div className="text-green-600 font-medium">
+                            {formatPrice(product.price - product.purchasePrice)}
+                          </div>
+                          <div className="text-xs text-gray-500">
+                            {Math.round(((product.price - product.purchasePrice) / product.purchasePrice) * 100)}%
+                          </div>
+                        </div>
+                      ) : '-'}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                       {product.stock}
@@ -455,16 +494,30 @@ const AdminProductsCompleteFixed = () => {
                 </div>
 
                 {/* Prix et Stock */}
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-3 gap-4">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Prix (FG) *
+                      Prix de vente (FG) *
                     </label>
                     <input
                       type="number"
                       required
                       value={newProduct.price}
                       onChange={(e) => setNewProduct({...newProduct, price: e.target.value})}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                      placeholder="0"
+                      min="0"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Prix d'achat (FG) *
+                    </label>
+                    <input
+                      type="number"
+                      required
+                      value={newProduct.purchasePrice}
+                      onChange={(e) => setNewProduct({...newProduct, purchasePrice: e.target.value})}
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
                       placeholder="0"
                       min="0"
@@ -485,6 +538,27 @@ const AdminProductsCompleteFixed = () => {
                     />
                   </div>
                 </div>
+
+                {/* Calcul automatique de la marge */}
+                {newProduct.price && newProduct.purchasePrice && (
+                  <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+                    <h4 className="text-sm font-medium text-green-800 mb-2">Calcul de la marge</h4>
+                    <div className="grid grid-cols-2 gap-4 text-sm">
+                      <div>
+                        <span className="text-green-700">Marge unitaire:</span>
+                        <span className="ml-2 font-medium text-green-800">
+                          {formatPrice(parseFloat(newProduct.price) - parseFloat(newProduct.purchasePrice))}
+                        </span>
+                      </div>
+                      <div>
+                        <span className="text-green-700">Marge en %:</span>
+                        <span className="ml-2 font-medium text-green-800">
+                          {Math.round(((parseFloat(newProduct.price) - parseFloat(newProduct.purchasePrice)) / parseFloat(newProduct.purchasePrice)) * 100)}%
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                )}
 
                 {/* Catégorie */}
                 <div>
@@ -649,16 +723,30 @@ const AdminProductsCompleteFixed = () => {
                 </div>
 
                 {/* Prix et Stock */}
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-3 gap-4">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Prix (FG) *
+                      Prix de vente (FG) *
                     </label>
                     <input
                       type="number"
                       required
                       value={newProduct.price}
                       onChange={(e) => setNewProduct({...newProduct, price: e.target.value})}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                      placeholder="0"
+                      min="0"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Prix d'achat (FG) *
+                    </label>
+                    <input
+                      type="number"
+                      required
+                      value={newProduct.purchasePrice}
+                      onChange={(e) => setNewProduct({...newProduct, purchasePrice: e.target.value})}
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
                       placeholder="0"
                       min="0"
@@ -679,6 +767,27 @@ const AdminProductsCompleteFixed = () => {
                     />
                   </div>
                 </div>
+
+                {/* Calcul automatique de la marge */}
+                {newProduct.price && newProduct.purchasePrice && (
+                  <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+                    <h4 className="text-sm font-medium text-green-800 mb-2">Calcul de la marge</h4>
+                    <div className="grid grid-cols-2 gap-4 text-sm">
+                      <div>
+                        <span className="text-green-700">Marge unitaire:</span>
+                        <span className="ml-2 font-medium text-green-800">
+                          {formatPrice(parseFloat(newProduct.price) - parseFloat(newProduct.purchasePrice))}
+                        </span>
+                      </div>
+                      <div>
+                        <span className="text-green-700">Marge en %:</span>
+                        <span className="ml-2 font-medium text-green-800">
+                          {Math.round(((parseFloat(newProduct.price) - parseFloat(newProduct.purchasePrice)) / parseFloat(newProduct.purchasePrice)) * 100)}%
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                )}
 
                 {/* Catégorie */}
                 <div>

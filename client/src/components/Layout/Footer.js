@@ -11,7 +11,7 @@ const Footer = () => {
           <div className="space-y-4">
             <div className="flex items-center space-x-2">
               <div className="w-8 h-8 bg-white rounded flex items-center justify-center">
-                <span className="text-primary-500 font-bold text-lg">K</span>
+                <span className="text-primary-500 font-bold text-lg">B</span>
               </div>
               <span className="text-xl font-bold font-heading">Bowoye Multi Services</span>
             </div>
@@ -98,20 +98,20 @@ const Footer = () => {
               <div className="flex items-center space-x-3">
                 <MapPin className="h-4 w-4 text-primary-500" />
                 <span className="text-gray-300 text-sm">
-                  Conakry, Guinée
+                  Labé, Guinée
                 </span>
               </div>
               <div className="flex items-center space-x-3">
                 <Phone className="h-4 w-4 text-primary-500" />
-                <span className="text-gray-300 text-sm">
-                  +224 XXX XX XX XX
-                </span>
+                <a href="tel:+224626991318" className="text-gray-300 hover:text-white transition-colors text-sm">
+                  +224 626 99 13 18
+                </a>
               </div>
               <div className="flex items-center space-x-3">
                 <Mail className="h-4 w-4 text-primary-500" />
-                <span className="text-gray-300 text-sm">
-                  contact@koula.gn
-                </span>
+                <a href="mailto:amadoubowoye@gmail.com" className="text-gray-300 hover:text-white transition-colors text-sm">
+                  amadoubowoye@gmail.com
+                </a>
               </div>
             </div>
           </div>

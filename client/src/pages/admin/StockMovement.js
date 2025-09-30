@@ -20,6 +20,7 @@ import {
 } from 'lucide-react';
 import ConfirmationModal from '../../components/ConfirmationModal';
 import useConfirmation from '../../hooks/useConfirmation';
+import useRealtimeSync from '../../hooks/useRealtimeSync';
 
 const StockMovement = () => {
   const [movements, setMovements] = useState([]);
@@ -47,6 +48,16 @@ const StockMovement = () => {
     supplier: '' // Nouveau champ fournisseur
   });
   const { confirmation, showConfirmation, hideConfirmation, handleConfirm } = useConfirmation();
+
+  // Synchronisation en temps réel
+  const { forceSync } = useRealtimeSync('stockMovement', (eventType, data) => {
+    console.log('🔄 StockMovement synchronisé:', eventType, data);
+    
+    // Recharger les données si nécessaire
+    if (eventType === 'orderApproved' || eventType === 'stockUpdated') {
+      loadData();
+    }
+  });
 
   const categories = [
     { value: 'construction', label: 'Matériaux de Construction', color: 'bg-orange-100 text-orange-800' },
@@ -89,97 +100,72 @@ const StockMovement = () => {
       setLoading(true);
       
       // Charger les produits depuis localStorage
-      const savedProducts = localStorage.getItem('adminProducts');
+      const savedProducts = localStorage.getItem('koula_products');
+      let productsData = [];
+      
       if (savedProducts) {
-        const productsData = JSON.parse(savedProducts);
-        setProducts(productsData);
+        productsData = JSON.parse(savedProducts);
+      } else {
+        // Aucun produit - interface vide
+        productsData = [];
       }
+      
+      setProducts(productsData);
 
       // Charger les mouvements depuis localStorage
       const savedMovements = localStorage.getItem('stockMovements');
+      let movementsData = [];
+      
       if (savedMovements) {
-        const movementsData = JSON.parse(savedMovements);
-        setMovements(movementsData);
-        // Mettre à jour automatiquement les stocks basés sur les mouvements
-        updateProductStocksFromMovements(movementsData);
-      } else {
-        // Données de test pour les mouvements
-        const testMovements = [
-          {
-            id: 1,
-            productId: '1',
-            productName: 'Ciment Portland',
-            category: 'construction',
-            type: 'in',
-            quantity: 50,
-            reason: 'Livraison fournisseur',
-            notes: 'Livraison du fournisseur Lafarge - Commande REF-2024-001',
-            date: '2024-01-15',
-            images: [],
-            reference: 'REF-2024-001',
-            supplier: 'Lafarge'
-          },
-          {
-            id: 2,
-            productId: '1',
-            productName: 'Ciment Portland',
-            category: 'construction',
-            type: 'out',
-            quantity: 10,
-            reason: 'Vente client',
-            notes: 'Vente à un client - Facture F-2024-001',
-            date: '2024-01-16',
-            images: [],
-            reference: 'F-2024-001',
-            supplier: 'Client ABC'
-          },
-          {
-            id: 3,
-            productId: '2',
-            productName: 'Téléphone Samsung',
-            category: 'electronics',
-            type: 'in',
-            quantity: 20,
-            reason: 'Livraison fournisseur',
-            notes: 'Commande Samsung - Référence CMD-2024-002',
-            date: '2024-01-17',
-            images: [],
-            reference: 'CMD-2024-002',
-            supplier: 'Samsung'
-          },
-          {
-            id: 4,
-            productId: '2',
-            productName: 'Téléphone Samsung',
-            category: 'electronics',
-            type: 'out',
-            quantity: 5,
-            reason: 'Vente client',
-            notes: 'Vente en magasin - Facture F-2024-002',
-            date: '2024-01-18',
-            images: [],
-            reference: 'F-2024-002',
-            supplier: 'Client XYZ'
-          },
-          {
-            id: 5,
-            productId: '1',
-            productName: 'Ciment Portland',
-            category: 'construction',
-            type: 'out',
-            quantity: 2,
-            reason: 'Perte/Casse',
-            notes: 'Produit endommagé lors du transport',
-            date: '2024-01-19',
-            images: [],
-            reference: 'PER-2024-001',
-            supplier: 'Interne'
+        movementsData = JSON.parse(savedMovements);
+        
+        // Nettoyer les mouvements orphelins (sans produit correspondant)
+        const validProductIds = productsData.map(p => p._id);
+        movementsData = movementsData.filter(m => validProductIds.includes(m.productId));
+        
+        // Mettre à jour les noms des produits dans les mouvements
+        movementsData = movementsData.map(movement => {
+          const product = productsData.find(p => p._id === movement.productId);
+          if (product) {
+            return {
+              ...movement,
+              productName: product.name,
+              category: product.productType || 'construction'
+            };
           }
-        ];
-        setMovements(testMovements);
-        localStorage.setItem('stockMovements', JSON.stringify(testMovements));
-        // Mettre à jour automatiquement les stocks basés sur les mouvements
-        updateProductStocksFromMovements(testMovements);
+          return movement;
+        });
+        
+        // Sauvegarder les mouvements nettoyés
+        localStorage.setItem('stockMovements', JSON.stringify(movementsData));
+        
+      } else {
+        // Créer des mouvements initiaux pour les produits existants
+        if (productsData.length > 0) {
+          console.log('📦 Création de mouvements initiaux pour', productsData.length, 'produits');
+          movementsData = productsData.map(product => ({
+            _id: 'initial-' + product._id + '-' + Date.now(),
+            productId: product._id,
+            productName: product.name,
+            type: 'in',
+            quantity: product.stock || 0,
+            reason: 'Stock initial',
+            category: product.productType || 'construction',
+            notes: 'Mouvement initial créé automatiquement',
+            date: product.createdAt || new Date().toISOString(),
+            createdAt: new Date().toISOString()
+          }));
+          
+          localStorage.setItem('stockMovements', JSON.stringify(movementsData));
+          console.log('✅ Mouvements initiaux créés:', movementsData.length);
+        }
+      }
+      
+      setMovements(movementsData);
+      
+      // Mettre à jour automatiquement les stocks basés sur les mouvements
+      if (movementsData.length > 0) {
+        updateProductStocksFromMovements(movementsData);
       }
     } catch (error) {
       console.error('Erreur lors du chargement des données:', error);
@@ -214,7 +200,7 @@ const StockMovement = () => {
     });
 
     setProducts(updatedProducts);
-    localStorage.setItem('adminProducts', JSON.stringify(updatedProducts));
+    localStorage.setItem('koula_products', JSON.stringify(updatedProducts));
   };
 
   // Calculer les statistiques

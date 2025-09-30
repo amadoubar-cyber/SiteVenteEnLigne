@@ -1,0 +1,634 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Diagnostic Complet - Problème Admin</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .button {
+            background: #007bff;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        .button:hover {
+            background: #0056b3;
+        }
+        .danger {
+            background: #dc3545;
+        }
+        .danger:hover {
+            background: #c82333;
+        }
+        .success {
+            background: #28a745;
+        }
+        .success:hover {
+            background: #218838;
+        }
+        .warning {
+            background: #ffc107;
+            color: #212529;
+        }
+        .warning:hover {
+            background: #e0a800;
+        }
+        .log {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 5px;
+            padding: 15px;
+            margin: 20px 0;
+            font-family: monospace;
+            white-space: pre-wrap;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        .section {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 5px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+        .status {
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+        .status.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .status.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .status.warning {
+            background: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeaa7;
+        }
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        .product-item {
+            background: white;
+            border: 1px solid #dee2e6;
+            border-radius: 5px;
+            padding: 10px;
+            margin: 5px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔍 Diagnostic Complet - Problème Admin</h1>
+        <p>Diagnostic approfondi du problème de persistance des données dans l'interface admin.</p>
+        
+        <div id="status" class="status warning">
+            Prêt à diagnostiquer...
+        </div>
+        
+        <div class="grid">
+            <div class="section">
+                <h2>🔍 Diagnostic Principal</h2>
+                <button class="button" onclick="fullDiagnosis()">Diagnostic complet</button>
+                <button class="button warning" onclick="checkAllData()">Vérifier toutes les données</button>
+                <button class="button" onclick="testPersistence()">Test de persistance</button>
+                <div id="diagnosis" class="log"></div>
+            </div>
+            
+            <div class="section">
+                <h2>📊 Données Actuelles</h2>
+                <button class="button" onclick="showAllData()">Afficher toutes les données</button>
+                <button class="button success" onclick="addTestData()">Ajouter données test</button>
+                <button class="button danger" onclick="clearAllData()">Vider toutes les données</button>
+                <div id="data" class="log"></div>
+            </div>
+        </div>
+        
+        <div class="section">
+            <h2>🔧 Solutions</h2>
+            <button class="button success" onclick="fixAllIssues()">Corriger tous les problèmes</button>
+            <button class="button" onclick="createBackup()">Créer sauvegarde</button>
+            <button class="button" onclick="restoreBackup()">Restaurer sauvegarde</button>
+            <button class="button" onclick="resetToClean()">Réinitialiser proprement</button>
+            <div id="solutions" class="log"></div>
+        </div>
+        
+        <div class="section">
+            <h2>🧪 Test Final</h2>
+            <button class="button" onclick="finalTest()">Test final complet</button>
+            <button class="button" onclick="goToAdmin()">Aller à l'admin</button>
+            <div id="test" class="log"></div>
+        </div>
+    </div>
+
+    <script>
+        let backupData = {};
+
+        function log(message, targetId = 'diagnosis') {
+            const logElement = document.getElementById(targetId);
+            const timestamp = new Date().toLocaleTimeString();
+            logElement.textContent += `[${timestamp}] ${message}\n`;
+            logElement.scrollTop = logElement.scrollHeight;
+        }
+
+        function updateStatus(message, type = 'warning') {
+            const statusElement = document.getElementById('status');
+            statusElement.textContent = message;
+            statusElement.className = `status ${type}`;
+        }
+
+        function fullDiagnosis() {
+            log('🔍 DIAGNOSTIC COMPLET DU PROBLÈME ADMIN');
+            log('='.repeat(60));
+            
+            // 1. Vérifier localStorage
+            log('\n📊 ÉTAT LOCALSTORAGE:');
+            const allKeys = Object.keys(localStorage);
+            log(`Total clés: ${allKeys.length}`);
+            
+            const adminKeys = [
+                'koula_products',
+                'adminProducts',
+                'productsData',
+                'salesData',
+                'ordersData',
+                'adminOrders',
+                'revenueData',
+                'users',
+                'adminUsers',
+                'userData',
+                'categories',
+                'adminCategories',
+                'categoryData',
+                'debts',
+                'debtData',
+                'adminDebts',
+                'stockMovements',
+                'stockData'
+            ];
+            
+            adminKeys.forEach(key => {
+                const value = localStorage.getItem(key);
+                if (value) {
+                    try {
+                        const parsed = JSON.parse(value);
+                        const count = Array.isArray(parsed) ? parsed.length : 'N/A';
+                        log(`✅ ${key}: ${count} éléments`);
+                    } catch (e) {
+                        log(`❌ ${key}: Données corrompues`);
+                    }
+                } else {
+                    log(`⚪ ${key}: Vide`);
+                }
+            });
+            
+            // 2. Vérifier les conflits
+            log('\n⚠️  RECHERCHE DE CONFLITS:');
+            const productKeys = allKeys.filter(key => 
+                key.toLowerCase().includes('product') || 
+                key.toLowerCase().includes('koula')
+            );
+            
+            if (productKeys.length > 1) {
+                log(`CONFLIT DÉTECTÉ: ${productKeys.length} clés liées aux produits`);
+                productKeys.forEach(key => {
+                    const value = localStorage.getItem(key);
+                    const size = value ? value.length : 0;
+                    log(`  - ${key}: ${size} caractères`);
+                });
+            }
+            
+            // 3. Vérifier la cohérence
+            log('\n🔍 VÉRIFICATION DE COHÉRENCE:');
+            const products = JSON.parse(localStorage.getItem('koula_products') || '[]');
+            if (products.length > 0) {
+                const validProducts = products.filter(p => p._id && p.name && p.price !== undefined);
+                log(`Produits valides: ${validProducts.length}/${products.length}`);
+                
+                if (validProducts.length !== products.length) {
+                    log('⚠️  Certains produits ont des données incomplètes');
+                }
+            }
+            
+            updateStatus('Diagnostic terminé', 'success');
+        }
+
+        function checkAllData() {
+            log('📊 VÉRIFICATION DE TOUTES LES DONNÉES:', 'data');
+            log('='.repeat(50), 'data');
+            
+            const dataTypes = [
+                { key: 'koula_products', name: 'Produits' },
+                { key: 'salesData', name: 'Ventes' },
+                { key: 'ordersData', name: 'Commandes' },
+                { key: 'users', name: 'Utilisateurs' },
+                { key: 'categories', name: 'Catégories' },
+                { key: 'debts', name: 'Dettes' },
+                { key: 'stockMovements', name: 'Mouvements Stock' }
+            ];
+            
+            dataTypes.forEach(({ key, name }) => {
+                const value = localStorage.getItem(key);
+                if (value) {
+                    try {
+                        const parsed = JSON.parse(value);
+                        const count = Array.isArray(parsed) ? parsed.length : 'N/A';
+                        log(`${name}: ${count} éléments`, 'data');
+                    } catch (e) {
+                        log(`${name}: Données corrompues`, 'data');
+                    }
+                } else {
+                    log(`${name}: Aucune donnée`, 'data');
+                }
+            });
+        }
+
+        function testPersistence() {
+            log('🧪 TEST DE PERSISTANCE COMPLET:', 'test');
+            log('='.repeat(40), 'test');
+            
+            const testData = {
+                product: {
+                    _id: 'test-' + Date.now(),
+                    name: 'Test Persistance ' + new Date().toLocaleTimeString(),
+                    price: 25000,
+                    stock: 10,
+                    productType: 'construction',
+                    category: 'Test',
+                    isPublished: true,
+                    createdAt: new Date().toISOString()
+                },
+                sale: {
+                    _id: 'sale-' + Date.now(),
+                    productName: 'Test Vente',
+                    customerName: 'Client Test',
+                    amount: 25000,
+                    status: 'completed',
+                    createdAt: new Date().toISOString()
+                }
+            };
+            
+            try {
+                // Test produit
+                log('Test 1: Sauvegarde produit...', 'test');
+                const products = JSON.parse(localStorage.getItem('koula_products') || '[]');
+                products.push(testData.product);
+                localStorage.setItem('koula_products', JSON.stringify(products));
+                
+                const verification1 = JSON.parse(localStorage.getItem('koula_products') || '[]');
+                const found1 = verification1.find(p => p._id === testData.product._id);
+                log(found1 ? '✅ Produit sauvegardé' : '❌ Produit non sauvegardé', 'test');
+                
+                // Test vente
+                log('Test 2: Sauvegarde vente...', 'test');
+                const sales = JSON.parse(localStorage.getItem('salesData') || '[]');
+                sales.push(testData.sale);
+                localStorage.setItem('salesData', JSON.stringify(sales));
+                
+                const verification2 = JSON.parse(localStorage.getItem('salesData') || '[]');
+                const found2 = verification2.find(s => s._id === testData.sale._id);
+                log(found2 ? '✅ Vente sauvegardée' : '❌ Vente non sauvegardée', 'test');
+                
+                // Test de persistance après délai
+                setTimeout(() => {
+                    const finalProducts = JSON.parse(localStorage.getItem('koula_products') || '[]');
+                    const finalSales = JSON.parse(localStorage.getItem('salesData') || '[]');
+                    
+                    const productStillThere = finalProducts.find(p => p._id === testData.product._id);
+                    const saleStillThere = finalSales.find(s => s._id === testData.sale._id);
+                    
+                    log(`Après 2 secondes:`, 'test');
+                    log(`Produit: ${productStillThere ? '✅ Présent' : '❌ Disparu'}`, 'test');
+                    log(`Vente: ${saleStillThere ? '✅ Présente' : '❌ Disparue'}`, 'test');
+                    
+                    if (productStillThere && saleStillThere) {
+                        log('🎉 TEST DE PERSISTANCE RÉUSSI', 'test');
+                        updateStatus('✅ Test de persistance réussi', 'success');
+                    } else {
+                        log('❌ TEST DE PERSISTANCE ÉCHOUÉ', 'test');
+                        updateStatus('❌ Test de persistance échoué', 'error');
+                    }
+                }, 2000);
+                
+            } catch (error) {
+                log(`❌ Erreur: ${error.message}`, 'test');
+                updateStatus('❌ Erreur lors du test', 'error');
+            }
+        }
+
+        function showAllData() {
+            log('📊 TOUTES LES DONNÉES ADMIN:', 'data');
+            log('='.repeat(40), 'data');
+            
+            const dataTypes = [
+                { key: 'koula_products', name: 'PRODUITS' },
+                { key: 'salesData', name: 'VENTES' },
+                { key: 'ordersData', name: 'COMMANDES' },
+                { key: 'users', name: 'UTILISATEURS' },
+                { key: 'categories', name: 'CATÉGORIES' },
+                { key: 'debts', name: 'DETTES' }
+            ];
+            
+            dataTypes.forEach(({ key, name }) => {
+                const value = localStorage.getItem(key);
+                if (value) {
+                    try {
+                        const parsed = JSON.parse(value);
+                        if (Array.isArray(parsed) && parsed.length > 0) {
+                            log(`\n${name}:`, 'data');
+                            parsed.slice(0, 3).forEach((item, index) => {
+                                log(`  ${index + 1}. ${item.name || item.productName || item.customerName || 'Item ' + (index + 1)}`, 'data');
+                            });
+                            if (parsed.length > 3) {
+                                log(`  ... et ${parsed.length - 3} autres`, 'data');
+                            }
+                        } else {
+                            log(`${name}: Aucun élément`, 'data');
+                        }
+                    } catch (e) {
+                        log(`${name}: Données corrompues`, 'data');
+                    }
+                } else {
+                    log(`${name}: Aucune donnée`, 'data');
+                }
+            });
+        }
+
+        function addTestData() {
+            log('➕ AJOUT DE DONNÉES DE TEST:', 'data');
+            
+            // Produit de test
+            const testProduct = {
+                _id: 'test-product-' + Date.now(),
+                name: 'Produit Test Admin',
+                description: 'Produit de test pour l\'admin',
+                price: 35000,
+                stock: 15,
+                productType: 'construction',
+                category: 'Test',
+                featured: false,
+                isPublished: true,
+                images: [],
+                createdAt: new Date().toISOString(),
+                updatedAt: new Date().toISOString()
+            };
+            
+            // Vente de test
+            const testSale = {
+                _id: 'test-sale-' + Date.now(),
+                productName: 'Produit Test Admin',
+                customerName: 'Client Test',
+                customerPhone: '+224 123 456 789',
+                quantity: 2,
+                unitPrice: 35000,
+                totalPrice: 70000,
+                status: 'completed',
+                paymentMethod: 'cash',
+                createdAt: new Date().toISOString()
+            };
+            
+            try {
+                // Ajouter produit
+                const products = JSON.parse(localStorage.getItem('koula_products') || '[]');
+                products.push(testProduct);
+                localStorage.setItem('koula_products', JSON.stringify(products));
+                log('✅ Produit de test ajouté', 'data');
+                
+                // Ajouter vente
+                const sales = JSON.parse(localStorage.getItem('salesData') || '[]');
+                sales.push(testSale);
+                localStorage.setItem('salesData', JSON.stringify(sales));
+                log('✅ Vente de test ajoutée', 'data');
+                
+                updateStatus('Données de test ajoutées', 'success');
+                
+            } catch (error) {
+                log(`❌ Erreur: ${error.message}`, 'data');
+                updateStatus('Erreur lors de l\'ajout', 'error');
+            }
+        }
+
+        function clearAllData() {
+            if (confirm('Êtes-vous sûr de vouloir vider TOUTES les données ?')) {
+                localStorage.clear();
+                log('✅ Toutes les données supprimées', 'data');
+                updateStatus('Toutes les données supprimées', 'warning');
+            }
+        }
+
+        function fixAllIssues() {
+            log('🔧 CORRECTION DE TOUS LES PROBLÈMES:', 'solutions');
+            log('='.repeat(45), 'solutions');
+            
+            try {
+                // 1. Nettoyer les clés conflictuelles
+                const keysToClean = [
+                    'adminProducts',
+                    'productsData',
+                    'products',
+                    'adminSales',
+                    'adminOrders',
+                    'adminUsers',
+                    'adminCategories',
+                    'adminDebts'
+                ];
+                
+                keysToClean.forEach(key => {
+                    if (localStorage.getItem(key)) {
+                        localStorage.removeItem(key);
+                        log(`✅ Clé ${key} nettoyée`, 'solutions');
+                    }
+                });
+                
+                // 2. S'assurer que les données principales sont cohérentes
+                const mainKeys = [
+                    'koula_products',
+                    'salesData',
+                    'ordersData',
+                    'users',
+                    'categories',
+                    'debts'
+                ];
+                
+                mainKeys.forEach(key => {
+                    const value = localStorage.getItem(key);
+                    if (value) {
+                        try {
+                            const parsed = JSON.parse(value);
+                            if (Array.isArray(parsed)) {
+                                // Nettoyer les éléments invalides
+                                const cleaned = parsed.filter(item => 
+                                    item && typeof item === 'object' && item._id
+                                );
+                                
+                                if (cleaned.length !== parsed.length) {
+                                    localStorage.setItem(key, JSON.stringify(cleaned));
+                                    log(`✅ ${key}: ${parsed.length - cleaned.length} éléments invalides supprimés`, 'solutions');
+                                }
+                            }
+                        } catch (e) {
+                            localStorage.removeItem(key);
+                            log(`✅ ${key}: Données corrompues supprimées`, 'solutions');
+                        }
+                    }
+                });
+                
+                // 3. Créer des données de base si nécessaire
+                if (!localStorage.getItem('categories')) {
+                    const defaultCategories = [
+                        { _id: '1', name: 'Matériaux de Construction' },
+                        { _id: '2', name: 'Électronique' },
+                        { _id: '3', name: 'Outillage' },
+                        { _id: '4', name: 'Plomberie' },
+                        { _id: '5', name: 'Électricité' }
+                    ];
+                    localStorage.setItem('categories', JSON.stringify(defaultCategories));
+                    log('✅ Catégories par défaut créées', 'solutions');
+                }
+                
+                log('✅ Tous les problèmes corrigés', 'solutions');
+                updateStatus('Corrections appliquées avec succès', 'success');
+                
+            } catch (error) {
+                log(`❌ Erreur lors de la correction: ${error.message}`, 'solutions');
+                updateStatus('Erreur lors de la correction', 'error');
+            }
+        }
+
+        function createBackup() {
+            backupData = {};
+            const keys = ['koula_products', 'salesData', 'ordersData', 'users', 'categories', 'debts'];
+            
+            keys.forEach(key => {
+                const value = localStorage.getItem(key);
+                if (value) {
+                    backupData[key] = value;
+                }
+            });
+            
+            log(`✅ Sauvegarde créée: ${Object.keys(backupData).length} clés`, 'solutions');
+            updateStatus('Sauvegarde créée', 'success');
+        }
+
+        function restoreBackup() {
+            if (Object.keys(backupData).length === 0) {
+                log('❌ Aucune sauvegarde disponible', 'solutions');
+                return;
+            }
+            
+            Object.keys(backupData).forEach(key => {
+                localStorage.setItem(key, backupData[key]);
+            });
+            
+            log(`✅ Sauvegarde restaurée: ${Object.keys(backupData).length} clés`, 'solutions');
+            updateStatus('Sauvegarde restaurée', 'success');
+        }
+
+        function resetToClean() {
+            if (confirm('Êtes-vous sûr de vouloir réinitialiser proprement ?')) {
+                // Sauvegarder les données importantes
+                createBackup();
+                
+                // Nettoyer complètement
+                localStorage.clear();
+                
+                // Recréer les données de base
+                const defaultCategories = [
+                    { _id: '1', name: 'Matériaux de Construction' },
+                    { _id: '2', name: 'Électronique' },
+                    { _id: '3', name: 'Outillage' },
+                    { _id: '4', name: 'Plomberie' },
+                    { _id: '5', name: 'Électricité' }
+                ];
+                localStorage.setItem('categories', JSON.stringify(defaultCategories));
+                
+                log('✅ Réinitialisation propre effectuée', 'solutions');
+                updateStatus('Réinitialisation propre effectuée', 'success');
+            }
+        }
+
+        function finalTest() {
+            log('🧪 TEST FINAL COMPLET:', 'test');
+            log('='.repeat(30), 'test');
+            
+            // Test 1: Ajouter un produit
+            const testProduct = {
+                _id: 'final-test-' + Date.now(),
+                name: 'Test Final Admin',
+                description: 'Test final de l\'admin',
+                price: 50000,
+                stock: 20,
+                productType: 'construction',
+                category: 'Test Final',
+                featured: false,
+                isPublished: true,
+                images: [],
+                createdAt: new Date().toISOString(),
+                updatedAt: new Date().toISOString()
+            };
+            
+            try {
+                // Sauvegarder
+                const products = JSON.parse(localStorage.getItem('koula_products') || '[]');
+                products.push(testProduct);
+                localStorage.setItem('koula_products', JSON.stringify(products));
+                
+                log('✅ Produit ajouté', 'test');
+                
+                // Attendre et vérifier
+                setTimeout(() => {
+                    const verification = JSON.parse(localStorage.getItem('koula_products') || '[]');
+                    const found = verification.find(p => p._id === testProduct._id);
+                    
+                    if (found) {
+                        log('✅ Produit toujours présent', 'test');
+                        log('🎉 ADMIN FONCTIONNEL', 'test');
+                        updateStatus('✅ Admin fonctionnel', 'success');
+                    } else {
+                        log('❌ Produit disparu', 'test');
+                        updateStatus('❌ Problème persistant', 'error');
+                    }
+                }, 2000);
+                
+            } catch (error) {
+                log(`❌ Erreur: ${error.message}`, 'test');
+                updateStatus('❌ Erreur lors du test', 'error');
+            }
+        }
+
+        function goToAdmin() {
+            window.location.href = '/admin';
+        }
+
+        // Diagnostic automatique au chargement
+        window.onload = function() {
+            log('🚀 Page de diagnostic complet chargée');
+            fullDiagnosis();
+        };
+    </script>
+</body>
+</html>

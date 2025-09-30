@@ -76,10 +76,10 @@ export const localOrdersAPI = {
       paymentMethod: orderData.paymentMethod,
       notes: orderData.notes || '',
       subtotal: orderData.subtotal || 0,
-      shippingCost: orderData.shippingCost || 5000,
+      shippingCost: 0, // Livraison gratuite
       tax: orderData.tax || 0,
       total: orderData.total || 0,
-      orderStatus: 'pending',
+      orderStatus: 'pending_approval', // Nouvelle commande en attente d'approbation
       trackingNumber: generateTrackingNumber(),
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString()
@@ -90,6 +90,17 @@ export const localOrdersAPI = {
     saveOrders(orders);
     
     console.log('📦 Commande créée localement:', newOrder._id);
+    
+    // Déclencher une notification pour l'admin
+    try {
+      // Créer un événement personnalisé pour notifier l'admin
+      const notificationEvent = new CustomEvent('newOrderCreated', {
+        detail: { order: newOrder }
+      });
+      window.dispatchEvent(notificationEvent);
+    } catch (error) {
+      console.log('Notification non disponible:', error.message);
+    }
     
     return {
       success: true,
@@ -218,6 +229,131 @@ export const localOrdersAPI = {
     };
   },
 
+  // Approuver une commande
+  approveOrder: async (orderId, adminNotes = '') => {
+    await delay(300);
+    
+    const orders = loadOrders();
+    const orderIndex = orders.findIndex(o => o._id === orderId);
+    
+    if (orderIndex === -1) {
+      throw new Error('Commande non trouvée');
+    }
+    
+    const order = orders[orderIndex];
+    if (order.orderStatus !== 'pending_approval') {
+      throw new Error('Cette commande ne peut pas être approuvée');
+    }
+    
+    // Approuver la commande
+    orders[orderIndex] = {
+      ...order,
+      orderStatus: 'approved',
+      adminNotes: adminNotes,
+      approvedAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString()
+    };
+    
+    saveOrders(orders);
+    
+    // Déclencher une notification
+    try {
+      const notificationEvent = new CustomEvent('orderApproved', {
+        detail: { order: orders[orderIndex] }
+      });
+      window.dispatchEvent(notificationEvent);
+    } catch (error) {
+      console.log('Notification non disponible:', error.message);
+    }
+    
+    return {
+      success: true,
+      data: {
+        order: orders[orderIndex]
+      }
+    };
+  },
+
+  // Rejeter une commande
+  rejectOrder: async (orderId, rejectionReason = '') => {
+    await delay(300);
+    
+    const orders = loadOrders();
+    const orderIndex = orders.findIndex(o => o._id === orderId);
+    
+    if (orderIndex === -1) {
+      throw new Error('Commande non trouvée');
+    }
+    
+    const order = orders[orderIndex];
+    if (order.orderStatus !== 'pending_approval') {
+      throw new Error('Cette commande ne peut pas être rejetée');
+    }
+    
+    // Rejeter la commande
+    orders[orderIndex] = {
+      ...order,
+      orderStatus: 'rejected',
+      rejectionReason: rejectionReason,
+      rejectedAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString()
+    };
+    
+    saveOrders(orders);
+    
+    // Déclencher une notification
+    try {
+      const notificationEvent = new CustomEvent('orderRejected', {
+        detail: { order: orders[orderIndex] }
+      });
+      window.dispatchEvent(notificationEvent);
+    } catch (error) {
+      console.log('Notification non disponible:', error.message);
+    }
+    
+    return {
+      success: true,
+      data: {
+        order: orders[orderIndex]
+      }
+    };
+  },
+
+  // Obtenir les commandes en attente d'approbation
+  getPendingApprovalOrders: async () => {
+    await delay(200);
+    
+    const orders = loadOrders();
+    const pendingOrders = orders.filter(o => o.orderStatus === 'pending_approval');
+    
+    // Trier par date de création (plus récent en premier)
+    pendingOrders.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+    
+    return {
+      success: true,
+      data: {
+        orders: pendingOrders
+      }
+    };
+  },
+
+  // Obtenir toutes les commandes (historique complet)
+  getAllOrders: async () => {
+    await delay(200);
+    
+    const orders = loadOrders();
+    
+    // Trier par date de création (plus récent en premier)
+    orders.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+    
+    return {
+      success: true,
+      data: {
+        orders: orders
+      }
+    };
+  },
+
   // Obtenir les statistiques des commandes
   getOrderStats: async () => {
     await delay(200);
@@ -226,6 +362,9 @@ export const localOrdersAPI = {
     
     const stats = {
       totalOrders: orders.length,
+      pendingApprovalOrders: orders.filter(o => o.orderStatus === 'pending_approval').length,
+      approvedOrders: orders.filter(o => o.orderStatus === 'approved').length,
+      rejectedOrders: orders.filter(o => o.orderStatus === 'rejected').length,
       pendingOrders: orders.filter(o => o.orderStatus === 'pending').length,
       confirmedOrders: orders.filter(o => o.orderStatus === 'confirmed').length,
       processingOrders: orders.filter(o => o.orderStatus === 'processing').length,

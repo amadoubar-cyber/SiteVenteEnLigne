@@ -59,63 +59,15 @@ const AdminProductsReal = () => {
     try {
       setLoading(true);
       
-      // Données de test avec images qui fonctionnent
-      const testProducts = [
-        {
-          _id: '1',
-          name: 'Ciment Portland',
-          description: 'Ciment de haute qualité pour construction',
-          price: 15000,
-          category: 'Matériaux de Construction',
-          productType: 'Matériau',
-          stock: 100,
-          brand: 'Lafarge',
-          images: [{ url: '/test-image-1.jpg' }],
-          isPublished: true,
-          isFeatured: true,
-          createdAt: new Date().toISOString()
-        },
-        {
-          _id: '2',
-          name: 'Téléphone Samsung',
-          description: 'Smartphone Android dernière génération',
-          price: 250000,
-          category: 'Électronique',
-          productType: 'Électronique',
-          stock: 50,
-          brand: 'Samsung',
-          images: [{ url: '/test-image-2.jpg' }],
-          isPublished: true,
-          isFeatured: false,
-          createdAt: new Date().toISOString()
-        },
-        {
-          _id: '3',
-          name: 'Ordinateur Portable',
-          description: 'Laptop haute performance pour professionnels',
-          price: 450000,
-          category: 'Électronique',
-          productType: 'Informatique',
-          stock: 25,
-          brand: 'Dell',
-          images: [{ url: '/test-image-1.jpg' }, { url: '/test-image-2.jpg' }],
-          isPublished: false,
-          isFeatured: false,
-          createdAt: new Date().toISOString()
-        }
-      ];
-      
-      // Charger les produits depuis localStorage
-      const savedProducts = localStorage.getItem('adminProducts');
+      // Charger les produits depuis localStorage uniquement
+      const savedProducts = localStorage.getItem('koula_products');
       
       if (savedProducts) {
-        // Si des produits existent, les charger
         const products = JSON.parse(savedProducts);
         setProducts(products);
       } else {
-        // Si aucun produit n'existe, initialiser avec des données de test
-        setProducts(testProducts);
-        localStorage.setItem('adminProducts', JSON.stringify(testProducts));
+        // Aucun produit - interface vide
+        setProducts([]);
       }
       
     } catch (error) {
@@ -179,7 +131,7 @@ const AdminProductsReal = () => {
       }
       
       setProducts(updatedProducts);
-      localStorage.setItem('adminProducts', JSON.stringify(updatedProducts));
+      localStorage.setItem('koula_products', JSON.stringify(updatedProducts));
 
       // Fermer le modal et vider les champs immédiatement
       closeModal();
@@ -219,7 +171,7 @@ const AdminProductsReal = () => {
       setProducts(updatedProducts);
       
       // Sauvegarder dans localStorage
-      localStorage.setItem('adminProducts', JSON.stringify(updatedProducts));
+      localStorage.setItem('koula_products', JSON.stringify(updatedProducts));
       
       // Message de confirmation
       showConfirmation({
@@ -290,7 +242,7 @@ const AdminProductsReal = () => {
     });
     
     setProducts(updatedProducts);
-    localStorage.setItem('adminProducts', JSON.stringify(updatedProducts));
+    localStorage.setItem('koula_products', JSON.stringify(updatedProducts));
     
     const product = products.find(p => p._id === productId);
     showConfirmation({

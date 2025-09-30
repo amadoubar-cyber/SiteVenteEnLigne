@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Correction Commande Actuelle</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        .success {
+            background: #d4edda;
+            color: #155724;
+            padding: 15px;
+            border-radius: 4px;
+            margin: 10px 0;
+        }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+            font-size: 14px;
+            width: 100%;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+        .success-btn {
+            background: #28a745;
+        }
+        .success-btn:hover {
+            background: #218838;
+        }
+        .order-details {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 4px;
+            margin: 15px 0;
+            border-left: 4px solid #007bff;
+        }
+        .order-details h4 {
+            margin: 0 0 10px 0;
+            color: #333;
+        }
+        .order-details p {
+            margin: 5px 0;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔧 Correction de la Commande Actuelle</h1>
+        <p>Ce script corrige spécifiquement la commande avec les frais de livraison de 5000 FG.</p>
+        
+        <div class="order-details">
+            <h4>📋 Détails de la Commande</h4>
+            <p><strong>Date :</strong> 21 septembre 2025 à 23:31</p>
+            <p><strong>Statut :</strong> En attente de validation</p>
+            <p><strong>Produit :</strong> 1 unité à 700 000 GNF</p>
+            <p><strong>Frais de livraison :</strong> 5 000 GNF (à supprimer)</p>
+            <p><strong>Total actuel :</strong> 705 000 GNF</p>
+            <p><strong>Nouveau total :</strong> 700 000 GNF</p>
+        </div>
+
+        <button onclick="fixCurrentOrder()" class="success-btn">
+            🚚 Supprimer les Frais de Livraison (5 000 FG)
+        </button>
+
+        <div id="result"></div>
+    </div>
+
+    <script>
+        function fixCurrentOrder() {
+            try {
+                // Récupérer toutes les commandes
+                const ordersData = localStorage.getItem('clientOrders');
+                const orders = ordersData ? JSON.parse(ordersData) : [];
+                
+                if (orders.length === 0) {
+                    showResult('❌ Aucune commande trouvée.', 'error');
+                    return;
+                }
+                
+                // Trouver la commande du 21 septembre 2025 à 23:31
+                // ou la commande la plus récente avec des frais de livraison
+                let targetOrder = null;
+                
+                // Chercher par date spécifique d'abord
+                targetOrder = orders.find(order => {
+                    const orderDate = new Date(order.createdAt);
+                    return orderDate.toLocaleDateString('fr-FR') === '21/09/2025' && 
+                           order.shippingCost > 0;
+                });
+                
+                // Si pas trouvée, prendre la plus récente avec frais
+                if (!targetOrder) {
+                    targetOrder = orders.find(order => order.shippingCost > 0);
+                }
+                
+                if (!targetOrder) {
+                    showResult('❌ Aucune commande avec frais de livraison trouvée.', 'error');
+                    return;
+                }
+                
+                // Sauvegarder les anciens montants
+                const oldShippingCost = targetOrder.shippingCost || 0;
+                const oldTotal = targetOrder.total || 0;
+                
+                // Corriger la commande
+                targetOrder.shippingCost = 0;
+                targetOrder.total = oldTotal - oldShippingCost;
+                targetOrder.updatedAt = new Date().toISOString();
+                
+                // Sauvegarder
+                localStorage.setItem('clientOrders', JSON.stringify(orders));
+                
+                // Afficher le résultat
+                const message = `
+                    ✅ Commande corrigée avec succès !<br><br>
+                    <strong>Commande #${targetOrder.trackingNumber || targetOrder._id}</strong><br>
+                    <strong>Frais supprimés :</strong> ${oldShippingCost.toLocaleString()} FG<br>
+                    <strong>Ancien total :</strong> ${oldTotal.toLocaleString()} FG<br>
+                    <strong>Nouveau total :</strong> ${targetOrder.total.toLocaleString()} FG<br>
+                    <strong>Économie :</strong> ${oldShippingCost.toLocaleString()} FG
+                `;
+                
+                showResult(message, 'success');
+                
+                console.log('✅ Commande corrigée:', {
+                    orderId: targetOrder._id,
+                    trackingNumber: targetOrder.trackingNumber,
+                    oldShippingCost,
+                    newShippingCost: targetOrder.shippingCost,
+                    oldTotal,
+                    newTotal: targetOrder.total
+                });
+                
+            } catch (error) {
+                console.error('Erreur lors de la correction:', error);
+                showResult('❌ Erreur lors de la correction: ' + error.message, 'error');
+            }
+        }
+        
+        function showResult(message, type) {
+            const resultDiv = document.getElementById('result');
+            const className = type === 'success' ? 'success' : 'error';
+            resultDiv.innerHTML = `<div class="${className}">${message}</div>`;
+        }
+    </script>
+</body>
+</html>

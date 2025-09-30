@@ -17,6 +17,11 @@ const productSchema = new mongoose.Schema({
     required: [true, 'Le prix est requis'],
     min: [0, 'Le prix ne peut pas être négatif']
   },
+  purchasePrice: {
+    type: Number,
+    required: [true, 'Le prix d\'achat est requis'],
+    min: [0, 'Le prix d\'achat ne peut pas être négatif']
+  },
   originalPrice: {
     type: Number,
     min: [0, 'Le prix original ne peut pas être négatif']
@@ -165,6 +170,22 @@ productSchema.virtual('discountPercentage').get(function() {
 // Méthode pour vérifier si le produit est en stock
 productSchema.virtual('inStock').get(function() {
   return this.stock > 0;
+});
+
+// Méthode pour calculer la marge bénéficiaire
+productSchema.virtual('profitMargin').get(function() {
+  if (this.purchasePrice && this.price) {
+    return Math.round(((this.price - this.purchasePrice) / this.purchasePrice) * 100 * 10) / 10;
+  }
+  return 0;
+});
+
+// Méthode pour calculer le profit unitaire
+productSchema.virtual('unitProfit').get(function() {
+  if (this.purchasePrice && this.price) {
+    return this.price - this.purchasePrice;
+  }
+  return 0;
 });
 
 // Méthode pour mettre à jour la note moyenne
