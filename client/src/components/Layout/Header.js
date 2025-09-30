@@ -38,8 +38,8 @@ const Header = () => {
             <div className="w-8 h-8 bg-white rounded flex items-center justify-center">
               <span className="text-primary-500 font-bold text-lg">B</span>
             </div>
-            <span className="text-2xl font-bold font-heading hidden sm:block">Bowoye Multi Services</span>
-            <span className="text-2xl font-bold font-heading sm:hidden">BMS</span>
+            <span className="text-lg font-bold font-heading hidden sm:block">Bowoye Multi Services</span>
+            <span className="text-lg font-bold font-heading sm:hidden">BMS</span>
           </Link>
 
           {/* Search Bar - Desktop */}
@@ -51,7 +51,7 @@ const Header = () => {
                   placeholder="Rechercher..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="flex-1 h-11 px-4 py-2 border-0 rounded-l-md focus:outline-none focus:ring-2 focus:ring-secondary-500 text-gray-900 text-lg"
+                  className="flex-1 h-10 px-4 py-2 border-0 rounded-l-md focus:outline-none focus:ring-2 focus:ring-secondary-500 text-gray-900 text-sm"
                 />
                 <button
                   type="submit"
@@ -67,15 +67,15 @@ const Header = () => {
           <div className="hidden md:flex items-center space-x-3">
             {/* Categories - Compact */}
             <div className="flex items-center space-x-3">
-              <Link to="/construction" className="flex items-center space-x-1 text-white hover:text-gray-200 transition-colors text-base font-medium">
-                <Truck className="h-5 w-5" />
+              <Link to="/construction" className="flex items-center space-x-1 text-white hover:text-gray-200 transition-colors text-sm font-medium">
+                <Truck className="h-4 w-4" />
                 <span className="hidden lg:inline">Construction</span>
               </Link>
-              <Link to="/electronics" className="flex items-center space-x-1 text-white hover:text-gray-200 transition-colors text-base font-medium">
-                <Zap className="h-5 w-5" />
+              <Link to="/electronics" className="flex items-center space-x-1 text-white hover:text-gray-200 transition-colors text-sm font-medium">
+                <Zap className="h-4 w-4" />
                 <span className="hidden lg:inline">Électronique</span>
               </Link>
-              <Link to="/products" className="text-white hover:text-gray-200 transition-colors text-base font-medium">
+              <Link to="/products" className="text-white hover:text-gray-200 transition-colors text-sm font-medium">
                 <span className="hidden lg:inline">Tous les produits</span>
                 <span className="lg:hidden">Produits</span>
               </Link>
@@ -86,8 +86,8 @@ const Header = () => {
               onClick={openCart}
               className="relative flex items-center space-x-1 text-white hover:text-gray-200 transition-colors"
             >
-              <ShoppingCart className="h-6 w-6" />
-              <span className="text-base font-medium hidden lg:inline">Panier</span>
+              <ShoppingCart className="h-5 w-5" />
+              <span className="text-sm font-medium hidden lg:inline">Panier</span>
               {cartItemCount > 0 && (
                 <span className="absolute -top-1 -right-1 bg-secondary-500 text-white text-xs rounded-full h-4 w-4 flex items-center justify-center font-bold">
                   {cartItemCount}
@@ -102,8 +102,8 @@ const Header = () => {
                   onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
                   className="flex items-center space-x-1 text-white hover:text-gray-200 transition-colors"
                 >
-                  <User className="h-6 w-6" />
-                  <span className="text-base font-medium hidden lg:inline">{user?.firstName}</span>
+                  <User className="h-5 w-5" />
+                  <span className="text-sm font-medium hidden lg:inline">{user?.firstName}</span>
                   {user?.role === 'admin' && (
                     <span className="bg-yellow-500 text-yellow-900 text-xs px-1 py-0.5 rounded-full font-bold">
                       ADMIN
