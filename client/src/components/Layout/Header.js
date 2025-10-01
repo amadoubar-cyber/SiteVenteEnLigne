@@ -151,13 +151,13 @@ const Header = () => {
               <div className="flex items-center space-x-3">
                 <Link
                   to="/login"
-                  className="text-white hover:text-gray-200 transition-colors text-base font-medium"
+                  className="text-white hover:text-gray-200 transition-colors text-sm font-medium"
                 >
                   Connexion
                 </Link>
                 <Link
                   to="/register"
-                  className="bg-white text-primary-500 hover:bg-gray-100 px-4 py-2 rounded-md text-base font-medium transition-colors"
+                  className="bg-white text-primary-500 hover:bg-gray-100 px-3 py-1.5 rounded-md text-sm font-medium transition-colors"
                 >
                   S'inscrire
                 </Link>
