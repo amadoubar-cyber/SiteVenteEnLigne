@@ -6,7 +6,6 @@ import { localProductsAPI } from '../services/localProductsAPI';
 import { useCart } from '../contexts/CartContext';
 import { Star, ShoppingCart, ArrowRight, Truck, Shield, Headphones, Zap, Calculator, BarChart3, ChevronLeft, ChevronRight } from 'lucide-react';
 import { getProductImage, getPlaceholderImage } from '../utils/imageUtils';
-import LogoText from '../components/LogoText';
 import '../styles/carousel.css';
 
 const Home = () => {
@@ -236,9 +235,6 @@ const Home = () => {
         {/* Contenu par-dessus le carrousel */}
         <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
           <div className="text-center mb-12">
-            <div className="flex justify-center mb-6">
-              <LogoText size="xlarge" className="text-white" />
-            </div>
             <h1 className="text-4xl md:text-6xl font-bold mb-6 drop-shadow-lg carousel-title text-white">
               BOWOYE MULTI SERVICES
             </h1>
