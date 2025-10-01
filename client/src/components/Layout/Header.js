@@ -71,10 +71,6 @@ const Header = () => {
                 <Truck className="h-4 w-4" />
                 <span className="hidden lg:inline">Construction</span>
               </Link>
-              <Link to="/electronics" className="flex items-center space-x-1 text-white hover:text-gray-200 transition-colors text-sm font-medium">
-                <Zap className="h-4 w-4" />
-                <span className="hidden lg:inline">Électronique</span>
-              </Link>
               <Link to="/products" className="text-white hover:text-gray-200 transition-colors text-sm font-medium">
                 <span className="hidden lg:inline">Tous les produits</span>
                 <span className="lg:hidden">Produits</span>

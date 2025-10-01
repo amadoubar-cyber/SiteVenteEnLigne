@@ -288,42 +288,9 @@ const Login = () => {
             </div>
           </form>
 
-          {/* Liens et informations */}
-          <div className="mt-8 space-y-6">
-            {/* Comptes de test */}
-            <div className="p-4 rounded-lg border bg-blue-50 border-blue-200">
-              <h4 className="text-sm font-medium mb-3 flex items-center text-blue-900">
-                <User className="h-4 w-4 mr-2" />
-                Comptes de test disponibles :
-              </h4>
-              <div className="text-xs space-y-2 text-blue-700">
-                <div className="flex justify-between">
-                  <span><strong>Client :</strong></span>
-                  <span>client@bowoye.gn / password123</span>
-                </div>
-                <div className="flex justify-between">
-                  <span><strong>Client 2 :</strong></span>
-                  <span>mamadou@bowoye.gn / password123</span>
-                </div>
-                <div className="flex justify-between">
-                  <span><strong>Admin :</strong></span>
-                  <span>admin@koula.gn / admin123</span>
-                </div>
-                <div className="flex justify-between">
-                  <span><strong>Super Admin :</strong></span>
-                  <span>superadmin@koula.gn / superadmin123</span>
-              </div>
-              </div>
-            </div>
-            
-            {/* Liens utiles */}
-            <div className="text-center space-y-2">
-              <Link
-                to="/test-accounts"
-                className="text-sm text-gray-500 hover:text-gray-700 underline block"
-              >
-                Voir tous les comptes de test
-              </Link>
+          {/* Liens utiles */}
+          <div className="mt-8">
+            <div className="text-center">
               <Link
                 to="/"
                 className="text-sm text-gray-500 hover:text-gray-700 underline block"
