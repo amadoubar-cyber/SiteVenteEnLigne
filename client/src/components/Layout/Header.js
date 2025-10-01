@@ -35,8 +35,12 @@ const Header = () => {
         <div className="flex justify-between items-center h-14">
           {/* Logo */}
           <Link to="/" className="flex items-center space-x-2 text-white hover:text-gray-200 transition-colors flex-shrink-0">
-            <div className="w-8 h-8 bg-white rounded flex items-center justify-center">
-              <span className="text-primary-500 font-bold text-lg">B</span>
+            <div className="w-8 h-8 rounded flex items-center justify-center overflow-hidden">
+              <img 
+                src="/images/products/logo/logo-koula.jpg" 
+                alt="Bowoye Multi Services Logo" 
+                className="w-full h-full object-cover"
+              />
             </div>
             <span className="text-sm md:text-lg font-bold font-heading hidden sm:block">Bowoye Multi Services</span>
             <span className="text-sm md:text-lg font-bold font-heading sm:hidden">BMS</span>
