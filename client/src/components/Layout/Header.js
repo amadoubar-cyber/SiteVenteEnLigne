@@ -31,15 +31,15 @@ const Header = () => {
 
   return (
     <header className="bg-primary-500 shadow-sm sticky top-0 z-50">
-      <div className="max-w-7xl mx-auto px-2 sm:px-4 lg:px-6">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-14">
           {/* Logo */}
           <Link to="/" className="flex items-center space-x-2 text-white hover:text-gray-200 transition-colors flex-shrink-0">
             <div className="w-8 h-8 bg-white rounded flex items-center justify-center">
               <span className="text-primary-500 font-bold text-lg">B</span>
             </div>
-            <span className="text-lg font-bold font-heading hidden sm:block">Bowoye Multi Services</span>
-            <span className="text-lg font-bold font-heading sm:hidden">BMS</span>
+            <span className="text-sm md:text-lg font-bold font-heading hidden sm:block">Bowoye Multi Services</span>
+            <span className="text-sm md:text-lg font-bold font-heading sm:hidden">BMS</span>
           </Link>
 
           {/* Search Bar - Desktop */}
@@ -64,7 +64,7 @@ const Header = () => {
           </div>
 
           {/* Navigation - Desktop */}
-          <div className="hidden md:flex items-center space-x-3">
+          <div className="hidden lg:flex items-center space-x-4">
             {/* Categories - Compact */}
             <div className="flex items-center space-x-3">
               <Link to="/construction" className="flex items-center space-x-1 text-white hover:text-gray-200 transition-colors text-sm font-medium">
@@ -166,7 +166,7 @@ const Header = () => {
           </div>
 
           {/* Mobile menu button */}
-          <div className="md:hidden flex items-center space-x-2">
+          <div className="lg:hidden flex items-center space-x-2">
             <button
               onClick={openCart}
               className="relative p-2 text-secondary-700"
@@ -188,7 +188,7 @@ const Header = () => {
         </div>
 
         {/* Mobile Search Bar */}
-        <div className="md:hidden pb-4">
+        <div className="lg:hidden pb-4">
           <form onSubmit={handleSearch}>
             <div className="relative">
               <input
