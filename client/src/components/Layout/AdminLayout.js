@@ -80,14 +80,14 @@ const AdminLayout = ({ children }) => {
                     <Link
                       key={item.name}
                       to={item.href}
-                      className={`group flex items-center px-2 py-2 text-base font-medium rounded-md ${
+                      className={`group flex items-center px-2 py-2 text-sm font-medium rounded-md ${
                         isActive(item.href)
                           ? 'bg-blue-100 text-blue-900'
                           : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
                       }`}
                       onClick={() => setSidebarOpen(false)}
                     >
-                      <Icon className="mr-4 h-6 w-6" />
+                      <Icon className="mr-3 h-4 w-4" />
                       {item.name}
                     </Link>
                   );
@@ -119,9 +119,9 @@ const AdminLayout = ({ children }) => {
           <div className="flex-1 flex flex-col pt-5 pb-4 overflow-y-auto">
             <div className="flex items-center flex-shrink-0 px-4">
               <div className="w-8 h-8 bg-blue-600 rounded flex items-center justify-center">
-                <span className="text-white font-bold text-lg">A</span>
+                <span className="text-white font-bold text-sm">A</span>
               </div>
-              <span className="ml-2 text-xl font-bold text-gray-900">Admin Panel</span>
+              <span className="ml-2 text-sm font-bold text-gray-900">Admin Panel</span>
             </div>
             <nav className="mt-5 flex-1 px-2 space-y-1">
               {navigation.map((item) => {
@@ -136,7 +136,7 @@ const AdminLayout = ({ children }) => {
                         : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
                     }`}
                   >
-                    <Icon className="mr-3 h-5 w-5" />
+                      <Icon className="mr-3 h-4 w-4" />
                     {item.name}
                   </Link>
                 );

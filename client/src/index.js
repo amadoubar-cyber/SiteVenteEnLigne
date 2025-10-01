@@ -4,6 +4,7 @@ import { BrowserRouter } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from 'react-query';
 import { Toaster } from 'react-hot-toast';
 import './index.css';
+import './styles/responsive.css';
 import App from './App';
 
 // Configuration des flags React Router pour éviter les avertissements
