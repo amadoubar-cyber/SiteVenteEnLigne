@@ -8,13 +8,15 @@ import {
   Package,
   X,
   Upload,
-  Image as ImageIcon
+  Image as ImageIcon,
+  RefreshCw
 } from 'lucide-react';
 import useConfirmation from '../../hooks/useConfirmation';
 import ConfirmationModal from '../../components/ConfirmationModal';
 import ImageGallery from '../../components/ImageGallery';
 import ConfirmationDialog from '../../components/ConfirmationDialog';
 import SimpleImageUpload from '../../components/SimpleImageUpload';
+import localProductsAPI from '../../services/localProductsAPI';
 
 const AdminProductsReal = () => {
   const [products, setProducts] = useState([]);
@@ -55,24 +57,40 @@ const AdminProductsReal = () => {
     loadCategories();
   }, []);
 
-  const loadProducts = () => {
+  const loadProducts = async () => {
     try {
       setLoading(true);
       
-      // Charger les produits depuis localStorage uniquement
-      const savedProducts = localStorage.getItem('koula_products');
-      
-      if (savedProducts) {
-        const products = JSON.parse(savedProducts);
-        setProducts(products);
+      // Utiliser l'API hybride (backend + localStorage)
+      const response = await localProductsAPI.getAll();
+      if (response.data.success) {
+        setProducts(response.data.data);
+        console.log(`📦 ${response.data.data.length} produits chargés`);
       } else {
-        // Aucun produit - interface vide
         setProducts([]);
+        console.log('📦 Aucun produit trouvé');
       }
-      
     } catch (error) {
       console.error('Erreur lors du chargement des produits:', error);
       setProducts([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Fonction de synchronisation
+  const syncProducts = async () => {
+    try {
+      setLoading(true);
+      const result = await localProductsAPI.syncProducts();
+      if (result.success) {
+        console.log(`✅ ${result.count} produits synchronisés`);
+        await loadProducts(); // Recharger après synchronisation
+      } else {
+        console.error('❌ Erreur de synchronisation:', result.error);
+      }
+    } catch (error) {
+      console.error('Erreur lors de la synchronisation:', error);
     } finally {
       setLoading(false);
     }
@@ -96,7 +114,7 @@ const AdminProductsReal = () => {
   };
 
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     
     try {
@@ -107,7 +125,6 @@ const AdminProductsReal = () => {
       }
 
       const productData = {
-        _id: editingProduct ? editingProduct._id : Date.now().toString(),
         name: newProduct.name,
         description: newProduct.description,
         price: parseFloat(newProduct.price),
@@ -117,32 +134,47 @@ const AdminProductsReal = () => {
         brand: newProduct.brand,
         images: newProduct.images.map(img => typeof img === 'string' ? { url: img } : img),
         isPublished: newProduct.isPublished,
-        isFeatured: newProduct.isFeatured,
-        createdAt: editingProduct ? editingProduct.createdAt : new Date().toISOString()
+        isFeatured: newProduct.isFeatured
       };
 
-      let updatedProducts;
       if (editingProduct) {
-        // Modifier le produit existant
-        updatedProducts = products.map(p => p._id === editingProduct._id ? productData : p);
+        // Modification : mettre à jour localement
+        const updatedProducts = products.map(p => 
+          p._id === editingProduct._id 
+            ? { ...p, ...productData, updatedAt: new Date().toISOString() }
+            : p
+        );
+        
+        setProducts(updatedProducts);
+        localStorage.setItem('koula_products', JSON.stringify(updatedProducts));
+        
+        showConfirmation({
+          title: '✅ Produit modifié avec succès !',
+          message: `Le produit "${newProduct.name}" a été modifié avec succès.`,
+          type: 'success',
+          onConfirm: () => {}
+        });
       } else {
-        // Créer un nouveau produit
-        updatedProducts = [productData, ...products];
+        // Création : utiliser l'API backend
+        const result = await localProductsAPI.addProduct(productData);
+        
+        if (result.success) {
+          // Recharger les produits pour avoir la version synchronisée
+          await loadProducts();
+          
+          showConfirmation({
+            title: '✅ Produit créé avec succès !',
+            message: `Le produit "${newProduct.name}" a été créé et synchronisé avec succès.`,
+            type: 'success',
+            onConfirm: () => {}
+          });
+        } else {
+          throw new Error(result.error || 'Erreur lors de la création');
+        }
       }
-      
-      setProducts(updatedProducts);
-      localStorage.setItem('koula_products', JSON.stringify(updatedProducts));
 
-      // Fermer le modal et vider les champs immédiatement
+      // Fermer le modal et vider les champs
       closeModal();
-
-      // Message de confirmation
-      showConfirmation({
-        title: editingProduct ? '✅ Produit modifié avec succès !' : '✅ Produit créé avec succès !',
-        message: `Le produit "${newProduct.name}" a été ${editingProduct ? 'modifié' : 'créé'} avec succès.`,
-        type: 'success',
-        onConfirm: () => {}
-      });
 
     } catch (error) {
       console.error('Erreur lors de la sauvegarde du produit:', error);
@@ -327,11 +359,12 @@ const AdminProductsReal = () => {
             Ajouter un produit
           </button>
           <button
-            onClick={loadProducts}
+            onClick={syncProducts}
             className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 flex items-center"
+            title="Synchroniser avec le backend"
           >
-            <Package className="h-5 w-5 mr-2" />
-            Recharger les données
+            <RefreshCw className="h-5 w-5 mr-2" />
+            Synchroniser
           </button>
         </div>
       </div>

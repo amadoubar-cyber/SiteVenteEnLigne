@@ -1,15 +1,31 @@
-// API locale pour les produits côté client
+// API hybride pour les produits : localStorage + Backend
 const LOCAL_PRODUCTS_KEY = 'koula_products';
+const API_BASE_URL = process.env.REACT_APP_API_URL || 'https://bowoye-backend.onrender.com';
 
 // Simuler un délai de réseau
 const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 
-// Charger les produits depuis localStorage uniquement
+// Charger les produits depuis le backend (avec fallback localStorage)
 const loadProducts = async () => {
   try {
-    // Charger uniquement depuis localStorage
+    // Essayer d'abord le backend
+    const response = await fetch(`${API_BASE_URL}/api/products`);
+    if (response.ok) {
+      const products = await response.json();
+      console.log(`📦 ${products.length} produits chargés depuis le backend`);
+      
+      // Synchroniser avec localStorage
+      localStorage.setItem(LOCAL_PRODUCTS_KEY, JSON.stringify(products));
+      return products;
+    }
+  } catch (error) {
+    console.warn('Backend indisponible, utilisation du localStorage:', error.message);
+  }
+  
+  // Fallback vers localStorage
+  try {
     const products = JSON.parse(localStorage.getItem(LOCAL_PRODUCTS_KEY) || '[]');
-    console.log(`📦 ${products.length} produits chargés depuis localStorage`);
+    console.log(`📦 ${products.length} produits chargés depuis localStorage (fallback)`);
     return products;
   } catch (error) {
     console.error('Erreur lors du chargement des produits:', error);
@@ -190,6 +206,73 @@ export const localProductsAPI = {
         data: brands.map((name, index) => ({ _id: (index + 1).toString(), name }))
       }
     };
+  },
+
+  // Synchroniser les produits avec le backend
+  syncProducts: async () => {
+    try {
+      console.log('🔄 Synchronisation des produits...');
+      
+      // Charger depuis le backend
+      const response = await fetch(`${API_BASE_URL}/api/products`);
+      if (response.ok) {
+        const products = await response.json();
+        
+        // Sauvegarder dans localStorage
+        localStorage.setItem(LOCAL_PRODUCTS_KEY, JSON.stringify(products));
+        
+        console.log(`✅ ${products.length} produits synchronisés`);
+        return { success: true, count: products.length };
+      } else {
+        throw new Error(`Erreur ${response.status}: ${response.statusText}`);
+      }
+    } catch (error) {
+      console.error('❌ Erreur de synchronisation:', error);
+      return { success: false, error: error.message };
+    }
+  },
+
+  // Ajouter un produit au backend
+  addProduct: async (productData) => {
+    try {
+      console.log('➕ Ajout d\'un produit au backend...');
+      
+      const response = await fetch(`${API_BASE_URL}/api/products`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(productData)
+      });
+
+      if (response.ok) {
+        const newProduct = await response.json();
+        
+        // Ajouter aussi au localStorage
+        const localProducts = JSON.parse(localStorage.getItem(LOCAL_PRODUCTS_KEY) || '[]');
+        localProducts.push(newProduct);
+        localStorage.setItem(LOCAL_PRODUCTS_KEY, JSON.stringify(localProducts));
+        
+        console.log('✅ Produit ajouté avec succès');
+        return { success: true, product: newProduct };
+      } else {
+        throw new Error(`Erreur ${response.status}: ${response.statusText}`);
+      }
+    } catch (error) {
+      console.error('❌ Erreur lors de l\'ajout:', error);
+      
+      // Fallback : ajouter au localStorage seulement
+      const localProducts = JSON.parse(localStorage.getItem(LOCAL_PRODUCTS_KEY) || '[]');
+      const newProduct = {
+        ...productData,
+        _id: Date.now().toString(),
+        createdAt: new Date().toISOString()
+      };
+      localProducts.push(newProduct);
+      localStorage.setItem(LOCAL_PRODUCTS_KEY, JSON.stringify(localProducts));
+      
+      return { success: true, product: newProduct, warning: 'Ajouté localement seulement' };
+    }
   }
 };
 
