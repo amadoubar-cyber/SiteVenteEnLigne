@@ -5,15 +5,15 @@ import { Facebook, Twitter, Instagram, Mail, Phone, MapPin } from 'lucide-react'
 const Footer = () => {
   return (
     <footer className="bg-gray-900 text-white">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           {/* Logo et description */}
-          <div className="space-y-4">
+          <div className="space-y-3">
             <div className="flex items-center space-x-2">
               <div className="w-8 h-8 bg-white rounded flex items-center justify-center">
                 <span className="text-primary-500 font-bold text-lg">B</span>
               </div>
-              <span className="text-xl font-bold font-heading">Bowoye Multi Services</span>
+              <span className="text-lg font-bold font-heading">Bowoye Multi Services</span>
             </div>
             <p className="text-gray-300 text-sm">
               Votre plateforme de vente en ligne de confiance en Guinée. 
@@ -33,9 +33,9 @@ const Footer = () => {
           </div>
 
           {/* Liens rapides */}
-          <div className="space-y-4">
-            <h3 className="text-lg font-semibold">Liens Rapides</h3>
-            <ul className="space-y-2">
+          <div className="space-y-3">
+            <h3 className="text-base font-semibold">Liens Rapides</h3>
+            <ul className="space-y-1.5">
               <li>
                 <Link to="/products" className="text-gray-300 hover:text-white transition-colors text-sm">
                   Tous les Produits
@@ -65,9 +65,9 @@ const Footer = () => {
           </div>
 
           {/* Mon compte */}
-          <div className="space-y-4">
-            <h3 className="text-lg font-semibold">Mon Compte</h3>
-            <ul className="space-y-2">
+          <div className="space-y-3">
+            <h3 className="text-base font-semibold">Mon Compte</h3>
+            <ul className="space-y-1.5">
               <li>
                 <Link to="/login" className="text-gray-300 hover:text-white transition-colors text-sm">
                   Connexion
@@ -92,9 +92,9 @@ const Footer = () => {
           </div>
 
           {/* Contact */}
-          <div className="space-y-4">
-            <h3 className="text-lg font-semibold">Contact</h3>
-            <div className="space-y-3">
+          <div className="space-y-3">
+            <h3 className="text-base font-semibold">Contact</h3>
+            <div className="space-y-2">
               <div className="flex items-center space-x-3">
                 <MapPin className="h-4 w-4 text-primary-500" />
                 <span className="text-gray-300 text-sm">
@@ -117,7 +117,7 @@ const Footer = () => {
           </div>
         </div>
 
-        <div className="border-t border-secondary-800 mt-8 pt-8">
+        <div className="border-t border-secondary-800 mt-6 pt-6">
           <div className="flex flex-col md:flex-row justify-between items-center">
             <p className="text-secondary-400 text-sm">
               © 2024 Bowoye Multi Services. Tous droits réservés.
