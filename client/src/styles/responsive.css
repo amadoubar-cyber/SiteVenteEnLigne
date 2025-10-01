@@ -87,6 +87,56 @@
   }
 }
 
+/* Améliorations spécifiques pour l'interface admin sur mobile */
+@media (max-width: 640px) {
+  /* Réduire les tailles de boutons admin */
+  .admin-btn {
+    padding: 0.5rem 0.75rem;
+    font-size: 0.75rem;
+  }
+  
+  /* Réduire les espacements */
+  .admin-spacing {
+    padding: 0.75rem;
+    margin: 0.5rem;
+  }
+  
+  /* Ajuster les tableaux admin */
+  .admin-table {
+    font-size: 0.75rem;
+  }
+  
+  .admin-table th,
+  .admin-table td {
+    padding: 0.5rem 0.25rem;
+  }
+  
+  /* Réduire les modales admin */
+  .admin-modal {
+    margin: 0.5rem;
+    max-height: calc(100vh - 1rem);
+  }
+  
+  /* Ajuster les formulaires admin */
+  .admin-form input,
+  .admin-form select,
+  .admin-form textarea {
+    font-size: 14px;
+    padding: 0.5rem;
+  }
+  
+  /* Réduire les cartes admin */
+  .admin-card {
+    padding: 0.75rem;
+  }
+  
+  /* Ajuster les boutons d'action */
+  .admin-action-btn {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.75rem;
+  }
+}
+
 /* Ajustements pour les tableaux sur mobile */
 @media (max-width: 768px) {
   .table-responsive {

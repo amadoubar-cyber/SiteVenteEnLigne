@@ -137,9 +137,9 @@ const AdminSimpleComplete = ({ onLogout }) => {
           <div className="flex-1 flex flex-col pt-5 pb-4 overflow-y-auto">
             <div className="flex items-center flex-shrink-0 px-4">
               <div className="w-8 h-8 bg-blue-600 rounded flex items-center justify-center">
-                <span className="text-white font-bold text-lg">A</span>
+                <span className="text-white font-bold text-sm">A</span>
               </div>
-              <span className="ml-2 text-xl font-bold text-gray-900">Admin Bowoye Multi Services</span>
+              <span className="ml-2 text-sm font-bold text-gray-900">Admin Bowoye Multi Services</span>
             </div>
             <nav className="mt-5 flex-1 px-2 space-y-1">
               {navigation.map((item) => {
@@ -192,19 +192,19 @@ const AdminSimpleComplete = ({ onLogout }) => {
 
         {/* Header */}
         <div className="bg-white shadow-sm border-b border-gray-200">
-          <div className="px-4 sm:px-6 lg:px-8">
-            <div className="flex justify-between items-center h-16">
+          <div className="px-2 sm:px-4 lg:px-8">
+            <div className="flex justify-between items-center h-14 sm:h-16">
               <div className="flex items-center">
                 <Link
                   to="/"
-                  className="flex items-center text-sm text-gray-500 hover:text-gray-700"
+                  className="flex items-center text-xs sm:text-sm text-gray-500 hover:text-gray-700"
                 >
                   <ChevronLeft className="h-4 w-4 mr-1" />
                   <Home className="h-4 w-4 mr-1" />
                   Retour au site
                 </Link>
               </div>
-              <div className="flex items-center space-x-4">
+              <div className="flex items-center space-x-2 sm:space-x-4">
                 <div className="flex items-center space-x-2">
                   <div className="h-8 w-8 rounded-full bg-blue-100 flex items-center justify-center">
                     <span className="text-sm font-medium text-blue-600">A</span>
@@ -217,7 +217,7 @@ const AdminSimpleComplete = ({ onLogout }) => {
                 {onLogout && (
                   <button
                     onClick={onLogout}
-                    className="text-gray-400 hover:text-gray-600 flex items-center gap-1 text-sm"
+                    className="text-gray-400 hover:text-gray-600 flex items-center gap-1 text-xs sm:text-sm"
                   >
                     <LogOut className="w-4 h-4" />
                     Déconnexion
