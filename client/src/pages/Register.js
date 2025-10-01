@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { validateRegistration } from '../utils/authValidation';
 import { useAuth } from '../contexts/AuthContext';
 import { 
   Eye, 
@@ -78,39 +79,27 @@ const Register = () => {
     const newErrors = {};
 
     if (step === 1) {
-      if (!formData.email) {
-        newErrors.email = 'L\'email est requis';
-      } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
-        newErrors.email = 'L\'email n\'est pas valide';
-      }
-
-      if (!formData.password) {
-        newErrors.password = 'Le mot de passe est requis';
-      } else if (formData.password.length < 6) {
-        newErrors.password = 'Le mot de passe doit contenir au moins 6 caractères';
-      }
-
-      if (!formData.confirmPassword) {
-        newErrors.confirmPassword = 'La confirmation du mot de passe est requise';
-      } else if (formData.password !== formData.confirmPassword) {
-        newErrors.confirmPassword = 'Les mots de passe ne correspondent pas';
-      }
+      // Utiliser la validation sécurisée pour l'étape 1
+      const validation = validateRegistration({
+        ...formData,
+        firstName: formData.firstName || 'temp',
+        lastName: formData.lastName || 'temp',
+        phone: formData.phone || '+22400000000'
+      });
+      
+      // Extraire seulement les erreurs de l'étape 1
+      if (validation.errors.email) newErrors.email = validation.errors.email;
+      if (validation.errors.password) newErrors.password = validation.errors.password;
+      if (validation.errors.confirmPassword) newErrors.confirmPassword = validation.errors.confirmPassword;
     }
 
     if (step === 2) {
-      if (!formData.firstName.trim()) {
-        newErrors.firstName = 'Le prénom est requis';
-      }
-
-      if (!formData.lastName.trim()) {
-        newErrors.lastName = 'Le nom est requis';
-      }
-
-      if (!formData.phone) {
-        newErrors.phone = 'Le numéro de téléphone est requis';
-      } else if (!/^[+]?[0-9\s\-()]{8,15}$/.test(formData.phone)) {
-        newErrors.phone = 'Le numéro de téléphone n\'est pas valide';
-      }
+      // Utiliser la validation sécurisée pour l'étape 2
+      const validation = validateRegistration(formData);
+      
+      if (validation.errors.firstName) newErrors.firstName = validation.errors.firstName;
+      if (validation.errors.lastName) newErrors.lastName = validation.errors.lastName;
+      if (validation.errors.phone) newErrors.phone = validation.errors.phone;
 
       if (userType === 'business') {
         if (!formData.companyName.trim()) {

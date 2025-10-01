@@ -1,5 +1,6 @@
 import React from 'react';
 import { Printer, Download, FileText, Calendar, MapPin, Phone, Mail } from 'lucide-react';
+import LogoText from './LogoText';
 
 const Invoice = ({ order, onClose }) => {
   const formatPrice = (price) => {
@@ -129,12 +130,9 @@ const Invoice = ({ order, onClose }) => {
           {/* En-tête de la facture */}
           <div className="invoice-header border-b-2 border-gray-200 pb-6 mb-6">
             <div className="flex items-center justify-center mb-4">
-              <div className="w-12 h-12 bg-blue-600 rounded-lg flex items-center justify-center mr-3">
-                <span className="text-white font-bold text-xl">B</span>
-              </div>
-              <div>
-                <h2 className="text-3xl font-bold text-gray-900">Bowoye Multi Services</h2>
-                <p className="text-gray-600">Votre partenaire de confiance</p>
+              <LogoText size="large" className="text-center" />
+              <div className="ml-4">
+                <p className="text-gray-600 text-sm">Votre partenaire de confiance</p>
               </div>
             </div>
             

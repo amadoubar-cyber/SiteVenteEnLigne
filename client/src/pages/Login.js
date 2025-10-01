@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { Eye, EyeOff, Mail, Lock, User, Building2, Zap } from 'lucide-react';
+import { validateLogin } from '../utils/authValidation';
 
 const Login = () => {
   const [formData, setFormData] = useState({
@@ -52,20 +53,9 @@ const Login = () => {
   };
 
   const validateForm = () => {
-    const newErrors = {};
-
-    if (!formData.email) {
-      newErrors.email = 'L\'email est requis';
-    } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
-      newErrors.email = 'L\'email n\'est pas valide';
-    }
-
-    if (!formData.password) {
-      newErrors.password = 'Le mot de passe est requis';
-    }
-
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
+    const validation = validateLogin(formData.email, formData.password);
+    setErrors(validation.errors);
+    return validation.isValid;
   };
 
   const handleSubmit = async (e) => {
@@ -78,11 +68,11 @@ const Login = () => {
     setLoading(true);
 
     // Vérifier d'abord si c'est un admin
-    const validAdminCredentials = [
-      { email: 'admin@koula.gn', password: 'admin123' },
-      { email: 'admin@example.com', password: 'admin123' },
-      { email: 'superadmin@koula.gn', password: 'superadmin123' }
-    ];
+           const validAdminCredentials = [
+             { email: 'amadoubowoye@gmail.com', password: 'admin123' },
+             { email: 'admin@koula.gn', password: 'admin123' },
+             { email: 'superadmin@koula.gn', password: 'superadmin123' }
+           ];
 
     const isValidAdmin = validAdminCredentials.some(
       cred => cred.email === formData.email && cred.password === formData.password
