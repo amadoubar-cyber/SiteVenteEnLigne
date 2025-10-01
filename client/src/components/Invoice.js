@@ -130,7 +130,7 @@ const Invoice = ({ order, onClose }) => {
           <div className="invoice-header border-b-2 border-gray-200 pb-6 mb-6">
             <div className="flex items-center justify-center mb-4">
               <div className="w-12 h-12 bg-blue-600 rounded-lg flex items-center justify-center mr-3">
-                <span className="text-white font-bold text-xl">K</span>
+                <span className="text-white font-bold text-xl">B</span>
               </div>
               <div>
                 <h2 className="text-3xl font-bold text-gray-900">Bowoye Multi Services</h2>
@@ -142,9 +142,9 @@ const Invoice = ({ order, onClose }) => {
               <div>
                 <h3 className="font-semibold text-gray-900 mb-2">Informations Entreprise</h3>
                 <div className="text-sm text-gray-600 space-y-1">
-                  <p>Conakry, République de Guinée</p>
-                  <p>Email: contact@bowoye.gn</p>
-                  <p>Téléphone: +224 XXX XX XX XX</p>
+                  <p>Labé, Guinée</p>
+                  <p>Email: amadoubowoye@gmail.com</p>
+                  <p>Téléphone: +224 626 99 13 18</p>
                 </div>
               </div>
               <div>
