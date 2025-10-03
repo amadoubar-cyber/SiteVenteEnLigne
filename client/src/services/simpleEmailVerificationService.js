@@ -33,6 +33,11 @@ export const emailVerificationService = {
   removePendingAccount: (email) => {
     // Simple - pas de localStorage complexe
     return true;
+  },
+
+  // Vérifier si un email est déjà vérifié
+  isEmailVerified: (email) => {
+    return simpleEmailService.isEmailVerified(email);
   }
 };
 

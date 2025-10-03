@@ -77,6 +77,12 @@ class SimpleEmailService {
     const verification = this.verifications.get(email);
     return verification ? verification.code : null;
   }
+
+  // Vérifier si un email est déjà vérifié
+  isEmailVerified(email) {
+    const verification = this.verifications.get(email);
+    return verification ? verification.verified : false;
+  }
 }
 
 export default new SimpleEmailService();
