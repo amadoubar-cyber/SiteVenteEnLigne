@@ -14,25 +14,25 @@ const Home = () => {
   // Images pour l'animation du carrousel
   const carouselImages = [
     {
-      src: '/images/products/construction/A3.jpeg',
+      src: process.env.PUBLIC_URL + '/images/products/construction/A3.jpeg',
       alt: 'Matériaux de construction - Ciment et briques',
       title: 'Matériaux de Construction',
       description: 'Ciment, briques et tous les matériaux pour vos projets'
     },
     {
-      src: '/images/products/construction/A4.jpeg',
+      src: process.env.PUBLIC_URL + '/images/products/construction/A4.jpeg',
       alt: 'Matériaux de construction - Fer à béton',
       title: 'Fer à Béton',
       description: 'Armatures et structures métalliques de qualité'
     },
     {
-      src: '/images/products/construction/A5.jpeg',
+      src: process.env.PUBLIC_URL + '/images/products/construction/A5.jpeg',
       alt: 'Matériaux de construction - Outils',
       title: 'Outils de Construction',
       description: 'Tous les outils nécessaires pour vos chantiers'
     },
     {
-      src: '/images/products/construction/A6.jpeg',
+      src: process.env.PUBLIC_URL + '/images/products/construction/A6.jpeg',
       alt: 'Matériaux de construction - Peinture',
       title: 'Peintures et Finitions',
       description: 'Peintures intérieures et extérieures de qualité'
