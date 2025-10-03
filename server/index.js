@@ -57,6 +57,8 @@ app.use(cors({
   origin: [
     'http://localhost:3000',
     'http://localhost:3001',
+    'https://bowoye.vercel.app',
+    'https://bowoye-multiservices.vercel.app',
     process.env.CLIENT_URL
   ].filter(Boolean),
   credentials: true
