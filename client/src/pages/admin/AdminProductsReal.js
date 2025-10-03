@@ -96,6 +96,42 @@ const AdminProductsReal = () => {
     }
   };
 
+  // Fonction de synchronisation des images
+  const syncImages = async () => {
+    try {
+      setLoading(true);
+      const result = await localProductsAPI.syncAllImages();
+      if (result.success) {
+        console.log(`✅ ${result.count} produits avec images synchronisés`);
+        await loadProducts(); // Recharger après synchronisation
+        showConfirmation({
+          title: '✅ Images synchronisées !',
+          message: `${result.count} produits avec images ont été synchronisés avec succès.`,
+          type: 'success',
+          onConfirm: () => {}
+        });
+      } else {
+        console.error('❌ Erreur de synchronisation des images:', result.error);
+        showConfirmation({
+          title: '❌ Erreur de synchronisation',
+          message: `Erreur lors de la synchronisation des images: ${result.error}`,
+          type: 'danger',
+          onConfirm: () => {}
+        });
+      }
+    } catch (error) {
+      console.error('Erreur lors de la synchronisation des images:', error);
+      showConfirmation({
+        title: '❌ Erreur',
+        message: `Erreur lors de la synchronisation des images: ${error.message}`,
+        type: 'danger',
+        onConfirm: () => {}
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const loadCategories = () => {
       setCategories([
         { _id: '1', name: 'Matériaux de Construction' },
@@ -365,6 +401,14 @@ const AdminProductsReal = () => {
           >
             <RefreshCw className="h-5 w-5 mr-2" />
             Synchroniser
+          </button>
+          <button
+            onClick={syncImages}
+            className="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 flex items-center"
+            title="Synchroniser les images"
+          >
+            <ImageIcon className="h-5 w-5 mr-2" />
+            Sync Images
           </button>
         </div>
       </div>

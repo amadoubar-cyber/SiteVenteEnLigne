@@ -2,6 +2,9 @@
 const LOCAL_PRODUCTS_KEY = 'koula_products';
 const API_BASE_URL = process.env.REACT_APP_API_URL || 'https://bowoye-backend.onrender.com';
 
+// Import du service d'upload d'images
+import { syncProductImages } from './imageUploadAPI';
+
 // Simuler un délai de réseau
 const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 
@@ -237,12 +240,15 @@ export const localProductsAPI = {
     try {
       console.log('➕ Ajout d\'un produit au backend...');
       
+      // Synchroniser les images d'abord
+      const productWithSyncedImages = await syncProductImages(productData);
+      
       const response = await fetch(`${API_BASE_URL}/api/products`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(productData)
+        body: JSON.stringify(productWithSyncedImages)
       });
 
       if (response.ok) {
@@ -253,7 +259,7 @@ export const localProductsAPI = {
         localProducts.push(newProduct);
         localStorage.setItem(LOCAL_PRODUCTS_KEY, JSON.stringify(localProducts));
         
-        console.log('✅ Produit ajouté avec succès');
+        console.log('✅ Produit ajouté avec succès (images synchronisées)');
         return { success: true, product: newProduct };
       } else {
         throw new Error(`Erreur ${response.status}: ${response.statusText}`);
@@ -272,6 +278,43 @@ export const localProductsAPI = {
       localStorage.setItem(LOCAL_PRODUCTS_KEY, JSON.stringify(localProducts));
       
       return { success: true, product: newProduct, warning: 'Ajouté localement seulement' };
+    }
+  },
+
+  // Synchroniser les images de tous les produits
+  syncAllImages: async () => {
+    try {
+      console.log('🔄 Synchronisation de toutes les images...');
+      
+      const products = JSON.parse(localStorage.getItem(LOCAL_PRODUCTS_KEY) || '[]');
+      const productsWithImages = products.filter(p => p.images && p.images.length > 0);
+      
+      console.log(`📤 Synchronisation de ${productsWithImages.length} produits avec images...`);
+      
+      const syncPromises = productsWithImages.map(async (product) => {
+        try {
+          return await syncProductImages(product);
+        } catch (error) {
+          console.error(`Erreur sync images pour ${product.name}:`, error);
+          return product;
+        }
+      });
+      
+      const syncedProducts = await Promise.all(syncPromises);
+      
+      // Mettre à jour localStorage
+      const updatedProducts = products.map(product => {
+        const synced = syncedProducts.find(p => p._id === product._id);
+        return synced || product;
+      });
+      
+      localStorage.setItem(LOCAL_PRODUCTS_KEY, JSON.stringify(updatedProducts));
+      
+      console.log('✅ Synchronisation des images terminée');
+      return { success: true, count: productsWithImages.length };
+    } catch (error) {
+      console.error('❌ Erreur synchronisation images:', error);
+      return { success: false, error: error.message };
     }
   }
 };
