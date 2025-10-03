@@ -7,8 +7,8 @@ class EmailService {
     this.transporter = nodemailer.createTransport({
       service: 'gmail',
       auth: {
-        user: 'amadoubowoye@gmail.com',
-        pass: 'votre_mot_de_passe_application_ici' // 🔧 REMPLACEZ PAR VOTRE MOT DE PASSE D'APPLICATION GMAIL
+        user: 'diariamadou43@gmail.com',
+        pass: 'AmadouDialloDiari4@' // 🔧 REMPLACEZ PAR VOTRE MOT DE PASSE D'APPLICATION GMAIL
       }
     });
   }
