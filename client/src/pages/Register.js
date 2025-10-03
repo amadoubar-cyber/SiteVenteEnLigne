@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { validateRegistration } from '../utils/authValidation';
 import { useAuth } from '../contexts/AuthContext';
+import emailVerificationService from '../services/emailVerificationService';
+import EmailVerificationModal from '../components/EmailVerification/EmailVerificationModal';
 import { 
   Eye, 
   EyeOff, 
@@ -45,6 +47,10 @@ const Register = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [errors, setErrors] = useState({});
+  
+  // États pour la vérification email
+  const [showEmailVerification, setShowEmailVerification] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [agreedToTerms, setAgreedToTerms] = useState(false);
   const [emailVerified, setEmailVerified] = useState(false);
   const [phoneVerified, setPhoneVerified] = useState(false);
@@ -138,9 +144,36 @@ const Register = () => {
       return;
     }
 
+    // Vérifier si l'email est déjà vérifié
+    if (emailVerificationService.isEmailVerified(formData.email)) {
+      // Email déjà vérifié, procéder à l'inscription
+      await completeRegistration();
+    } else {
+      // Email non vérifié, lancer la vérification
+      setIsSubmitting(true);
+      const result = await emailVerificationService.sendVerificationEmail(
+        formData.email, 
+        formData.firstName, 
+        formData.lastName
+      );
+      
+      if (result.success) {
+        // Sauvegarder les données en attente
+        emailVerificationService.savePendingAccount(formData);
+        setShowEmailVerification(true);
+      } else {
+        alert('Erreur lors de l\'envoi de l\'email de vérification: ' + result.message);
+      }
+      setIsSubmitting(false);
+    }
+  };
+
+  const completeRegistration = async () => {
     const { confirmPassword, ...registerData } = formData;
     const result = await register(registerData);
     if (result.success) {
+      // Supprimer le compte en attente
+      emailVerificationService.removePendingAccount(formData.email);
       navigate('/');
     }
   };
@@ -152,6 +185,18 @@ const Register = () => {
     } else if (type === 'phone') {
       setPhoneVerified(true);
     }
+  };
+
+  // Callback pour succès de vérification email
+  const handleEmailVerificationSuccess = async (email) => {
+    setShowEmailVerification(false);
+    await completeRegistration();
+  };
+
+  // Callback pour échec de vérification email
+  const handleEmailVerificationFailed = () => {
+    setShowEmailVerification(false);
+    // Optionnel: afficher un message d'erreur
   };
 
   return (
@@ -677,13 +722,13 @@ const Register = () => {
                 <button
                   type="submit"
                   onClick={handleSubmit}
-                  disabled={loading}
+                  disabled={loading || isSubmitting}
                   className="flex items-center px-8 py-3 bg-gradient-to-r from-orange-500 to-red-500 text-white rounded-lg hover:from-orange-600 hover:to-red-600 transition-all disabled:opacity-50"
                 >
-                  {loading ? (
+                  {loading || isSubmitting ? (
                     <>
                       <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                      Création...
+                      {isSubmitting ? 'Envoi du code...' : 'Création...'}
                     </>
                   ) : (
                     <>
@@ -710,6 +755,17 @@ const Register = () => {
           </div>
         </div>
       </div>
+
+      {/* Modal de vérification email */}
+      <EmailVerificationModal
+        isOpen={showEmailVerification}
+        onClose={() => setShowEmailVerification(false)}
+        email={formData.email}
+        firstName={formData.firstName}
+        lastName={formData.lastName}
+        onVerificationSuccess={handleEmailVerificationSuccess}
+        onVerificationFailed={handleEmailVerificationFailed}
+      />
     </div>
   );
 };
