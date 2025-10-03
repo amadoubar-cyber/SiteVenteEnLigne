@@ -85,7 +85,11 @@ const AdminProductsReal = () => {
       const result = await localProductsAPI.syncProducts();
       if (result.success) {
         console.log(`✅ ${result.count} produits synchronisés`);
-        await loadProducts(); // Recharger après synchronisation
+        try {
+          await loadProducts(); // Recharger après synchronisation
+        } catch (loadError) {
+          console.warn('Erreur lors du rechargement après sync:', loadError);
+        }
       } else {
         console.error('❌ Erreur de synchronisation:', result.error);
       }
@@ -103,7 +107,11 @@ const AdminProductsReal = () => {
       const result = await localProductsAPI.syncAllImages();
       if (result.success) {
         console.log(`✅ ${result.count} produits avec images synchronisés`);
-        await loadProducts(); // Recharger après synchronisation
+        try {
+          await loadProducts(); // Recharger après synchronisation
+        } catch (loadError) {
+          console.warn('Erreur lors du rechargement après sync images:', loadError);
+        }
         showConfirmation({
           title: '✅ Images synchronisées !',
           message: `${result.count} produits avec images ont été synchronisés avec succès.`,
@@ -196,7 +204,12 @@ const AdminProductsReal = () => {
         
         if (result.success) {
           // Recharger les produits pour avoir la version synchronisée
-          await loadProducts();
+          try {
+            await loadProducts();
+          } catch (loadError) {
+            console.warn('Erreur lors du rechargement:', loadError);
+            // Continuer même si le rechargement échoue
+          }
           
           showConfirmation({
             title: '✅ Produit créé avec succès !',
