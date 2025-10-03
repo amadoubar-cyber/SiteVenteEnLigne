@@ -14,12 +14,13 @@ const loadProducts = async () => {
     // Essayer d'abord le backend
     const response = await fetch(`${API_BASE_URL}/api/products`);
     if (response.ok) {
-      const products = await response.json();
+      const result = await response.json();
+      const products = result.data || result.products || [];
       console.log(`📦 ${products.length} produits chargés depuis le backend`);
       
       // Synchroniser avec localStorage
       localStorage.setItem(LOCAL_PRODUCTS_KEY, JSON.stringify(products));
-      return products;
+      return Array.isArray(products) ? products : [];
     }
   } catch (error) {
     console.warn('Backend indisponible, utilisation du localStorage:', error.message);
@@ -28,16 +29,23 @@ const loadProducts = async () => {
   // Fallback vers localStorage
   try {
     const products = JSON.parse(localStorage.getItem(LOCAL_PRODUCTS_KEY) || '[]');
-    console.log(`📦 ${products.length} produits chargés depuis localStorage (fallback)`);
-    return products;
+    console.log(`📦 ${Array.isArray(products) ? products.length : 0} produits chargés depuis localStorage (fallback)`);
+    return Array.isArray(products) ? products : [];
   } catch (error) {
     console.error('Erreur lors du chargement des produits:', error);
+    // Réinitialiser le localStorage corrompu
+    localStorage.setItem(LOCAL_PRODUCTS_KEY, '[]');
     return [];
   }
 };
 
 // Filtrer les produits selon les critères
 const filterProducts = (products, filters) => {
+  // S'assurer que products est un tableau
+  if (!Array.isArray(products)) {
+    console.warn('filterProducts: products n\'est pas un tableau:', products);
+    return [];
+  }
   let filtered = [...products];
 
   // Filtrer par type de produit
@@ -98,6 +106,11 @@ const filterProducts = (products, filters) => {
 
 // Trier les produits
 const sortProducts = (products, sort, order) => {
+  // S'assurer que products est un tableau
+  if (!Array.isArray(products)) {
+    console.warn('sortProducts: products n\'est pas un tableau:', products);
+    return [];
+  }
   const sorted = [...products];
   
   sorted.sort((a, b) => {
@@ -133,6 +146,21 @@ const sortProducts = (products, sort, order) => {
 
 // Paginer les produits
 const paginateProducts = (products, page, limit = 12) => {
+  // S'assurer que products est un tableau
+  if (!Array.isArray(products)) {
+    console.warn('paginateProducts: products n\'est pas un tableau:', products);
+    return {
+      products: [],
+      pagination: {
+        currentPage: 1,
+        totalPages: 0,
+        totalProducts: 0,
+        hasNext: false,
+        hasPrev: false,
+        limit
+      }
+    };
+  }
   const startIndex = (page - 1) * limit;
   const endIndex = startIndex + limit;
   const paginatedProducts = products.slice(startIndex, endIndex);
@@ -250,8 +278,13 @@ export const localProductsAPI = {
       
       // Ajouter au localStorage
       const localProducts = JSON.parse(localStorage.getItem(LOCAL_PRODUCTS_KEY) || '[]');
-      localProducts.push(newProduct);
-      localStorage.setItem(LOCAL_PRODUCTS_KEY, JSON.stringify(localProducts));
+      if (Array.isArray(localProducts)) {
+        localProducts.push(newProduct);
+        localStorage.setItem(LOCAL_PRODUCTS_KEY, JSON.stringify(localProducts));
+      } else {
+        // Réinitialiser si corrompu
+        localStorage.setItem(LOCAL_PRODUCTS_KEY, JSON.stringify([newProduct]));
+      }
       
       console.log('✅ Produit ajouté avec succès (localStorage)');
       return { success: true, product: newProduct };
@@ -293,7 +326,12 @@ export const localProductsAPI = {
         _id: Date.now().toString(),
         createdAt: new Date().toISOString()
       };
-      localProducts.push(newProduct);
+      if (Array.isArray(localProducts)) {
+        localProducts.push(newProduct);
+      } else {
+        localStorage.setItem(LOCAL_PRODUCTS_KEY, JSON.stringify([newProduct]));
+        return { success: true, product: newProduct };
+      }
       localStorage.setItem(LOCAL_PRODUCTS_KEY, JSON.stringify(localProducts));
       
       return { success: true, product: newProduct, warning: 'Ajouté localement seulement' };
