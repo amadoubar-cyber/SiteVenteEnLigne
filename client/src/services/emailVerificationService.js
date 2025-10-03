@@ -33,10 +33,19 @@ export const emailVerificationService = {
       const result = await emailLinkService.sendVerificationEmail(email, firstName, lastName, verificationCode);
       
       if (result.success) {
-        console.log(`📧 Email de vérification envoyé à ${email}`);
+        console.log('════════════════════════════════════════════════════════════════');
+        console.log('📧 EMAIL DE VÉRIFICATION ENVOYÉ');
+        console.log('════════════════════════════════════════════════════════════════');
+        console.log(`📬 Destinataire: ${email}`);
+        console.log(`👤 Nom: ${firstName} ${lastName}`);
+        console.log(`🔑 CODE DE VÉRIFICATION: ${verificationCode}`);
         console.log(`🔗 Lien de vérification: ${result.link}`);
-        console.log(`🔑 Code de vérification: ${verificationCode}`);
         console.log(`⏰ Code valide pendant 15 minutes`);
+        console.log(`📅 Expire le: ${new Date(expiresAt).toLocaleString('fr-FR')}`);
+        console.log('════════════════════════════════════════════════════════════════');
+        
+        // Forcer l'affichage dans une alerte aussi
+        alert(`📧 EMAIL ENVOYÉ!\n\nCode de vérification: ${verificationCode}\n\nVérifiez la console pour plus de détails.`);
       }
 
       return {

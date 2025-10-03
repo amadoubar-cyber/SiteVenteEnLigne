@@ -4,6 +4,8 @@ import { validateRegistration } from '../utils/authValidation';
 import { useAuth } from '../contexts/AuthContext';
 import emailVerificationService from '../services/emailVerificationService';
 import EmailVerificationModal from '../components/EmailVerification/EmailVerificationModal';
+import EmailDebug from '../components/Debug/EmailDebug';
+import EmailTestButton from '../components/Debug/EmailTestButton';
 import { 
   Eye, 
   EyeOff, 
@@ -766,6 +768,18 @@ const Register = () => {
         onVerificationSuccess={handleEmailVerificationSuccess}
         onVerificationFailed={handleEmailVerificationFailed}
       />
+
+      {/* Composant de debug pour voir le code */}
+      {formData.email && (
+        <EmailDebug
+          email={formData.email}
+          firstName={formData.firstName}
+          lastName={formData.lastName}
+        />
+      )}
+
+      {/* Bouton de test email */}
+      <EmailTestButton />
     </div>
   );
 };

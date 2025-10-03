@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Vérification Email</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .test-section { margin: 20px 0; padding: 20px; border: 1px solid #ddd; border-radius: 8px; }
+        .success { background: #d4edda; border-color: #c3e6cb; }
+        .error { background: #f8d7da; border-color: #f5c6cb; }
+        button { padding: 10px 20px; margin: 5px; cursor: pointer; }
+        pre { background: #f8f9fa; padding: 10px; border-radius: 4px; overflow-x: auto; }
+    </style>
+</head>
+<body>
+    <h1>🔧 Test Vérification Email</h1>
+    
+    <div class="test-section">
+        <h2>1. Test localStorage</h2>
+        <button onclick="testLocalStorage()">Tester localStorage</button>
+        <button onclick="clearStorage()">Vider le stockage</button>
+        <div id="localStorage-result"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>2. Test Service Email</h2>
+        <button onclick="testEmailService()">Tester le service email</button>
+        <div id="email-service-result"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>3. Test Génération Code</h2>
+        <button onclick="testCodeGeneration()">Générer un code</button>
+        <div id="code-generation-result"></div>
+    </div>
+
+    <script>
+        // Simuler le service emailVerificationService
+        const EMAIL_VERIFICATION_KEY = 'bowoye_email_verifications';
+        
+        function generateVerificationCode() {
+            return Math.floor(100000 + Math.random() * 900000).toString();
+        }
+        
+        function testLocalStorage() {
+            const result = document.getElementById('localStorage-result');
+            try {
+                const data = localStorage.getItem(EMAIL_VERIFICATION_KEY);
+                const parsed = JSON.parse(data || '[]');
+                result.innerHTML = `
+                    <div class="success">
+                        <h3>✅ localStorage fonctionne</h3>
+                        <p><strong>Clé:</strong> ${EMAIL_VERIFICATION_KEY}</p>
+                        <p><strong>Données:</strong> ${data || 'Aucune donnée'}</p>
+                        <p><strong>Parsé:</strong> ${JSON.stringify(parsed, null, 2)}</p>
+                    </div>
+                `;
+            } catch (error) {
+                result.innerHTML = `
+                    <div class="error">
+                        <h3>❌ Erreur localStorage</h3>
+                        <p>${error.message}</p>
+                    </div>
+                `;
+            }
+        }
+        
+        function testEmailService() {
+            const result = document.getElementById('email-service-result');
+            try {
+                const email = 'test@bowoye.gn';
+                const firstName = 'Amadou';
+                const lastName = 'Diallo';
+                const code = generateVerificationCode();
+                const expiresAt = new Date(Date.now() + 15 * 60 * 1000);
+                
+                // Sauvegarder la vérification
+                const verifications = JSON.parse(localStorage.getItem(EMAIL_VERIFICATION_KEY) || '[]');
+                verifications.push({
+                    email,
+                    code,
+                    firstName,
+                    lastName,
+                    expiresAt: expiresAt.toISOString(),
+                    attempts: 0,
+                    maxAttempts: 3
+                });
+                localStorage.setItem(EMAIL_VERIFICATION_KEY, JSON.stringify(verifications));
+                
+                result.innerHTML = `
+                    <div class="success">
+                        <h3>✅ Service email testé avec succès</h3>
+                        <p><strong>Email:</strong> ${email}</p>
+                        <p><strong>Nom:</strong> ${firstName} ${lastName}</p>
+                        <p><strong>Code généré:</strong> <span style="font-size: 24px; font-weight: bold; color: #007bff;">${code}</span></p>
+                        <p><strong>Expire:</strong> ${expiresAt.toLocaleString('fr-FR')}</p>
+                        <pre>${JSON.stringify(verifications[verifications.length - 1], null, 2)}</pre>
+                    </div>
+                `;
+                
+                console.log('🔑 CODE DE VÉRIFICATION:', code);
+                console.log('📧 EMAIL:', email);
+                console.log('👤 NOM:', firstName, lastName);
+                
+            } catch (error) {
+                result.innerHTML = `
+                    <div class="error">
+                        <h3>❌ Erreur service email</h3>
+                        <p>${error.message}</p>
+                    </div>
+                `;
+            }
+        }
+        
+        function testCodeGeneration() {
+            const result = document.getElementById('code-generation-result');
+            const codes = [];
+            
+            for (let i = 0; i < 5; i++) {
+                codes.push(generateVerificationCode());
+            }
+            
+            result.innerHTML = `
+                <div class="success">
+                    <h3>✅ Codes générés</h3>
+                    <p><strong>Exemples de codes:</strong></p>
+                    <ul>
+                        ${codes.map(code => `<li style="font-family: monospace; font-size: 18px; font-weight: bold;">${code}</li>`).join('')}
+                    </ul>
+                </div>
+            `;
+        }
+        
+        function clearStorage() {
+            localStorage.removeItem(EMAIL_VERIFICATION_KEY);
+            localStorage.removeItem('bowoye_pending_accounts');
+            document.getElementById('localStorage-result').innerHTML = `
+                <div class="success">
+                    <h3>✅ Stockage vidé</h3>
+                    <p>Toutes les données de vérification ont été supprimées.</p>
+                </div>
+            `;
+        }
+        
+        // Test automatique au chargement
+        window.onload = function() {
+            console.log('🔧 Page de test chargée');
+            console.log('📋 Instructions:');
+            console.log('1. Cliquez sur "Tester le service email"');
+            console.log('2. Regardez le code généré dans la page ET dans la console');
+            console.log('3. Vérifiez que le localStorage contient les données');
+        };
+    </script>
+</body>
+</html>
