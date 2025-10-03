@@ -183,7 +183,10 @@ export const localProductsAPI = {
   getProducts: async (filters = {}) => {
     await delay(500); // Simuler un délai de réseau
     
-    const allProducts = await loadProducts();
+    // Mode local : utiliser directement localStorage
+    const allProducts = JSON.parse(localStorage.getItem(LOCAL_PRODUCTS_KEY) || '[]');
+    console.log(`🔍 getProducts: ${allProducts.length} produits trouvés dans localStorage`);
+    
     const filteredProducts = filterProducts(allProducts, filters);
     const sortedProducts = sortProducts(filteredProducts, filters.sort || 'createdAt', filters.order || 'desc');
     
@@ -199,7 +202,8 @@ export const localProductsAPI = {
   getProductById: async (id) => {
     await delay(300);
     
-    const products = await loadProducts();
+    // Mode local : utiliser directement localStorage
+    const products = JSON.parse(localStorage.getItem(LOCAL_PRODUCTS_KEY) || '[]');
     const product = products.find(p => p._id === id);
     
     if (!product) {
@@ -213,7 +217,8 @@ export const localProductsAPI = {
   getCategories: async () => {
     await delay(200);
     
-    const products = loadProducts();
+    // Mode local : utiliser directement localStorage
+    const products = JSON.parse(localStorage.getItem(LOCAL_PRODUCTS_KEY) || '[]');
     const categories = [...new Set(products.map(p => p.category).filter(Boolean))];
     
     return {
