@@ -1,5 +1,6 @@
 const express = require('express');
 const router = express.Router();
+const emailService = require('../services/emailService');
 
 // Service email simple pour les tests (en production, utiliser SendGrid, Mailgun, etc.)
 class SimpleEmailService {
@@ -44,7 +45,7 @@ class SimpleEmailService {
   }
 }
 
-const emailService = new SimpleEmailService();
+const simpleEmailService = new SimpleEmailService();
 
 // Route pour envoyer un email
 router.post('/send', async (req, res) => {
@@ -59,8 +60,30 @@ router.post('/send', async (req, res) => {
       });
     }
     
-    // Envoyer l'email
-    const result = await emailService.sendEmail({
+    // Utiliser le vrai service email si c'est une vérification
+    if (template === 'verification' && data && data.verificationCode) {
+      try {
+        const result = await emailService.sendVerificationEmail(
+          to,
+          data.firstName,
+          data.lastName,
+          data.verificationCode
+        );
+        
+        console.log('✅ Email réel envoyé avec succès');
+        return res.json({
+          success: true,
+          message: 'Email de vérification envoyé à votre adresse',
+          messageId: result.messageId
+        });
+      } catch (emailError) {
+        console.warn('⚠️ Erreur service email réel, utilisation du fallback:', emailError.message);
+        // Fallback vers le service simple
+      }
+    }
+    
+    // Fallback : utiliser le service simple
+    const result = await simpleEmailService.sendEmail({
       to,
       subject,
       template,
