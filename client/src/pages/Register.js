@@ -4,6 +4,7 @@ import { validateRegistration } from '../utils/authValidation';
 import { useAuth } from '../contexts/AuthContext';
 import emailVerificationService from '../services/simpleEmailVerificationService';
 import EmailVerificationModal from '../components/EmailVerification/EmailVerificationModal';
+import { clearEmailData } from '../utils/clearEmailData';
 // Debug components removed for simplicity
 import { 
   Eye, 
@@ -62,6 +63,9 @@ const Register = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
+    // Nettoyer les données email au chargement
+    clearEmailData();
+    
     if (isAuthenticated) {
       navigate('/');
     }
