@@ -44,9 +44,15 @@ const AdminDashboardComplete = () => {
         
         // Calculer les statistiques réelles
         const today = new Date().toISOString().split('T')[0];
-        const todayOrders = orders.filter(order => 
-          new Date(order.createdAt).toISOString().split('T')[0] === today
-        );
+        const todayOrders = orders.filter(order => {
+          try {
+            const orderDate = new Date(order.createdAt);
+            if (isNaN(orderDate.getTime())) return false;
+            return orderDate.toISOString().split('T')[0] === today;
+          } catch (error) {
+            return false;
+          }
+        });
         
         const totalRevenue = orders.reduce((sum, order) => sum + (order.total || order.totalAmount || 0), 0);
         const todayRevenue = todayOrders.reduce((sum, order) => sum + (order.total || order.totalAmount || 0), 0);
@@ -277,8 +283,8 @@ const AdminDashboardComplete = () => {
             </div>
             <div className="p-6">
               <div className="space-y-4">
-                {recentOrders.map((order) => (
-                  <div key={order.id} className="flex items-center justify-between py-3 border-b border-gray-100 last:border-b-0">
+                {recentOrders.map((order, index) => (
+                  <div key={order.id || order._id || `order-${index}`} className="flex items-center justify-between py-3 border-b border-gray-100 last:border-b-0">
                     <div className="flex-1">
                       <p className="font-medium text-gray-900">{order.customer}</p>
                       <p className="text-sm text-gray-500">{order.date}</p>
