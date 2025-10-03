@@ -29,10 +29,10 @@ const Login = () => {
   }, [isAuthenticated, navigate, from]);
 
   useEffect(() => {
-    // Toujours en mode client avec identifiants par défaut
+    // Initialiser avec un email vide pour forcer la saisie
     setFormData({
-      email: 'client@bowoye.gn',
-      password: 'password123'
+      email: '',
+      password: ''
     });
   }, []);
 
@@ -277,6 +277,43 @@ const Login = () => {
               </button>
             </div>
           </form>
+
+          {/* Comptes de test */}
+          <div className="mt-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
+            <h3 className="text-sm font-medium text-blue-900 mb-2">🧪 Comptes de test disponibles :</h3>
+            <div className="space-y-1 text-xs text-blue-800">
+              <div className="flex justify-between">
+                <span>Admin Principal:</span>
+                <button 
+                  onClick={() => setFormData({ email: 'amadoubowoye@gmail.com', password: 'admin123' })}
+                  className="text-blue-600 hover:text-blue-800 underline"
+                >
+                  amadoubowoye@gmail.com
+                </button>
+              </div>
+              <div className="flex justify-between">
+                <span>Admin Koula:</span>
+                <button 
+                  onClick={() => setFormData({ email: 'admin@koula.gn', password: 'admin123' })}
+                  className="text-blue-600 hover:text-blue-800 underline"
+                >
+                  admin@koula.gn
+                </button>
+              </div>
+              <div className="flex justify-between">
+                <span>Client Test:</span>
+                <button 
+                  onClick={() => setFormData({ email: 'client@koula.gn', password: 'password123' })}
+                  className="text-blue-600 hover:text-blue-800 underline"
+                >
+                  client@koula.gn
+                </button>
+              </div>
+            </div>
+            <p className="text-xs text-blue-700 mt-2">
+              💡 Cliquez sur un email pour le remplir automatiquement
+            </p>
+          </div>
 
           {/* Liens utiles */}
           <div className="mt-8">

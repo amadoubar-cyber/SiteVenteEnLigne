@@ -1,10 +1,10 @@
 // API d'authentification locale pour les tests
+// EMAIL COMME IDENTIFIANT UNIQUE - Plus besoin d'ID séparé
 const LOCAL_USERS = [
   {
-    id: '1',
+    email: 'admin@koula.gn', // EMAIL = ID UNIQUE
     firstName: 'Admin',
     lastName: 'Koula',
-    email: 'admin@koula.gn',
     password: 'admin123',
     phone: '+224 123 456 789',
     role: 'admin',
@@ -12,13 +12,29 @@ const LOCAL_USERS = [
       street: 'Rue de la République',
       city: 'Conakry',
       country: 'Guinée'
-    }
+    },
+    createdAt: new Date().toISOString(),
+    verified: true
   },
   {
-    id: '2',
+    email: 'amadoubowoye@gmail.com', // EMAIL ADMIN PRINCIPAL
+    firstName: 'Amadou',
+    lastName: 'Diallo',
+    password: 'admin123',
+    phone: '+224 626 99 13 18',
+    role: 'admin',
+    address: {
+      street: 'Labé',
+      city: 'Labé',
+      country: 'Guinée'
+    },
+    createdAt: new Date().toISOString(),
+    verified: true
+  },
+  {
+    email: 'client@koula.gn', // EMAIL = ID UNIQUE
     firstName: 'Client',
     lastName: 'Test',
-    email: 'client@koula.gn',
     password: 'password123',
     phone: '+224 987 654 321',
     role: 'user',
@@ -26,13 +42,14 @@ const LOCAL_USERS = [
       street: 'Avenue du Commerce',
       city: 'Conakry',
       country: 'Guinée'
-    }
+    },
+    createdAt: new Date().toISOString(),
+    verified: true
   },
   {
-    id: '3',
+    email: 'marie@koula.gn', // EMAIL = ID UNIQUE
     firstName: 'Marie',
     lastName: 'Diallo',
-    email: 'marie@koula.gn',
     password: 'password123',
     phone: '+224 555 123 456',
     role: 'user',
@@ -40,7 +57,9 @@ const LOCAL_USERS = [
       street: 'Boulevard du 8 Mars',
       city: 'Conakry',
       country: 'Guinée'
-    }
+    },
+    createdAt: new Date().toISOString(),
+    verified: true
   }
 ];
 
@@ -48,8 +67,9 @@ const LOCAL_USERS = [
 const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 
 // Générer un token simple
-const generateToken = (userId) => {
-  return `local_token_${userId}_${Date.now()}`;
+// Générer un token basé sur l'email (identifiant unique)
+const generateToken = (email) => {
+  return `local_token_${email.replace('@', '_at_').replace('.', '_dot_')}_${Date.now()}`;
 };
 
 export const localAuthAPI = {
@@ -64,11 +84,9 @@ export const localAuthAPI = {
     if (users.length === 0) {
       const defaultUsers = [
         {
-          _id: '1',
-          id: 1,
+          email: 'admin@koula.gn', // EMAIL = ID UNIQUE
           firstName: 'Admin',
           lastName: 'Koula',
-          email: 'admin@koula.gn',
           password: 'admin123',
           phone: '+224 123 456 789',
           role: 'admin',
@@ -77,14 +95,28 @@ export const localAuthAPI = {
           lastLogin: null,
           totalOrders: 0,
           totalSpent: 0,
-          address: 'Conakry, Guinée'
+          address: 'Conakry, Guinée',
+          verified: true
         },
         {
-          _id: '2',
-          id: 2,
+          email: 'amadoubowoye@gmail.com', // EMAIL ADMIN PRINCIPAL
+          firstName: 'Amadou',
+          lastName: 'Diallo',
+          password: 'admin123',
+          phone: '+224 626 99 13 18',
+          role: 'admin',
+          isActive: true,
+          createdAt: new Date().toISOString(),
+          lastLogin: null,
+          totalOrders: 0,
+          totalSpent: 0,
+          address: 'Labé, Guinée',
+          verified: true
+        },
+        {
+          email: 'client@koula.gn', // EMAIL = ID UNIQUE
           firstName: 'Client',
           lastName: 'Test',
-          email: 'client@koula.gn',
           password: 'password123',
           phone: '+224 987 654 321',
           role: 'client',
@@ -93,7 +125,8 @@ export const localAuthAPI = {
           lastLogin: null,
           totalOrders: 0,
           totalSpent: 0,
-          address: 'Conakry, Guinée'
+          address: 'Conakry, Guinée',
+          verified: true
         }
       ];
       localStorage.setItem('users', JSON.stringify(defaultUsers));
@@ -106,12 +139,12 @@ export const localAuthAPI = {
       throw new Error('Email ou mot de passe incorrect');
     }
 
-    const token = generateToken(user.id);
+    const token = generateToken(user.email); // Utiliser l'email comme ID
     const { password: _, ...userWithoutPassword } = user;
     
     // Mettre à jour la dernière connexion
     const updatedUsers = users.map(u => 
-      u.id === user.id ? { ...u, lastLogin: new Date().toISOString() } : u
+      u.email === user.email ? { ...u, lastLogin: new Date().toISOString() } : u
     );
     localStorage.setItem('users', JSON.stringify(updatedUsers));
     
@@ -142,13 +175,11 @@ export const localAuthAPI = {
       throw new Error('Un compte avec cet email existe déjà');
     }
 
-    // Créer un nouvel utilisateur
+    // Créer un nouvel utilisateur avec EMAIL comme ID UNIQUE
     const newUser = {
-      _id: Date.now().toString(),
-      id: Date.now(),
+      email, // EMAIL = ID UNIQUE
       firstName,
       lastName,
-      email,
       password,
       phone: phone || '',
       role: 'client',
@@ -157,14 +188,15 @@ export const localAuthAPI = {
       lastLogin: null,
       totalOrders: 0,
       totalSpent: 0,
-      address: phone || ''
+      address: phone || '',
+      verified: false // Nouveau compte non vérifié
     };
 
     // Ajouter à la liste des utilisateurs
     const updatedUsers = [...existingUsers, newUser];
     localStorage.setItem('users', JSON.stringify(updatedUsers));
 
-    const token = generateToken(newUser.id);
+    const token = generateToken(newUser.email); // Utiliser l'email comme ID
     const { password: _, ...userWithoutPassword } = newUser;
     
     // Stocker en localStorage
