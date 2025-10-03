@@ -5,6 +5,7 @@ import { useAuth } from '../contexts/AuthContext';
 import emailVerificationService from '../services/emailVerificationService';
 import EmailVerificationModal from '../components/EmailVerification/EmailVerificationModal';
 import EmailDebug from '../components/Debug/EmailDebug';
+import SimpleEmailDebug from '../components/Debug/SimpleEmailDebug';
 import { 
   Eye, 
   EyeOff, 
@@ -56,6 +57,7 @@ const Register = () => {
   const [emailVerified, setEmailVerified] = useState(false);
   const [phoneVerified, setPhoneVerified] = useState(false);
   const [verificationCode, setVerificationCode] = useState('');
+  const [testMode, setTestMode] = useState(false);
   
   const { register, isAuthenticated, loading } = useAuth();
   const navigate = useNavigate();
@@ -200,6 +202,32 @@ const Register = () => {
     // Optionnel: afficher un message d'erreur
   };
 
+  // Fonction de test direct
+  const handleDirectTest = async () => {
+    setTestMode(true);
+    try {
+      const testEmail = 'test@bowoye.gn';
+      const testFirstName = 'Test';
+      const testLastName = 'User';
+      
+      const result = await emailVerificationService.sendVerificationEmail(
+        testEmail,
+        testFirstName,
+        testLastName
+      );
+      
+      if (result.success) {
+        alert('✅ Test réussi ! Vérifiez le panneau en haut à droite pour voir le code.');
+      } else {
+        alert('❌ Erreur: ' + result.message);
+      }
+    } catch (error) {
+      alert('❌ Erreur: ' + error.message);
+    } finally {
+      setTestMode(false);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-orange-50">
       {/* Header */}
@@ -320,7 +348,16 @@ const Register = () => {
             <div className="mb-8">
               <div className="flex items-center justify-between mb-2">
                 <span className="text-sm font-medium text-gray-700">Étape {currentStep} sur 3</span>
-                <span className="text-sm text-gray-500">{Math.round((currentStep / 3) * 100)}%</span>
+                <div className="flex items-center space-x-2">
+                  <span className="text-sm text-gray-500">{Math.round((currentStep / 3) * 100)}%</span>
+                  <button
+                    onClick={handleDirectTest}
+                    disabled={testMode}
+                    className="px-3 py-1 bg-red-600 text-white rounded text-xs hover:bg-red-700 disabled:opacity-50"
+                  >
+                    {testMode ? 'Test...' : '🧪 Test'}
+                  </button>
+                </div>
               </div>
               <div className="w-full bg-gray-200 rounded-full h-2">
                 <div 
@@ -767,6 +804,9 @@ const Register = () => {
         onVerificationSuccess={handleEmailVerificationSuccess}
         onVerificationFailed={handleEmailVerificationFailed}
       />
+
+      {/* Composant de debug simple pour voir tous les codes */}
+      <SimpleEmailDebug />
 
       {/* Composant de debug pour voir le code */}
       {formData.email && (
