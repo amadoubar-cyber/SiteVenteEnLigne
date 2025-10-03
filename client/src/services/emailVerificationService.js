@@ -1,6 +1,7 @@
 // Service de vérification d'email pour la création de comptes
 import emailLinkService from './emailLinkService';
 import realEmailService from './realEmailService';
+import simpleEmailService from './simpleEmailService';
 
 const EMAIL_VERIFICATION_KEY = 'bowoye_email_verifications';
 const PENDING_ACCOUNTS_KEY = 'bowoye_pending_accounts';

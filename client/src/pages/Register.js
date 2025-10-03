@@ -2,12 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { validateRegistration } from '../utils/authValidation';
 import { useAuth } from '../contexts/AuthContext';
-import emailVerificationService from '../services/emailVerificationService';
+import emailVerificationService from '../services/simpleEmailVerificationService';
 import EmailVerificationModal from '../components/EmailVerification/EmailVerificationModal';
-import EmailDebug from '../components/Debug/EmailDebug';
-import SimpleEmailDebug from '../components/Debug/SimpleEmailDebug';
-import CodeDebugger from '../components/Debug/CodeDebugger';
-import CodeTester from '../components/Debug/CodeTester';
+// Debug components removed for simplicity
 import { 
   Eye, 
   EyeOff, 
@@ -819,14 +816,18 @@ const Register = () => {
         />
       )}
 
-      {/* Debugger de codes en temps réel */}
+      {/* Message simple pour afficher le code */}
       {formData.email && (
-        <CodeDebugger email={formData.email} />
-      )}
-
-      {/* Testeur de code pour debug */}
-      {formData.email && (
-        <CodeTester email={formData.email} />
+        <div className="fixed bottom-4 right-4 bg-green-500 text-white p-4 rounded-lg shadow-lg z-50 max-w-sm">
+          <h3 className="font-bold mb-2">📧 Code de Vérification</h3>
+          <p className="text-sm mb-2">Pour: {formData.email}</p>
+          <p className="text-sm">
+            <strong>Code:</strong> {emailVerificationService.getCode(formData.email) || 'En cours...'}
+          </p>
+          <p className="text-xs mt-2 opacity-75">
+            💡 Copiez ce code dans le modal de vérification
+          </p>
+        </div>
       )}
 
     </div>
