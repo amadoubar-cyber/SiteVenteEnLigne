@@ -1,15 +1,10 @@
 const nodemailer = require('nodemailer');
+const emailConfig = require('../config/email');
 
 class EmailService {
   constructor() {
-    // Configuration pour Gmail (ou autre service email)
-    this.transporter = nodemailer.createTransporter({
-      service: 'gmail', // Ou 'outlook', 'yahoo', etc.
-      auth: {
-        user: process.env.EMAIL_USER || 'amadoubowoye@gmail.com',
-        pass: process.env.EMAIL_PASSWORD || 'votre_mot_de_passe_application' // Mot de passe d'application Gmail
-      }
-    });
+    // Utiliser la configuration Gmail par défaut
+    this.transporter = nodemailer.createTransport(emailConfig.gmail);
   }
 
   // Envoyer un email de vérification
