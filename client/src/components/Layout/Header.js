@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { useCart } from '../../contexts/CartContext';
 import { Search, ShoppingCart, User, Menu, X, LogOut, Truck, Zap } from 'lucide-react';
+import NotificationBell from '../Notifications/NotificationBell';
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -97,19 +98,23 @@ const Header = () => {
 
             {/* User Menu */}
             {isAuthenticated ? (
-              <div className="relative">
-                <button
-                  onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
-                  className="flex items-center space-x-1 text-white hover:text-gray-200 transition-colors"
-                >
-                  <User className="h-5 w-5" />
-                  <span className="text-sm font-medium hidden lg:inline">{user?.firstName}</span>
-                  {user?.role === 'admin' && (
-                    <span className="bg-yellow-500 text-yellow-900 text-xs px-1 py-0.5 rounded-full font-bold">
-                      ADMIN
-                    </span>
-                  )}
-                </button>
+              <div className="flex items-center space-x-4">
+                {/* Cloche de notifications */}
+                <NotificationBell />
+                
+                <div className="relative">
+                  <button
+                    onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
+                    className="flex items-center space-x-1 text-white hover:text-gray-200 transition-colors"
+                  >
+                    <User className="h-5 w-5" />
+                    <span className="text-sm font-medium hidden lg:inline">{user?.firstName}</span>
+                    {user?.role === 'admin' && (
+                      <span className="bg-yellow-500 text-yellow-900 text-xs px-1 py-0.5 rounded-full font-bold">
+                        ADMIN
+                      </span>
+                    )}
+                  </button>
                 
                 {isUserMenuOpen && (
                   <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-50 border border-secondary-200">
