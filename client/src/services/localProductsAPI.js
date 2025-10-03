@@ -1,9 +1,9 @@
+// Import du service d'upload d'images
+import { syncProductImages } from './imageUploadAPI';
+
 // API hybride pour les produits : localStorage + Backend
 const LOCAL_PRODUCTS_KEY = 'koula_products';
 const API_BASE_URL = process.env.REACT_APP_API_URL || 'https://bowoye-backend.onrender.com';
-
-// Import du service d'upload d'images
-import { syncProductImages } from './imageUploadAPI';
 
 // Simuler un délai de réseau
 const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));

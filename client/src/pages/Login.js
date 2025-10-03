@@ -68,11 +68,11 @@ const Login = () => {
     setLoading(true);
 
     // Vérifier d'abord si c'est un admin
-           const validAdminCredentials = [
+    const validAdminCredentials = [
              { email: 'amadoubowoye@gmail.com', password: 'admin123' },
-             { email: 'admin@koula.gn', password: 'admin123' },
+      { email: 'admin@koula.gn', password: 'admin123' },
              { email: 'superadmin@koula.gn', password: 'superadmin123' }
-           ];
+    ];
 
     const isValidAdmin = validAdminCredentials.some(
       cred => cred.email === formData.email && cred.password === formData.password
@@ -113,8 +113,8 @@ const Login = () => {
             <div>
               <h1 className="text-3xl font-bold">Bowoye Multi Services</h1>
               <p className="text-blue-200">Votre plateforme e-commerce</p>
-            </div>
           </div>
+        </div>
           
           <h2 className="text-4xl font-bold mb-6">
             Connectez-vous à votre compte
@@ -233,28 +233,28 @@ const Login = () => {
             </div>
 
                    {/* Options */}
-                   <div className="flex items-center justify-between">
-                     <div className="flex items-center">
-                       <input
-                         id="remember-me"
-                         name="remember-me"
-                         type="checkbox"
+            <div className="flex items-center justify-between">
+              <div className="flex items-center">
+                <input
+                  id="remember-me"
+                  name="remember-me"
+                  type="checkbox"
                          className="h-4 w-4 focus:ring-2 border-gray-300 rounded text-blue-600 focus:ring-blue-500"
-                       />
-                       <label htmlFor="remember-me" className="ml-2 block text-sm text-gray-900">
-                         Se souvenir de moi
-                       </label>
-                     </div>
+                />
+                <label htmlFor="remember-me" className="ml-2 block text-sm text-gray-900">
+                  Se souvenir de moi
+                </label>
+              </div>
 
-                     <div className="text-sm">
+              <div className="text-sm">
                        <Link
                          to="/forgot-password"
                          className="font-medium text-blue-600 hover:text-blue-500 hover:underline"
                        >
-                         Mot de passe oublié ?
+                  Mot de passe oublié ?
                        </Link>
-                     </div>
-                   </div>
+              </div>
+            </div>
 
             {/* Submit button */}
             <div>
