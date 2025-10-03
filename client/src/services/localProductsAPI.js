@@ -238,8 +238,26 @@ export const localProductsAPI = {
   // Ajouter un produit au backend
   addProduct: async (productData) => {
     try {
-      console.log('➕ Ajout d\'un produit au backend...');
+      console.log('➕ Ajout d\'un produit (mode localStorage)...');
       
+      // Mode localStorage uniquement en attendant la correction CORS
+      const newProduct = {
+        ...productData,
+        _id: Date.now().toString(),
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
+      };
+      
+      // Ajouter au localStorage
+      const localProducts = JSON.parse(localStorage.getItem(LOCAL_PRODUCTS_KEY) || '[]');
+      localProducts.push(newProduct);
+      localStorage.setItem(LOCAL_PRODUCTS_KEY, JSON.stringify(localProducts));
+      
+      console.log('✅ Produit ajouté avec succès (localStorage)');
+      return { success: true, product: newProduct };
+      
+      // TODO: Réactiver la synchronisation backend après correction CORS
+      /*
       // Synchroniser les images d'abord
       const productWithSyncedImages = await syncProductImages(productData);
       
@@ -264,6 +282,7 @@ export const localProductsAPI = {
       } else {
         throw new Error(`Erreur ${response.status}: ${response.statusText}`);
       }
+      */
     } catch (error) {
       console.error('❌ Erreur lors de l\'ajout:', error);
       
