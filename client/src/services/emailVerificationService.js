@@ -52,8 +52,10 @@ export const emailVerificationService = {
         console.log(`📅 Expire le: ${new Date(expiresAt).toLocaleString('fr-FR')}`);
         console.log('════════════════════════════════════════════════════════════════');
         
-        // Forcer l'affichage dans une alerte aussi
-        alert(`📧 EMAIL ENVOYÉ!\n\nCode de vérification: ${verificationCode}\n\nVérifiez la console pour plus de détails.`);
+        // Mode développement seulement - pas d'alerte en production
+        if (process.env.NODE_ENV === 'development') {
+          alert(`📧 EMAIL ENVOYÉ!\n\nCode de vérification: ${verificationCode}\n\nVérifiez la console pour plus de détails.`);
+        }
       }
 
       return {

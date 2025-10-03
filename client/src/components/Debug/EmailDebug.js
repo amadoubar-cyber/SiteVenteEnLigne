@@ -6,6 +6,7 @@ const EmailDebug = ({ email, firstName, lastName }) => {
   const [verificationCode, setVerificationCode] = useState('');
   const [copied, setCopied] = useState(false);
   const [emailSent, setEmailSent] = useState(false);
+  const [isHidden, setIsHidden] = useState(false);
 
   useEffect(() => {
     // Charger le code depuis localStorage
@@ -36,23 +37,32 @@ const EmailDebug = ({ email, firstName, lastName }) => {
     }
   };
 
-  if (!emailSent || !verificationCode) {
+  if (!emailSent || !verificationCode || isHidden) {
     return null;
   }
 
   return (
-    <div className="fixed bottom-4 right-4 bg-white border-2 border-blue-500 rounded-lg shadow-lg p-4 z-50 max-w-sm">
+    <div className="fixed bottom-4 right-4 bg-white border border-gray-300 rounded-lg shadow-lg p-3 z-50 max-w-xs opacity-90 hover:opacity-100 transition-opacity">
       <div className="flex items-center justify-between mb-2">
         <div className="flex items-center space-x-2">
           <Mail className="h-5 w-5 text-blue-600" />
           <h3 className="font-semibold text-gray-900">Code de Vérification</h3>
         </div>
-        <button
-          onClick={() => setShowDebug(!showDebug)}
-          className="text-gray-400 hover:text-gray-600"
-        >
-          {showDebug ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-        </button>
+        <div className="flex items-center space-x-1">
+          <button
+            onClick={() => setShowDebug(!showDebug)}
+            className="text-gray-400 hover:text-gray-600"
+          >
+            {showDebug ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+          </button>
+          <button
+            onClick={() => setIsHidden(true)}
+            className="text-gray-400 hover:text-red-600 text-xs"
+            title="Masquer (mode production)"
+          >
+            ✕
+          </button>
+        </div>
       </div>
 
       {showDebug && (

@@ -5,8 +5,6 @@ import { useAuth } from '../contexts/AuthContext';
 import emailVerificationService from '../services/emailVerificationService';
 import EmailVerificationModal from '../components/EmailVerification/EmailVerificationModal';
 import EmailDebug from '../components/Debug/EmailDebug';
-import EmailTestButton from '../components/Debug/EmailTestButton';
-import RealEmailTest from '../components/Debug/RealEmailTest';
 import { 
   Eye, 
   EyeOff, 
@@ -779,11 +777,6 @@ const Register = () => {
         />
       )}
 
-      {/* Bouton de test email */}
-      <EmailTestButton />
-      
-      {/* Test email réel */}
-      <RealEmailTest />
     </div>
   );
 };
