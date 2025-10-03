@@ -1,4 +1,6 @@
 // Service de vérification d'email pour la création de comptes
+import emailLinkService from './emailLinkService';
+
 const EMAIL_VERIFICATION_KEY = 'bowoye_email_verifications';
 const PENDING_ACCOUNTS_KEY = 'bowoye_pending_accounts';
 
@@ -8,7 +10,7 @@ export const emailVerificationService = {
     return Math.floor(100000 + Math.random() * 900000).toString(); // 6 chiffres
   },
 
-  // Envoyer un email de vérification (simulation)
+  // Envoyer un email de vérification avec lien
   sendVerificationEmail: async (email, firstName, lastName) => {
     try {
       const verificationCode = emailVerificationService.generateVerificationCode();
@@ -27,18 +29,21 @@ export const emailVerificationService = {
       });
       localStorage.setItem(EMAIL_VERIFICATION_KEY, JSON.stringify(verifications));
 
-      // Simuler l'envoi d'email
-      console.log(`📧 Email de vérification envoyé à ${email}`);
-      console.log(`🔑 Code de vérification: ${verificationCode}`);
-      console.log(`⏰ Code valide pendant 15 minutes`);
-
-      // Dans un vrai projet, vous enverriez un vrai email ici
-      // await sendRealEmail(email, verificationCode, firstName);
+      // Utiliser le service de liens email pour envoyer l'email
+      const result = await emailLinkService.sendVerificationEmail(email, firstName, lastName, verificationCode);
+      
+      if (result.success) {
+        console.log(`📧 Email de vérification envoyé à ${email}`);
+        console.log(`🔗 Lien de vérification: ${result.link}`);
+        console.log(`🔑 Code de vérification: ${verificationCode}`);
+        console.log(`⏰ Code valide pendant 15 minutes`);
+      }
 
       return {
         success: true,
-        message: 'Code de vérification envoyé par email',
-        expiresIn: 15 * 60 // 15 minutes en secondes
+        message: 'Email de vérification envoyé avec lien de vérification',
+        expiresIn: 15 * 60, // 15 minutes en secondes
+        link: result.link
       };
     } catch (error) {
       console.error('Erreur envoi email vérification:', error);

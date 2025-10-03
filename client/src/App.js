@@ -22,6 +22,7 @@ import ResetPassword from './pages/ResetPassword';
 import Profile from './pages/Profile';
 import Orders from './pages/Orders';
 import OrderDetail from './pages/OrderDetail';
+import VerifyEmail from './pages/VerifyEmail';
 import AdminLayout from './components/Layout/AdminLayout';
 import AdminDirect from './pages/admin/AdminDirect';
 import AdminDashboard from './pages/admin/Dashboard';
@@ -91,6 +92,7 @@ function App() {
               <Route path="cart" element={<Cart />} />
               <Route path="login" element={<Login />} />
               <Route path="register" element={<Register />} />
+              <Route path="verify-email" element={<VerifyEmail />} />
               <Route path="forgot-password" element={<ForgotPassword />} />
               <Route path="reset-password/:token" element={<ResetPassword />} />
                   <Route path="admin-page" element={<AdminPage />} />
