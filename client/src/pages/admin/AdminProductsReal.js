@@ -62,10 +62,10 @@ const AdminProductsReal = () => {
       setLoading(true);
       
       // Utiliser l'API hybride (backend + localStorage)
-      const response = await localProductsAPI.getAll();
-      if (response.data.success) {
-        setProducts(response.data.data);
-        console.log(`📦 ${response.data.data.length} produits chargés`);
+      const response = await localProductsAPI.getProducts();
+      if (response.products) {
+        setProducts(response.products);
+        console.log(`📦 ${response.products.length} produits chargés`);
       } else {
         setProducts([]);
         console.log('📦 Aucun produit trouvé');
