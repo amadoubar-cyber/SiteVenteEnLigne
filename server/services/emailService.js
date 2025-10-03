@@ -8,7 +8,7 @@ class EmailService {
       service: 'gmail',
       auth: {
         user: 'amadoubowoye@gmail.com',
-        pass: 'VOTRE_MOT_DE_PASSE_APPLICATION_GMAIL' // Remplacez par votre mot de passe d'application
+        pass: 'votre_mot_de_passe_application_ici' // 🔧 REMPLACEZ PAR VOTRE MOT DE PASSE D'APPLICATION GMAIL
       }
     });
   }

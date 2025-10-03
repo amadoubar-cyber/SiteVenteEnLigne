@@ -102,10 +102,21 @@ export const emailVerificationService = {
         };
       }
 
-      // Vérifier le code
-      if (verification.code !== code) {
+      // Vérifier le code avec debug
+      console.log('🔍 DEBUG VÉRIFICATION CODE:');
+      console.log('Code saisi:', code);
+      console.log('Code attendu:', verification.code);
+      console.log('Email:', email);
+      console.log('Type code saisi:', typeof code);
+      console.log('Type code attendu:', typeof verification.code);
+      console.log('Codes identiques:', verification.code === code);
+      console.log('Codes identiques (string):', verification.code === String(code));
+      
+      if (verification.code !== code && verification.code !== String(code)) {
         verification.attempts += 1;
         localStorage.setItem(EMAIL_VERIFICATION_KEY, JSON.stringify(verifications));
+        
+        console.log('❌ Code incorrect - tentatives:', verification.attempts);
         
         return {
           success: false,

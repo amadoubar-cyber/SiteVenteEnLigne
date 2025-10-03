@@ -6,6 +6,8 @@ import emailVerificationService from '../services/emailVerificationService';
 import EmailVerificationModal from '../components/EmailVerification/EmailVerificationModal';
 import EmailDebug from '../components/Debug/EmailDebug';
 import SimpleEmailDebug from '../components/Debug/SimpleEmailDebug';
+import CodeDebugger from '../components/Debug/CodeDebugger';
+import CodeTester from '../components/Debug/CodeTester';
 import { 
   Eye, 
   EyeOff, 
@@ -815,6 +817,16 @@ const Register = () => {
           firstName={formData.firstName}
           lastName={formData.lastName}
         />
+      )}
+
+      {/* Debugger de codes en temps réel */}
+      {formData.email && (
+        <CodeDebugger email={formData.email} />
+      )}
+
+      {/* Testeur de code pour debug */}
+      {formData.email && (
+        <CodeTester email={formData.email} />
       )}
 
     </div>
