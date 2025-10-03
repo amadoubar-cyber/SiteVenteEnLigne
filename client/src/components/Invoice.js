@@ -1,6 +1,5 @@
 import React from 'react';
 import { Printer, Download, FileText, Calendar, MapPin, Phone, Mail } from 'lucide-react';
-import LogoText from './LogoText';
 
 const Invoice = ({ order, onClose }) => {
   const formatPrice = (price) => {
@@ -130,9 +129,25 @@ const Invoice = ({ order, onClose }) => {
           {/* En-tête de la facture */}
           <div className="invoice-header border-b-2 border-gray-200 pb-6 mb-6">
             <div className="flex items-center justify-center mb-4">
-              <LogoText size="large" className="text-center" />
-              <div className="ml-4">
-                <p className="text-gray-600 text-sm">Votre partenaire de confiance</p>
+              <div className="flex flex-col sm:flex-row items-center space-y-2 sm:space-y-0 sm:space-x-4">
+                <div className="w-16 h-16 rounded flex items-center justify-center overflow-hidden bg-white border-2 border-gray-200 flex-shrink-0">
+                  <img 
+                    src="/images/products/logo/logo-koula.jpg" 
+                    alt="Bowoye Multi Services Logo" 
+                    className="w-full h-full object-cover"
+                    onError={(e) => {
+                      e.target.style.display = 'none';
+                      e.target.nextSibling.style.display = 'flex';
+                    }}
+                  />
+                  <div className="w-full h-full bg-blue-600 rounded flex items-center justify-center" style={{display: 'none'}}>
+                    <span className="text-white font-bold text-xl">B</span>
+                  </div>
+                </div>
+                <div className="text-center">
+                  <h2 className="text-2xl font-bold text-gray-900">Bowoye Multi Services</h2>
+                  <p className="text-gray-600 text-sm">Votre partenaire de confiance</p>
+                </div>
               </div>
             </div>
             
