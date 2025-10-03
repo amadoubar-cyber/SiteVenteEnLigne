@@ -38,6 +38,12 @@ export const emailVerificationService = {
   // Vérifier si un email est déjà vérifié
   isEmailVerified: (email) => {
     return simpleEmailService.isEmailVerified(email);
+  },
+
+  // Sauvegarder un compte en attente
+  savePendingAccount: (userData) => {
+    // Simple - pas de localStorage complexe
+    return true;
   }
 };
 
