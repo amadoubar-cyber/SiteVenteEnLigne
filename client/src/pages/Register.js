@@ -58,6 +58,7 @@ const Register = () => {
   const [phoneVerified, setPhoneVerified] = useState(false);
   const [verificationCode, setVerificationCode] = useState('');
   const [testMode, setTestMode] = useState(false);
+  const [displayCode, setDisplayCode] = useState('');
   
   const { register, isAuthenticated, loading } = useAuth();
   const navigate = useNavigate();
@@ -164,6 +165,11 @@ const Register = () => {
       );
       
       if (result.success) {
+        // Stocker le code pour l'affichage
+        if (result.code) {
+          setDisplayCode(result.code);
+        }
+        
         // Sauvegarder les données en attente
         emailVerificationService.savePendingAccount(formData);
         setShowEmailVerification(true);
@@ -816,7 +822,7 @@ const Register = () => {
           <h3 className="font-bold mb-2">📧 Code de Vérification</h3>
           <p className="text-sm mb-2">Pour: {formData.email}</p>
           <p className="text-sm">
-            <strong>Code:</strong> {emailVerificationService.getCode(formData.email) || 'En cours...'}
+            <strong>Code:</strong> {displayCode || 'En cours...'}
           </p>
           <p className="text-xs mt-2 opacity-75">
             💡 Copiez ce code dans le modal de vérification
