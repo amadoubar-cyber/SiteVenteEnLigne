@@ -21,6 +21,7 @@ const stockMovementRoutes = require('./routes/stockMovements');
 const saleRoutes = require('./routes/sales');
 const debtRoutes = require('./routes/debts');
 const receiptRoutes = require('./routes/receipts');
+const emailRoutes = require('./routes/email');
 
 // Connect to database
 connectDB();
@@ -96,6 +97,7 @@ app.use('/api/stock-movements', stockMovementRoutes);
 app.use('/api/sales', saleRoutes);
 app.use('/api/debts', debtRoutes);
 app.use('/api/receipts', receiptRoutes);
+app.use('/api/email', emailRoutes);
 
 // Health check endpoint
 app.get('/api/health', (req, res) => {

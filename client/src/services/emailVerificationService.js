@@ -1,5 +1,6 @@
 // Service de vérification d'email pour la création de comptes
 import emailLinkService from './emailLinkService';
+import realEmailService from './realEmailService';
 
 const EMAIL_VERIFICATION_KEY = 'bowoye_email_verifications';
 const PENDING_ACCOUNTS_KEY = 'bowoye_pending_accounts';
@@ -29,8 +30,15 @@ export const emailVerificationService = {
       });
       localStorage.setItem(EMAIL_VERIFICATION_KEY, JSON.stringify(verifications));
 
-      // Utiliser le service de liens email pour envoyer l'email
-      const result = await emailLinkService.sendVerificationEmail(email, firstName, lastName, verificationCode);
+      // Essayer d'abord le service email réel, puis fallback vers le service local
+      let result;
+      try {
+        result = await realEmailService.sendVerificationEmail(email, firstName, lastName, verificationCode);
+        console.log('✅ Service email réel utilisé');
+      } catch (error) {
+        console.warn('⚠️ Service email réel indisponible, utilisation du fallback local');
+        result = await emailLinkService.sendVerificationEmail(email, firstName, lastName, verificationCode);
+      }
       
       if (result.success) {
         console.log('════════════════════════════════════════════════════════════════');
