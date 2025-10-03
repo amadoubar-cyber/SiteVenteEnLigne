@@ -804,17 +804,7 @@ const Register = () => {
         onVerificationFailed={handleEmailVerificationFailed}
       />
 
-      {/* Composant de debug simple pour voir tous les codes */}
-      <SimpleEmailDebug />
-
-      {/* Composant de debug pour voir le code */}
-      {formData.email && (
-        <EmailDebug
-          email={formData.email}
-          firstName={formData.firstName}
-          lastName={formData.lastName}
-        />
-      )}
+      {/* Debug components removed for simplicity */}
 
       {/* Message simple pour afficher le code */}
       {formData.email && (
