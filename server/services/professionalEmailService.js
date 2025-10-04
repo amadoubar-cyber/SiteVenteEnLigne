@@ -7,7 +7,7 @@ class ProfessionalEmailService {
       service: "gmail", // Gmail service
       auth: {
         user: "diariamadou43@gmail.com", // Votre email configuré
-        pass: "AmadouDialloDiari4@" // Votre mot de passe d'application
+        pass: "atlz bogk zajd uglz" // ✅ MOT DE PASSE D'APPLICATION GMAIL CONFIGURÉ
       }
     });
   }

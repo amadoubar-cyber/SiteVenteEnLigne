@@ -8,7 +8,7 @@ class EmailService {
       service: 'gmail',
       auth: {
         user: 'diariamadou43@gmail.com',
-        pass: 'AmadouDialloDiari4@' // 🔧 REMPLACEZ PAR VOTRE MOT DE PASSE D'APPLICATION GMAIL
+        pass: 'atlz bogk zajd uglz' // ✅ MOT DE PASSE D'APPLICATION GMAIL CONFIGURÉ
       }
     });
   }
