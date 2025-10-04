@@ -11,6 +11,7 @@ const connectDB = require('./config/database');
 
 // Import routes
 const authRoutes = require('./routes/auth');
+const authWithOTPRoutes = require('./routes/authWithOTP');
 const productRoutes = require('./routes/products');
 const categoryRoutes = require('./routes/categories');
 const orderRoutes = require('./routes/orders');
@@ -87,6 +88,7 @@ app.use('/uploads', (req, res, next) => {
 
 // API Routes
 app.use('/api/auth', authRoutes);
+app.use('/api/auth-otp', authWithOTPRoutes);
 app.use('/api/products', productRoutes);
 app.use('/api/categories', categoryRoutes);
 app.use('/api/orders', orderRoutes);
