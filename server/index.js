@@ -164,7 +164,7 @@ app.use((err, req, res, next) => {
   });
 });
 
-const PORT = process.env.PORT || 5000; // Port 5000 par défaut
+const PORT = process.env.PORT || 3001; // Port 3001 par défaut
 
 app.listen(PORT, () => {
   console.log(`🚀 Serveur Koula E-commerce démarré sur le port ${PORT}`);

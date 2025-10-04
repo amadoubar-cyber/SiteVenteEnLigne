@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { validateRegistration } from '../utils/authValidation';
 import { useAuth } from '../contexts/AuthContext';
-import emailVerificationService from '../services/simpleEmailVerificationService';
+// Ancien service de vérification supprimé - utilisation du système OTP
 import SimpleEmailVerificationModal from '../components/SimpleEmailVerificationModal';
 import { clearEmailData } from '../utils/clearEmailData';
 // Debug components removed for simplicity
@@ -59,7 +59,7 @@ const Register = () => {
   const [verificationCode, setVerificationCode] = useState('');
   const [testMode, setTestMode] = useState(false);
   
-  const { register, isAuthenticated, loading } = useAuth();
+  const { register, isAuthenticated, loading, verifyEmail, resendOTP } = useAuth();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -150,60 +150,67 @@ const Register = () => {
       return;
     }
 
-    // Vérifier si l'email est déjà vérifié
-    if (emailVerificationService.isEmailVerified(formData.email)) {
-      // Email déjà vérifié, procéder à l'inscription
-      await completeRegistration();
-    } else {
-      // Email non vérifié, lancer la vérification
-      setIsSubmitting(true);
-      const result = await emailVerificationService.sendVerificationEmail(
-        formData.email, 
-        formData.firstName, 
-        formData.lastName
-      );
+    setIsSubmitting(true);
+    
+    try {
+      const { confirmPassword, ...registerData } = formData;
+      const result = await register(registerData);
       
-      if (result.success) {
-        // Sauvegarder les données en attente
-        emailVerificationService.savePendingAccount(formData);
-        setShowEmailVerification(true);
+      console.log('🔍 Résultat inscription:', result);
+      
+      if (result.success && result.emailSent) {
+        console.log('✅ Email envoyé, redirection vers page de vérification');
+        // Sauvegarder les données d'inscription temporairement
+        localStorage.setItem('pendingRegistration', JSON.stringify(formData));
+        // Rediriger vers la page de vérification email
+        navigate('/email-verification', { state: formData });
       } else {
-        alert('Erreur lors de l\'envoi de l\'email de vérification: ' + result.message);
+        console.log('❌ Email pas envoyé ou erreur:', result);
       }
-      setIsSubmitting(false);
+    } catch (error) {
+      console.error('Erreur lors de l\'inscription:', error);
     }
+    
+    setIsSubmitting(false);
   };
 
   const completeRegistration = async () => {
-    const { confirmPassword, ...registerData } = formData;
-    const result = await register(registerData);
-    if (result.success) {
-      // Supprimer le compte en attente
-      emailVerificationService.removePendingAccount(formData.email);
-      navigate('/');
+    // Supprimer les données d'inscription temporaires
+    localStorage.removeItem('pendingRegistration');
+    navigate('/');
+  };
+
+  const handleVerifyEmail = async (otp) => {
+    setIsSubmitting(true);
+    try {
+      const result = await verifyEmail(formData.email, otp);
+      if (result.success) {
+        console.log('✅ Vérification email réussie !');
+        setEmailVerified(true);
+        
+        // Ajouter un petit délai avant de fermer la modal
+        setTimeout(() => {
+          setShowEmailVerification(false);
+          completeRegistration();
+        }, 1000); // 1 seconde de délai
+      } else {
+        console.log('❌ Vérification email échouée:', result.error);
+      }
+    } catch (error) {
+      console.error('Erreur de vérification:', error);
+    }
+    setIsSubmitting(false);
+  };
+
+  const handleResendOTP = async () => {
+    try {
+      await resendOTP(formData.email);
+    } catch (error) {
+      console.error('Erreur lors du renvoi:', error);
     }
   };
 
-  const sendVerificationCode = (type) => {
-    // Simulation d'envoi de code de vérification
-    if (type === 'email') {
-      setEmailVerified(true);
-    } else if (type === 'phone') {
-      setPhoneVerified(true);
-    }
-  };
-
-  // Callback pour succès de vérification email
-  const handleEmailVerificationSuccess = async (email) => {
-    setShowEmailVerification(false);
-    await completeRegistration();
-  };
-
-  // Callback pour échec de vérification email
-  const handleEmailVerificationFailed = () => {
-    setShowEmailVerification(false);
-    // Optionnel: afficher un message d'erreur
-  };
+  // Fonctions obsolètes supprimées
 
   // Fonction de test direct
   const handleDirectTest = async () => {
@@ -213,16 +220,24 @@ const Register = () => {
       const testFirstName = 'Test';
       const testLastName = 'User';
       
-      const result = await emailVerificationService.sendVerificationEmail(
-        testEmail,
-        testFirstName,
-        testLastName
-      );
+      // Test avec le nouveau système OTP
+      const testUserData = {
+        firstName: testFirstName,
+        lastName: testLastName,
+        email: testEmail,
+        password: 'test123456',
+        phone: '+22461234567'
+      };
       
-      if (result.success) {
-        alert('✅ Test réussi ! Vérifiez le panneau en haut à droite pour voir le code.');
+      const result = await register(testUserData);
+      
+      if (result.success && result.emailSent) {
+        alert('✅ Test réussi ! Code de vérification envoyé sur votre email !');
+        // Sauvegarder les données de test pour le processus de vérification
+        localStorage.setItem('pendingRegistration', JSON.stringify(testUserData));
+        setShowEmailVerification(true);
       } else {
-        alert('❌ Erreur: ' + result.message);
+        alert('❌ Erreur: ' + (result.error || result.message));
       }
     } catch (error) {
       alert('❌ Erreur: ' + error.message);
@@ -804,8 +819,8 @@ const Register = () => {
         email={formData.email}
         firstName={formData.firstName}
         lastName={formData.lastName}
-        onVerificationSuccess={handleEmailVerificationSuccess}
-        onVerificationFailed={handleEmailVerificationFailed}
+        onVerifyEmail={handleVerifyEmail}
+        onResendOTP={handleResendOTP}
       />
 
       {/* Debug components removed for simplicity */}

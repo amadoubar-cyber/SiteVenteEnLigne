@@ -23,6 +23,7 @@ import Profile from './pages/Profile';
 import Orders from './pages/Orders';
 import OrderDetail from './pages/OrderDetail';
 import VerifyEmail from './pages/VerifyEmail';
+import EmailVerification from './pages/EmailVerification';
 import AdminLayout from './components/Layout/AdminLayout';
 import AdminDirect from './pages/admin/AdminDirect';
 import AdminDashboard from './pages/admin/Dashboard';
@@ -60,7 +61,7 @@ import AdminComplete from './pages/admin/AdminComplete';
 import AdminSimpleComplete from './pages/admin/AdminSimpleComplete';
 import AdminAuth from './components/AdminAuth';
 import AdminRedirect from './pages/AdminRedirect';
-import TestAccounts from './pages/TestAccounts';
+// TestAccounts supprimé pour la production
 import TestButtons from './pages/TestButtons';
 import TestAlerts from './pages/TestAlerts';
 import TestImages from './pages/TestImages';
@@ -92,6 +93,7 @@ function App() {
               <Route path="cart" element={<Cart />} />
               <Route path="login" element={<Login />} />
               <Route path="register" element={<Register />} />
+              <Route path="email-verification" element={<EmailVerification />} />
               <Route path="verify-email" element={<VerifyEmail />} />
               <Route path="forgot-password" element={<ForgotPassword />} />
               <Route path="reset-password/:token" element={<ResetPassword />} />
@@ -181,7 +183,7 @@ function App() {
             } />
             
             {/* Page des comptes de test */}
-            <Route path="/test-accounts" element={<TestAccounts />} />
+            {/* Route test-accounts supprimée pour la production */}
           </Routes>
             </div>
           </AlertInterceptor>

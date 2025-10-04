@@ -3,7 +3,7 @@ const nodemailer = require('nodemailer');
 class ProfessionalEmailService {
   constructor() {
     // Configuration Nodemailer selon votre méthode
-    this.transporter = nodemailer.createTransporter({
+    this.transporter = nodemailer.createTransport({
       service: "gmail", // Gmail service
       auth: {
         user: "amadoubarkere4@gmail.com", // Votre email configuré

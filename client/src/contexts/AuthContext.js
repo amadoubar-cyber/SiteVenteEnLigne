@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useReducer, useEffect } from 'react';
-import { authAPI } from '../services/api';
+import { authAPI, authOTPAPI } from '../services/api';
 import { localAuthAPI } from '../services/localAuthAPI';
 import toast from 'react-hot-toast';
 
@@ -147,8 +147,36 @@ export const AuthProvider = ({ children }) => {
   const register = async (userData) => {
     dispatch({ type: 'AUTH_START' });
     try {
-      // Essayer d'abord l'API locale
-      const response = await localAuthAPI.register(userData);
+      // Utiliser l'API OTP pour l'inscription avec vérification email
+      const response = await authOTPAPI.register(userData);
+      
+      console.log('📡 Réponse API inscription:', response.data);
+      
+      if (response.data.success) {
+        // L'inscription a réussi, mais le compte n'est pas encore vérifié
+        // Ne pas connecter l'utilisateur - il doit d'abord vérifier son email
+        dispatch({ type: 'AUTH_FAILURE', payload: null }); // Pas connecté
+        toast.success(response.data.message || 'Un code de vérification a été envoyé sur votre email !');
+        return { success: true, emailSent: true, email: response.data.email };
+      } else {
+        dispatch({ type: 'AUTH_FAILURE', payload: response.data.message });
+        toast.error(response.data.message || 'Erreur d\'inscription');
+        return { success: false, error: response.data.message };
+      }
+    } catch (error) {
+      console.log('❌ Erreur API inscription:', error.response?.data || error.message);
+      const message = error.response?.data?.message || error.message || 'Erreur d\'inscription';
+      dispatch({ type: 'AUTH_FAILURE', payload: message });
+      toast.error(message);
+      return { success: false, error: message };
+    }
+  };
+
+  // Nouvelle fonction pour vérifier l'email avec OTP
+  const verifyEmail = async (email, otp) => {
+    dispatch({ type: 'AUTH_START' });
+    try {
+      const response = await authOTPAPI.verify(email, otp);
       const { token, user } = response.data;
       
       localStorage.setItem('token', token);
@@ -157,28 +185,26 @@ export const AuthProvider = ({ children }) => {
         payload: { user, token }
       });
       
-      toast.success('Inscription réussie !');
+      toast.success('Email vérifié avec succès !');
+      return { success: true, user, token };
+    } catch (error) {
+      const message = error.response?.data?.message || error.message || 'Erreur de vérification';
+      dispatch({ type: 'AUTH_FAILURE', payload: message });
+      toast.error(message);
+      return { success: false, error: message };
+    }
+  };
+
+  // Nouvelle fonction pour renvoyer le code OTP
+  const resendOTP = async (email) => {
+    try {
+      const response = await authOTPAPI.resendOTP(email);
+      toast.success('Un nouveau code de vérification a été envoyé sur votre email !');
       return { success: true };
     } catch (error) {
-      // Si l'API locale échoue, essayer l'API serveur
-      try {
-        const response = await authAPI.register(userData);
-        const { token, user } = response.data;
-        
-        localStorage.setItem('token', token);
-        dispatch({
-          type: 'AUTH_SUCCESS',
-          payload: { user, token }
-        });
-        
-        toast.success('Inscription réussie !');
-        return { success: true };
-      } catch (serverError) {
-        const message = serverError.response?.data?.message || serverError.message || 'Erreur d\'inscription';
-        dispatch({ type: 'AUTH_FAILURE', payload: message });
-        toast.error(message);
-        return { success: false, error: message };
-      }
+      const message = error.response?.data?.message || error.message || 'Erreur lors du renvoi du code';
+      toast.error(message);
+      return { success: false, error: message };
     }
   };
 
@@ -226,10 +252,12 @@ export const AuthProvider = ({ children }) => {
     ...state,
     login,
     register,
-    logout,
+    logout, 
     updateProfile,
     changePassword,
-    clearError
+    clearError,
+    verifyEmail,
+    resendOTP
   };
 
   return (

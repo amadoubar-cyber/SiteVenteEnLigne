@@ -1,0 +1,9 @@
+@echo off
+echo 🚀 Démarrage du serveur backend...
+cd server
+echo 📂 Répertoire actuel: %CD%
+echo 📦 Installation des dépendances...
+npm install
+echo 🌐 Démarrage du serveur sur le port 3001...
+node index.js
+pause

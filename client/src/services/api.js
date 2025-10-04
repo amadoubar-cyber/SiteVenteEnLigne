@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:3001/api';
+const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
 
 // Créer une instance axios
 const api = axios.create({
@@ -45,6 +45,14 @@ export const authAPI = {
   getMe: () => api.get('/auth/me'),
   updateProfile: (profileData) => api.put('/auth/profile', profileData),
   changePassword: (passwordData) => api.put('/auth/password', passwordData),
+};
+
+// API d'authentification avec OTP (vérification email)
+export const authOTPAPI = {
+  register: (userData) => api.post('/auth-otp/register', userData),
+  verify: (email, otp) => api.post('/auth-otp/verify', { email, otp }),
+  resendOTP: (email) => api.post('/auth-otp/resend-otp', { email }),
+  login: (email, password) => api.post('/auth-otp/login', { email, password }),
 };
 
 // API des produits

@@ -183,19 +183,7 @@ const AdminLogin = () => {
             </div>
           </form>
 
-          {/* Informations de connexion */}
-          <div className="mt-6 p-4 bg-blue-50 rounded-md">
-            <div className="flex">
-              <CheckCircle className="h-5 w-5 text-blue-400" />
-              <div className="ml-3">
-                <h3 className="text-sm font-medium text-blue-800">Comptes de test disponibles :</h3>
-                <div className="mt-2 text-sm text-blue-700">
-                  <p><strong>Email:</strong> admin@bowoye.gn</p>
-                  <p><strong>Mot de passe:</strong> admin123</p>
-                </div>
-              </div>
-            </div>
-          </div>
+          {/* Section des comptes de test supprimée pour la production */}
         </div>
 
         <div className="text-center">

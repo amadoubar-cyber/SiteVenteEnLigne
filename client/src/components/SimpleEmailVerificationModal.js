@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { X, Mail, RefreshCw, CheckCircle, XCircle } from 'lucide-react';
-import emailVerificationService from '../services/simpleEmailVerificationService';
 
 const SimpleEmailVerificationModal = ({ 
   isOpen, 
@@ -8,8 +7,8 @@ const SimpleEmailVerificationModal = ({
   email, 
   firstName, 
   lastName,
-  onVerificationSuccess,
-  onVerificationFailed 
+  onVerifyEmail,
+  onResendOTP
 }) => {
   const [code, setCode] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -17,7 +16,12 @@ const SimpleEmailVerificationModal = ({
   const [attempts, setAttempts] = useState(0);
   const [maxAttempts] = useState(3);
 
-  if (!isOpen) return null;
+  if (!isOpen) {
+    console.log('🚪 Modal fermée - isOpen:', isOpen);
+    return null;
+  }
+  
+  console.log('🚪 Modal ouverte - isOpen:', isOpen);
 
   const handleVerify = async () => {
     if (!code.trim()) {
@@ -29,17 +33,9 @@ const SimpleEmailVerificationModal = ({
     setError('');
 
     try {
-      const result = emailVerificationService.verifyCode(email, code);
-      
-      if (result.success) {
-        onVerificationSuccess && onVerificationSuccess();
-        onClose();
-      } else {
-        setError(result.message);
-        setAttempts(prev => prev + 1);
-      }
+      await onVerifyEmail(code);
     } catch (error) {
-      setError('Erreur lors de la vérification');
+      setError('Code de vérification incorrect');
       setAttempts(prev => prev + 1);
     } finally {
       setIsLoading(false);
@@ -52,7 +48,7 @@ const SimpleEmailVerificationModal = ({
     setAttempts(0);
     
     try {
-      await emailVerificationService.sendVerificationEmail(email, firstName, lastName);
+      await onResendOTP();
       setError('');
     } catch (error) {
       setError('Erreur lors de l\'envoi du code');
