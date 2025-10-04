@@ -6,7 +6,7 @@ class ProfessionalEmailService {
     this.transporter = nodemailer.createTransporter({
       service: "gmail", // Gmail service
       auth: {
-        user: "diariamadou43@gmail.com", // Votre email configuré
+        user: "amadoubarkere4@gmail.com", // Votre email configuré
         pass: "atlz bogk zajd uglz" // ✅ MOT DE PASSE D'APPLICATION GMAIL CONFIGURÉ
       }
     });
@@ -21,7 +21,7 @@ class ProfessionalEmailService {
   async sendVerificationEmail(email, firstName, lastName, otp) {
     try {
       const mailOptions = {
-        from: "diariamadou43@gmail.com",
+        from: "amadoubarkere4@gmail.com",
         to: email,
         subject: "Vérification de votre compte - Bowoye Multi Services",
         html: this.getProfessionalEmailTemplate(firstName, lastName, otp)
@@ -94,7 +94,7 @@ class ProfessionalEmailService {
                 <h3>🏢 Bowoye Multi Services</h3>
                 <p><strong>📍 Adresse :</strong> Labé, République de Guinée</p>
                 <p><strong>📞 Téléphone :</strong> +224 626 99 13 18</p>
-                <p><strong>✉️ Email :</strong> diariamadou43@gmail.com</p>
+                <p><strong>✉️ Email :</strong> amadoubarkere4@gmail.com</p>
             </div>
         </div>
     </body>

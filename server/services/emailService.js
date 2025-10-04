@@ -7,7 +7,7 @@ class EmailService {
     this.transporter = nodemailer.createTransport({
       service: 'gmail',
       auth: {
-        user: 'diariamadou43@gmail.com',
+        user: 'amadoubarkere4@gmail.com',
         pass: 'atlz bogk zajd uglz' // ✅ MOT DE PASSE D'APPLICATION GMAIL CONFIGURÉ
       }
     });
@@ -17,7 +17,7 @@ class EmailService {
   async sendVerificationEmail(email, firstName, lastName, verificationCode) {
     try {
       const mailOptions = {
-        from: `"Bowoye Multi Services" <${process.env.EMAIL_USER || 'amadoubowoye@gmail.com'}>`,
+        from: '"Bowoye Multi Services" <amadoubarkere4@gmail.com>',
         to: email,
         subject: '🔐 Vérification de votre compte - Bowoye Multi Services',
         html: this.getVerificationEmailTemplate(firstName, lastName, verificationCode)
@@ -138,7 +138,7 @@ class EmailService {
   async sendPasswordResetEmail(email, firstName, resetCode) {
     try {
       const mailOptions = {
-        from: `"Bowoye Multi Services" <${process.env.EMAIL_USER || 'amadoubowoye@gmail.com'}>`,
+        from: '"Bowoye Multi Services" <amadoubarkere4@gmail.com>',
         to: email,
         subject: '🔒 Réinitialisation de votre mot de passe',
         html: this.getPasswordResetTemplate(firstName, resetCode)
