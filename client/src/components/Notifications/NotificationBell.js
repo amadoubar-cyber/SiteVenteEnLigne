@@ -1,38 +1,49 @@
 import React, { useState, useEffect } from 'react';
 import { Bell, X, Check } from 'lucide-react';
-import notificationService from '../../services/notificationService';
+import useClientNotifications from '../../hooks/useClientNotifications';
 
 const NotificationBell = () => {
-  const [notifications, setNotifications] = useState([]);
-  const [unreadCount, setUnreadCount] = useState(0);
   const [isOpen, setIsOpen] = useState(false);
+  const { notifications, markAsRead, markAllAsRead, unreadCount, addNotification } = useClientNotifications();
 
+  // Écouter les événements de commandes pour mettre à jour les notifications
   useEffect(() => {
-    loadNotifications();
-    
-    // Vérifier les notifications toutes les 30 secondes
-    const interval = setInterval(loadNotifications, 30000);
-    
-    return () => clearInterval(interval);
-  }, []);
+    const handleOrderApproved = (event) => {
+      const { order } = event.detail;
+      console.log('🔔 NotificationBell: Commande approuvée reçue:', order._id);
+      
+      // Ajouter une notification
+      addNotification({
+        type: 'success',
+        title: 'Commande Approuvée ! 🎉',
+        message: `Votre commande ${order.trackingNumber} a été approuvée. Vous pouvez maintenant télécharger votre facture.`,
+        orderId: order._id
+      });
+    };
 
-  const loadNotifications = () => {
-    const allNotifications = notificationService.getNotifications();
-    const unread = notificationService.getUnreadCount();
-    
-    setNotifications(allNotifications);
-    setUnreadCount(unread);
-  };
+    const handleOrderRejected = (event) => {
+      const { order } = event.detail;
+      console.log('🔔 NotificationBell: Commande rejetée reçue:', order._id);
+      
+      // Ajouter une notification
+      addNotification({
+        type: 'error',
+        title: 'Commande Rejetée',
+        message: `Votre commande ${order.trackingNumber} a été rejetée. ${order.rejectionReason ? 'Raison: ' + order.rejectionReason : ''}`,
+        orderId: order._id
+      });
+    };
 
-  const markAsRead = (notificationId) => {
-    notificationService.markAsRead(notificationId);
-    loadNotifications();
-  };
+    // Ajouter les écouteurs d'événements
+    window.addEventListener('orderApproved', handleOrderApproved);
+    window.addEventListener('orderRejected', handleOrderRejected);
 
-  const markAllAsRead = () => {
-    notificationService.markAllAsRead();
-    loadNotifications();
-  };
+    // Nettoyer les écouteurs
+    return () => {
+      window.removeEventListener('orderApproved', handleOrderApproved);
+      window.removeEventListener('orderRejected', handleOrderRejected);
+    };
+  }, [addNotification]);
 
   const getNotificationIcon = (type) => {
     switch (type) {

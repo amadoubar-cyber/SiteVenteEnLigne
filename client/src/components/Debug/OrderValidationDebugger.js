@@ -1,24 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { useAuth } from '../../contexts/AuthContext';
-import { useNavigate } from 'react-router-dom';
 import { CheckCircle, XCircle, AlertTriangle, RefreshCw, Bug, Database, Bell } from 'lucide-react';
 
-const DebugAdmin = () => {
-  const { user, isAuthenticated, loading } = useAuth();
-  const navigate = useNavigate();
+const OrderValidationDebugger = () => {
   const [debugInfo, setDebugInfo] = useState({});
-  const [testResults, setTestResults] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [testResults, setTestResults] = useState(null);
 
-  const goToAdmin = () => {
-    navigate('/admin');
-  };
-
-  const goToSimpleTest = () => {
-    navigate('/admin/simple');
-  };
-
-  // Fonctions de débogage des commandes
+  // Charger les informations de débogage
   const loadDebugInfo = () => {
     const orders = JSON.parse(localStorage.getItem('clientOrders') || '[]');
     const notifications = JSON.parse(localStorage.getItem('admin_notifications') || '[]');
@@ -41,10 +29,11 @@ const DebugAdmin = () => {
     });
   };
 
+  // Test de création de commande
   const testCreateOrder = async () => {
     setIsLoading(true);
     try {
-      const { localOrdersAPI } = await import('../../services/localOrdersAPI');
+      const { localOrdersAPI } = await import('../services/localOrdersAPI');
       
       const testOrder = {
         items: [
@@ -87,11 +76,13 @@ const DebugAdmin = () => {
     setIsLoading(false);
   };
 
+  // Test d'approbation
   const testApproveOrder = async () => {
     setIsLoading(true);
     try {
-      const { localOrdersAPI } = await import('../../services/localOrdersAPI');
+      const { localOrdersAPI } = await import('../services/localOrdersAPI');
       
+      // Trouver une commande en attente
       const orders = JSON.parse(localStorage.getItem('clientOrders') || '[]');
       const pendingOrder = orders.find(o => o.orderStatus === 'pending_approval');
       
@@ -124,6 +115,63 @@ const DebugAdmin = () => {
     setIsLoading(false);
   };
 
+  // Test de rejet
+  const testRejectOrder = async () => {
+    setIsLoading(true);
+    try {
+      const { localOrdersAPI } = await import('../services/localOrdersAPI');
+      
+      // Trouver une commande en attente
+      const orders = JSON.parse(localStorage.getItem('clientOrders') || '[]');
+      const pendingOrder = orders.find(o => o.orderStatus === 'pending_approval');
+      
+      if (!pendingOrder) {
+        setTestResults(prev => ({
+          ...prev,
+          rejectOrder: '❌ Aucune commande en attente trouvée'
+        }));
+        setIsLoading(false);
+        return;
+      }
+
+      const result = await localOrdersAPI.rejectOrder(
+        pendingOrder._id,
+        'Test de rejet automatique'
+      );
+      
+      setTestResults(prev => ({
+        ...prev,
+        rejectOrder: result.success ? '✅ Succès' : `❌ Erreur: ${result.error}`
+      }));
+      
+      loadDebugInfo();
+    } catch (error) {
+      setTestResults(prev => ({
+        ...prev,
+        rejectOrder: `❌ Erreur: ${error.message}`
+      }));
+    }
+    setIsLoading(false);
+  };
+
+  // Test des notifications
+  const testNotifications = () => {
+    try {
+      const notifications = JSON.parse(localStorage.getItem('admin_notifications') || '[]');
+      
+      setTestResults(prev => ({
+        ...prev,
+        notifications: `📱 ${notifications.length} notifications trouvées (${notifications.filter(n => !n.read).length} non lues)`
+      }));
+    } catch (error) {
+      setTestResults(prev => ({
+        ...prev,
+        notifications: `❌ Erreur: ${error.message}`
+      }));
+    }
+  };
+
+  // Réinitialiser les données de test
   const resetTestData = () => {
     localStorage.removeItem('clientOrders');
     localStorage.removeItem('admin_notifications');
@@ -137,21 +185,16 @@ const DebugAdmin = () => {
   }, []);
 
   return (
-    <div className="min-h-screen bg-gray-100 p-8">
-      <div className="max-w-4xl mx-auto">
-        <h1 className="text-4xl font-bold text-gray-900 mb-8 text-center">
-          🔍 Debug Admin - Validation des Commandes
-        </h1>
-        
-        {/* Section de débogage des commandes */}
-        <div className="bg-white rounded-lg shadow-lg p-6 mb-6">
+    <div className="min-h-screen bg-gray-50 p-8">
+      <div className="max-w-6xl mx-auto">
+        <div className="bg-white rounded-lg shadow-sm border p-6 mb-6">
           <div className="flex items-center justify-between mb-6">
             <div className="flex items-center space-x-3">
               <Bug className="h-8 w-8 text-blue-600" />
               <div>
-                <h2 className="text-2xl font-semibold text-gray-900">
-                  🐛 Débogueur de Validation des Commandes
-                </h2>
+                <h1 className="text-2xl font-bold text-gray-900">
+                  Débogueur de Validation des Commandes
+                </h1>
                 <p className="text-gray-600">
                   Diagnostic et test du système de validation des commandes
                 </p>
@@ -208,12 +251,31 @@ const DebugAdmin = () => {
             </div>
           </div>
 
+          {/* Répartition des statuts */}
+          {debugInfo.statusCounts && (
+            <div className="mb-6">
+              <h3 className="text-lg font-medium text-gray-900 mb-3">
+                Répartition par Statut
+              </h3>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                {Object.entries(debugInfo.statusCounts).map(([status, count]) => (
+                  <div key={status} className="bg-gray-50 border border-gray-200 rounded-lg p-3">
+                    <p className="text-sm font-medium text-gray-600 capitalize">
+                      {status.replace('_', ' ')}
+                    </p>
+                    <p className="text-xl font-bold text-gray-900">{count}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
           {/* Tests */}
           <div className="mb-6">
             <h3 className="text-lg font-medium text-gray-900 mb-4">
               Tests de Fonctionnalité
             </h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
               <button
                 onClick={testCreateOrder}
                 disabled={isLoading}
@@ -233,11 +295,20 @@ const DebugAdmin = () => {
               </button>
               
               <button
-                onClick={resetTestData}
-                className="flex items-center justify-center px-4 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
+                onClick={testRejectOrder}
+                disabled={isLoading}
+                className="flex items-center justify-center px-4 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 disabled:opacity-50 transition-colors"
               >
                 <XCircle className="h-4 w-4 mr-2" />
-                Réinitialiser
+                Rejeter
+              </button>
+              
+              <button
+                onClick={testNotifications}
+                className="flex items-center justify-center px-4 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors"
+              >
+                <Bell className="h-4 w-4 mr-2" />
+                Notifications
               </button>
             </div>
           </div>
@@ -261,117 +332,55 @@ const DebugAdmin = () => {
             </div>
           )}
 
-          {/* Script de réparation */}
-          <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
-            <h3 className="text-lg font-medium text-yellow-900 mb-2">
-              🔧 Script de Réparation Automatique
-            </h3>
-            <p className="text-sm text-yellow-700 mb-3">
-              Si le système ne fonctionne pas, copiez et exécutez ce script dans la console du navigateur :
-            </p>
-            <div className="bg-gray-900 text-green-400 p-3 rounded text-xs font-mono overflow-x-auto">
-              <div>// Ouvrir la console (F12) et exécuter :</div>
-              <div>localStorage.removeItem('clientOrders');</div>
-              <div>localStorage.removeItem('admin_notifications');</div>
-              <div>location.reload();</div>
+          {/* Actions de maintenance */}
+          <div className="flex items-center justify-between">
+            <div>
+              <h3 className="text-lg font-medium text-gray-900 mb-2">
+                Actions de Maintenance
+              </h3>
+              <p className="text-sm text-gray-600">
+                Réinitialiser les données de test pour repartir à zéro
+              </p>
             </div>
+            <button
+              onClick={resetTestData}
+              className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
+            >
+              Réinitialiser les Tests
+            </button>
           </div>
         </div>
-        
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {/* Informations de connexion */}
-          <div className="bg-white rounded-lg shadow-lg p-6">
-            <h2 className="text-2xl font-semibold text-gray-900 mb-4">
-              📊 État de connexion
-            </h2>
-            <div className="space-y-3">
-              <div className={`p-3 rounded-lg ${isAuthenticated ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
-                <strong>Authentifié :</strong> {isAuthenticated ? '✅ Oui' : '❌ Non'}
-              </div>
-              <div className={`p-3 rounded-lg ${loading ? 'bg-yellow-100 text-yellow-800' : 'bg-gray-100 text-gray-800'}`}>
-                <strong>Chargement :</strong> {loading ? '⏳ En cours...' : '✅ Terminé'}
-              </div>
-              <div className="p-3 rounded-lg bg-blue-100 text-blue-800">
-                <strong>Utilisateur :</strong> {user ? `${user.firstName} ${user.lastName}` : 'Non défini'}
-              </div>
-              <div className="p-3 rounded-lg bg-purple-100 text-purple-800">
-                <strong>Email :</strong> {user?.email || 'Non défini'}
-              </div>
-              <div className={`p-3 rounded-lg ${user?.role === 'admin' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
-                <strong>Rôle :</strong> {user?.role || 'Non défini'} {user?.role === 'admin' ? '👑' : '👤'}
-              </div>
-            </div>
-          </div>
 
-          {/* Actions de test */}
-          <div className="bg-white rounded-lg shadow-lg p-6">
-            <h2 className="text-2xl font-semibold text-gray-900 mb-4">
-              🚀 Actions de test
-            </h2>
-            <div className="space-y-4">
-              <button
-                onClick={goToAdmin}
-                className="w-full bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors"
-              >
-                🏠 Aller au Dashboard Admin
-              </button>
-              
-              <button
-                onClick={goToSimpleTest}
-                className="w-full bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 transition-colors"
-              >
-                🧪 Test Simple Admin
-              </button>
-
-              <button
-                onClick={() => window.location.href = '/login'}
-                className="w-full bg-gray-600 text-white px-6 py-3 rounded-lg hover:bg-gray-700 transition-colors"
-              >
-                🔐 Aller à la connexion
-              </button>
-
-              <button
-                onClick={() => window.location.reload()}
-                className="w-full bg-yellow-600 text-white px-6 py-3 rounded-lg hover:bg-yellow-700 transition-colors"
-              >
-                🔄 Recharger la page
-              </button>
-            </div>
-          </div>
-
-          {/* Informations du token */}
-          <div className="bg-white rounded-lg shadow-lg p-6 md:col-span-2">
-            <h2 className="text-2xl font-semibold text-gray-900 mb-4">
-              🔑 Informations du token
-            </h2>
-            <div className="bg-gray-100 p-4 rounded-lg">
-              <pre className="text-sm overflow-auto">
-                {JSON.stringify({
-                  token: localStorage.getItem('token') ? 'Présent' : 'Absent',
-                  user: user,
-                  isAuthenticated: isAuthenticated,
-                  loading: loading
-                }, null, 2)}
+        {/* Dernière commande */}
+        {debugInfo.lastOrder && (
+          <div className="bg-white rounded-lg shadow-sm border p-6 mb-6">
+            <h3 className="text-lg font-medium text-gray-900 mb-4">
+              Dernière Commande
+            </h3>
+            <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
+              <pre className="text-sm text-gray-700 overflow-x-auto">
+                {JSON.stringify(debugInfo.lastOrder, null, 2)}
               </pre>
             </div>
           </div>
+        )}
 
-          {/* Instructions */}
-          <div className="bg-white rounded-lg shadow-lg p-6 md:col-span-2">
-            <h2 className="text-2xl font-semibold text-gray-900 mb-4">
-              📋 Instructions
-            </h2>
-            <div className="space-y-2 text-gray-700">
-              <p><strong>1.</strong> Si vous n'êtes pas connecté, cliquez sur "Aller à la connexion"</p>
-              <p><strong>2.</strong> Connectez-vous avec : <code className="bg-gray-200 px-2 py-1 rounded">admin@koula.gn</code> / <code className="bg-gray-200 px-2 py-1 rounded">admin123</code></p>
-              <p><strong>3.</strong> Revenez sur cette page et vérifiez que le rôle est "admin"</p>
-              <p><strong>4.</strong> Cliquez sur "Aller au Dashboard Admin" pour tester l'interface</p>
+        {/* Dernière notification */}
+        {debugInfo.lastNotification && (
+          <div className="bg-white rounded-lg shadow-sm border p-6">
+            <h3 className="text-lg font-medium text-gray-900 mb-4">
+              Dernière Notification
+            </h3>
+            <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
+              <pre className="text-sm text-gray-700 overflow-x-auto">
+                {JSON.stringify(debugInfo.lastNotification, null, 2)}
+              </pre>
             </div>
           </div>
-        </div>
+        )}
       </div>
     </div>
   );
 };
 
-export default DebugAdmin;
+export default OrderValidationDebugger;

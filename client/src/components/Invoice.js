@@ -130,18 +130,18 @@ const Invoice = ({ order, onClose }) => {
           <div className="invoice-header border-b-2 border-gray-200 pb-6 mb-6">
             <div className="flex items-center justify-center mb-4">
               <div className="flex flex-col sm:flex-row items-center space-y-2 sm:space-y-0 sm:space-x-4">
-                <div className="w-16 h-16 rounded flex items-center justify-center overflow-hidden bg-white border-2 border-gray-200 flex-shrink-0">
+                <div className="w-20 h-20 rounded-lg flex items-center justify-center overflow-hidden bg-white border-2 border-gray-200 flex-shrink-0 shadow-sm">
                   <img 
-                    src="/images/products/logo/logo-koula.jpg" 
+                    src="http://localhost:3000/images/products/logo/logo-koula.jpg" 
                     alt="Bowoye Multi Services Logo" 
-                    className="w-full h-full object-cover"
+                    className="w-full h-full object-contain"
                     onError={(e) => {
                       e.target.style.display = 'none';
                       e.target.nextSibling.style.display = 'flex';
                     }}
                   />
-                  <div className="w-full h-full bg-blue-600 rounded flex items-center justify-center" style={{display: 'none'}}>
-                    <span className="text-white font-bold text-xl">B</span>
+                  <div className="w-full h-full bg-blue-600 rounded-lg flex items-center justify-center" style={{display: 'none'}}>
+                    <span className="text-white font-bold text-2xl">B</span>
                   </div>
                 </div>
                 <div className="text-center">
@@ -155,9 +155,9 @@ const Invoice = ({ order, onClose }) => {
               <div>
                 <h3 className="font-semibold text-gray-900 mb-2">Informations Entreprise</h3>
                 <div className="text-sm text-gray-600 space-y-1">
-                  <p>Labé, Guinée</p>
+                  <p>Labé, République de Guinée</p>
                   <p>Email: amadoubowoye@gmail.com</p>
-                  <p>Téléphone: +224 626 99 13 18</p>
+                  <p>Téléphone: +224 612 63 73 35</p>
                 </div>
               </div>
               <div>
@@ -340,7 +340,8 @@ const Invoice = ({ order, onClose }) => {
           {/* Pied de page */}
           <div className="mt-12 pt-6 border-t border-gray-200 text-center text-xs text-gray-500">
             <p>Merci pour votre confiance !</p>
-            <p>Bowoye Multi Services - Votre partenaire de confiance</p>
+            <p>Bowoye Multi Services - Labé, République de Guinée</p>
+            <p>Contact: +224 612 63 73 35</p>
             <p className="mt-2">
               Cette facture a été générée le {formatDate(new Date())}
             </p>

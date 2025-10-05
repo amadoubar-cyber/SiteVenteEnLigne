@@ -22,6 +22,7 @@ import ResetPassword from './pages/ResetPassword';
 import Profile from './pages/Profile';
 import Orders from './pages/Orders';
 import OrderDetail from './pages/OrderDetail';
+import TestOrdersPage from './pages/TestOrdersPage';
 import VerifyEmail from './pages/VerifyEmail';
 import EmailVerification from './pages/EmailVerification';
 import AdminLayout from './components/Layout/AdminLayout';
@@ -59,6 +60,7 @@ import TestLoginSimple from './pages/TestLoginSimple';
 import AdminFinal from './pages/AdminFinal';
 import AdminComplete from './pages/admin/AdminComplete';
 import AdminSimpleComplete from './pages/admin/AdminSimpleComplete';
+import OrderApproval from './pages/admin/OrderApproval';
 import AdminAuth from './components/AdminAuth';
 import AdminRedirect from './pages/AdminRedirect';
 // TestAccounts supprimé pour la production
@@ -71,6 +73,8 @@ import AdminRoute from './components/AdminRoute';
 import NotFound from './pages/NotFound';
 import DynamicDashboard from './components/DynamicDashboard';
 import LocalStorageDiagnostic from './components/LocalStorageDiagnostic';
+import ClientOrdersTest from './pages/ClientOrdersTest';
+// import OrderValidationDebugger from './components/debug/OrderValidationDebugger';
 
 function App() {
   return (
@@ -126,9 +130,19 @@ function App() {
                   <Orders />
                 </ProtectedRoute>
               } />
+              <Route path="client-orders-test" element={
+                <ProtectedRoute>
+                  <ClientOrdersTest />
+                </ProtectedRoute>
+              } />
               <Route path="orders/:id" element={
                 <ProtectedRoute>
                   <OrderDetail />
+                </ProtectedRoute>
+              } />
+              <Route path="test-orders" element={
+                <ProtectedRoute>
+                  <TestOrdersPage />
                 </ProtectedRoute>
               } />
               
@@ -163,6 +177,8 @@ function App() {
               <Route path="testsimple" element={<TestSimple />} />
               <Route path="debug" element={<DebugAdmin />} />
               <Route path="diagnostic" element={<RouteDiagnostic />} />
+              <Route path="orders" element={<OrderApproval />} />
+              {/* <Route path="order-debug" element={<OrderValidationDebugger />} /> */}
             </Route>
             
             {/* Admin Direct - Sans protection pour test */}

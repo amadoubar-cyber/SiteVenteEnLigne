@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { useCart } from '../../contexts/CartContext';
-import { Search, ShoppingCart, User, Menu, X, LogOut, Truck, Zap } from 'lucide-react';
+import { Search, ShoppingCart, User, Menu, X, LogOut, Zap } from 'lucide-react';
 import NotificationBell from '../Notifications/NotificationBell';
 
 const Header = () => {
@@ -36,12 +36,19 @@ const Header = () => {
         <div className="flex justify-between items-center h-14">
           {/* Logo */}
           <Link to="/" className="flex items-center space-x-2 text-white hover:text-gray-200 transition-colors flex-shrink-0">
-            <div className="w-8 h-8 rounded flex items-center justify-center overflow-hidden">
+            <div className="w-8 h-8 rounded flex items-center justify-center overflow-hidden bg-white">
               <img 
-                src="/images/products/logo/logo-koula.jpg" 
+                src="http://localhost:3000/images/products/logo/logo-koula.jpg" 
                 alt="Bowoye Multi Services Logo" 
-                className="w-full h-full object-cover"
+                className="w-full h-full object-contain"
+                onError={(e) => {
+                  e.target.style.display = 'none';
+                  e.target.nextSibling.style.display = 'flex';
+                }}
               />
+              <div className="w-full h-full bg-blue-600 rounded flex items-center justify-center" style={{display: 'none'}}>
+                <span className="text-white font-bold text-sm">B</span>
+              </div>
             </div>
             <span className="text-sm md:text-lg font-bold font-heading hidden sm:block">Bowoye Multi Services</span>
             <span className="text-sm md:text-lg font-bold font-heading sm:hidden">BMS</span>
@@ -72,10 +79,6 @@ const Header = () => {
           <div className="hidden lg:flex items-center space-x-4">
             {/* Categories - Compact */}
             <div className="flex items-center space-x-3">
-              <Link to="/construction" className="flex items-center space-x-1 text-white hover:text-gray-200 transition-colors text-sm font-medium">
-                <Truck className="h-4 w-4" />
-                <span className="hidden lg:inline">Construction</span>
-              </Link>
               <Link to="/products" className="text-white hover:text-gray-200 transition-colors text-sm font-medium">
                 <span className="hidden lg:inline">Tous les produits</span>
                 <span className="lg:hidden">Produits</span>
@@ -213,14 +216,6 @@ const Header = () => {
         {isMenuOpen && (
           <div className="md:hidden border-t border-secondary-200 py-4">
             <div className="flex flex-col space-y-4">
-              <Link
-                to="/construction"
-                className="flex items-center space-x-2 text-secondary-700 hover:text-primary-600 transition-colors"
-                onClick={() => setIsMenuOpen(false)}
-              >
-                <Truck className="h-4 w-4" />
-                <span>Matériaux de Construction</span>
-              </Link>
               <Link
                 to="/electronics"
                 className="flex items-center space-x-2 text-secondary-700 hover:text-primary-600 transition-colors"

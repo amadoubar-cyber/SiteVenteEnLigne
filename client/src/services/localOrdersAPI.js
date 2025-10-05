@@ -55,16 +55,38 @@ export const localOrdersAPI = {
     
     const orders = loadOrders();
     
+    // Récupérer les informations de l'utilisateur connecté depuis localStorage
+    const token = localStorage.getItem('token');
+    const userData = localStorage.getItem('user');
+    
+    let user = {
+      id: 'local-user',
+      firstName: orderData.shippingAddress.firstName,
+      lastName: orderData.shippingAddress.lastName,
+      email: 'client@koula.gn',
+      phone: orderData.shippingAddress.phone
+    };
+    
+    // Si un utilisateur est connecté, utiliser ses vraies données
+    if (token && userData) {
+      try {
+        const parsedUser = JSON.parse(userData);
+        user = {
+          id: parsedUser._id || parsedUser.id,
+          firstName: parsedUser.firstName || orderData.shippingAddress.firstName,
+          lastName: parsedUser.lastName || orderData.shippingAddress.lastName,
+          email: parsedUser.email || 'client@koula.gn',
+          phone: parsedUser.phone || orderData.shippingAddress.phone
+        };
+      } catch (error) {
+        console.warn('Erreur parsing user data:', error);
+      }
+    }
+    
     // Générer les données de la commande
     const newOrder = {
       _id: generateOrderId(),
-      user: {
-        id: 'local-user',
-        firstName: orderData.shippingAddress.firstName,
-        lastName: orderData.shippingAddress.lastName,
-        email: 'client@koula.gn',
-        phone: orderData.shippingAddress.phone
-      },
+      user: user,
       items: orderData.items.map(item => ({
         product: item.product,
         quantity: item.quantity,
@@ -194,6 +216,7 @@ export const localOrdersAPI = {
       }
     };
   },
+
 
   // Annuler une commande
   cancelOrder: async (orderId) => {

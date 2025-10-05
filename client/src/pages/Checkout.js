@@ -15,7 +15,6 @@ const Checkout = () => {
       lastName: '',
       street: '',
       city: '',
-      postalCode: '',
       phone: ''
     },
     paymentMethod: 'mobile_money',
@@ -37,7 +36,6 @@ const Checkout = () => {
           lastName: user.lastName || '',
           street: user.address?.street || '',
           city: user.address?.city || '',
-          postalCode: user.address?.postalCode || '',
           phone: user.phone || ''
         }
       }));
@@ -62,7 +60,14 @@ const Checkout = () => {
         navigate(`/orders/${response.data.order._id}`);
       },
       onError: (error) => {
-        toast.error(error.response?.data?.message || 'Erreur lors de la commande');
+        console.error('Erreur lors de la commande:', error);
+        const errorMessage = error.response?.data?.message || error.message || 'Erreur lors de la commande';
+        toast.error(errorMessage);
+        
+        // Si c'est une erreur d'authentification, ne pas déconnecter automatiquement
+        if (error.response?.status === 401) {
+          console.warn('Erreur d\'authentification lors de la commande - vérifier la session');
+        }
       }
     }
   );
@@ -263,37 +268,21 @@ const Checkout = () => {
                   )}
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
-                  <div>
-                    <label className="block text-sm font-medium text-secondary-700 mb-2">
-                      Ville *
-                    </label>
-                    <input
-                      type="text"
-                      name="shippingAddress.city"
-                      value={formData.shippingAddress.city}
-                      onChange={handleChange}
-                      className={`input w-full ${errors['shippingAddress.city'] ? 'border-red-500' : ''}`}
-                      placeholder="Votre ville"
-                    />
-                    {errors['shippingAddress.city'] && (
-                      <p className="mt-1 text-sm text-red-600">{errors['shippingAddress.city']}</p>
-                    )}
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-secondary-700 mb-2">
-                      Code postal
-                    </label>
-                    <input
-                      type="text"
-                      name="shippingAddress.postalCode"
-                      value={formData.shippingAddress.postalCode}
-                      onChange={handleChange}
-                      className="input w-full"
-                      placeholder="Code postal"
-                    />
-                  </div>
+                <div className="mt-4">
+                  <label className="block text-sm font-medium text-secondary-700 mb-2">
+                    Ville *
+                  </label>
+                  <input
+                    type="text"
+                    name="shippingAddress.city"
+                    value={formData.shippingAddress.city}
+                    onChange={handleChange}
+                    className={`input w-full ${errors['shippingAddress.city'] ? 'border-red-500' : ''}`}
+                    placeholder="Votre ville"
+                  />
+                  {errors['shippingAddress.city'] && (
+                    <p className="mt-1 text-sm text-red-600">{errors['shippingAddress.city']}</p>
+                  )}
                 </div>
 
                 <div className="mt-4">

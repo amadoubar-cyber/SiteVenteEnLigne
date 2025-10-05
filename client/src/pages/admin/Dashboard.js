@@ -1,17 +1,20 @@
 import React, { useState, useEffect } from 'react';
 import { useQuery } from 'react-query';
 import { ordersAPI, productsAPI } from '../../services/api';
-import { Package, ShoppingCart, Users, TrendingUp, DollarSign, Trash2, AlertTriangle, RefreshCw } from 'lucide-react';
+import { Package, ShoppingCart, Users, TrendingUp, DollarSign, Trash2, AlertTriangle, RefreshCw, Settings } from 'lucide-react';
 import ResetButton from '../../components/ResetButton';
 import NotificationPanel from '../../components/NotificationPanel';
 import useNotifications from '../../hooks/useNotifications';
 import useRealtimeSync from '../../hooks/useRealtimeSync';
+import RevenueManager from '../../components/admin/RevenueManager';
 
 const AdminDashboard = () => {
   const [isRefreshing, setIsRefreshing] = useState(false);
   const { notifyNewOrder } = useNotifications();
   const [lastOrderCount, setLastOrderCount] = useState(0);
   const [syncCount, setSyncCount] = useState(0);
+  const [showRevenueManager, setShowRevenueManager] = useState(false);
+  const [adjustedRevenue, setAdjustedRevenue] = useState(null);
 
   // Synchronisation en temps réel
   const { forceSync, getStats } = useRealtimeSync('dashboard', (eventType, data) => {
@@ -70,13 +73,28 @@ const AdminDashboard = () => {
       // Charger les commandes depuis localStorage
       const orders = JSON.parse(localStorage.getItem('clientOrders') || '[]');
       
+      // Vérifier s'il y a un chiffre d'affaires ajusté par l'admin
+      const savedAdjustedRevenue = localStorage.getItem('adminAdjustedRevenue');
+      
       // Calculer les statistiques réelles
       const totalOrders = orders.length;
-      const totalRevenue = orders.reduce((sum, order) => {
-        const orderTotal = order.items?.reduce((itemSum, item) => 
-          itemSum + (item.price * item.quantity), 0) || 0;
-        return sum + orderTotal;
-      }, 0);
+      let totalRevenue = 0;
+      
+      // Si un chiffre d'affaires a été ajusté par l'admin, l'utiliser
+      if (savedAdjustedRevenue !== null) {
+        totalRevenue = parseFloat(savedAdjustedRevenue) || 0;
+      } else {
+        // Sinon, calculer normalement en excluant les commandes marquées
+        totalRevenue = orders.reduce((sum, order) => {
+          // Exclure les commandes marquées comme exclues du CA
+          if (order.excludedFromRevenue) return sum;
+          
+          const orderTotal = order.items?.reduce((itemSum, item) => 
+            itemSum + (item.price * item.quantity), 0) || 0;
+          return sum + orderTotal;
+        }, 0);
+      }
+      
       const averageOrderValue = totalOrders > 0 ? totalRevenue / totalOrders : 0;
       
       console.log('📊 Statistiques calculées:', {
@@ -250,6 +268,21 @@ const AdminDashboard = () => {
     }
   };
 
+  // Fonctions pour la gestion du chiffre d'affaires
+  const handleRevenueUpdate = (newRevenue) => {
+    setAdjustedRevenue(newRevenue);
+    // Forcer le rafraîchissement des statistiques
+    refetchOrderStats();
+  };
+
+  const handleOpenRevenueManager = () => {
+    setShowRevenueManager(true);
+  };
+
+  const handleCloseRevenueManager = () => {
+    setShowRevenueManager(false);
+  };
+
 
   const renderOverview = () => (
     <div className="min-h-screen bg-gray-50">
@@ -330,16 +363,25 @@ const AdminDashboard = () => {
           </div>
 
           <div className="bg-white rounded-lg shadow-sm border p-6">
-            <div className="flex items-center">
-              <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
-                <DollarSign className="h-6 w-6 text-green-600" />
+            <div className="flex items-center justify-between">
+              <div className="flex items-center">
+                <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+                  <DollarSign className="h-6 w-6 text-green-600" />
+                </div>
+                <div className="ml-4">
+                  <p className="text-sm font-medium text-gray-600">Chiffre d'affaires</p>
+                  <p className="text-2xl font-bold text-gray-900">
+                    {formatPrice(stats.totalRevenue || 0)}
+                  </p>
+                </div>
               </div>
-              <div className="ml-4">
-                <p className="text-sm font-medium text-gray-600">Chiffre d'affaires</p>
-                <p className="text-2xl font-bold text-gray-900">
-                  {formatPrice(stats.totalRevenue || 0)}
-                </p>
-              </div>
+              <button
+                onClick={handleOpenRevenueManager}
+                className="p-2 text-gray-400 hover:text-green-600 hover:bg-green-50 rounded-lg transition-colors"
+                title="Gérer le chiffre d'affaires"
+              >
+                <Settings className="h-5 w-5" />
+              </button>
             </div>
           </div>
 
@@ -530,7 +572,20 @@ const AdminDashboard = () => {
     </div>
   );
 
-  return renderOverview();
+  return (
+    <>
+      {renderOverview()}
+      
+      {/* Modal de gestion du chiffre d'affaires */}
+      {showRevenueManager && (
+        <RevenueManager
+          currentRevenue={stats?.totalRevenue || 0}
+          onRevenueUpdate={handleRevenueUpdate}
+          onClose={handleCloseRevenueManager}
+        />
+      )}
+    </>
+  );
 };
 
 export default AdminDashboard;

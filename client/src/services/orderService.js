@@ -138,11 +138,15 @@ export const orderService = {
   // Vérifier si une commande peut être téléchargée
   canDownloadInvoice: async (orderId) => {
     try {
-      const result = await orderService.getOrderById(orderId);
+      // SÉCURITÉ : Vérifier d'abord dans le système localOrdersAPI
+      const { localOrdersAPI } = await import('./localOrdersAPI');
+      const result = await localOrdersAPI.getOrderById(orderId);
+      
       if (!result.success) return false;
       
-      const order = result.data;
-      return order.validated === true && order.status === 'validated';
+      const order = result.data.order;
+      // Seules les commandes approuvées ou livrées peuvent télécharger la facture
+      return order.orderStatus === 'approved' || order.orderStatus === 'delivered';
     } catch (error) {
       console.error('❌ Erreur vérification téléchargement:', error);
       return false;
@@ -152,14 +156,19 @@ export const orderService = {
   // Générer le PDF de la facture
   generateInvoicePDF: async (orderId) => {
     try {
-      const result = await orderService.getOrderById(orderId);
+      // SÉCURITÉ : Utiliser le système localOrdersAPI pour vérifier les permissions
+      const { localOrdersAPI } = await import('./localOrdersAPI');
+      const result = await localOrdersAPI.getOrderById(orderId);
+      
       if (!result.success) {
         throw new Error('Commande non trouvée');
       }
       
-      const order = result.data;
-      if (!order.validated) {
-        throw new Error('Commande non validée - impossible de télécharger la facture');
+      const order = result.data.order;
+      
+      // Vérifier que la commande est approuvée ou livrée
+      if (order.orderStatus !== 'approved' && order.orderStatus !== 'delivered') {
+        throw new Error('Commande non validée par l\'admin - impossible de télécharger la facture');
       }
       
       // Ici vous pouvez intégrer une bibliothèque PDF comme jsPDF
@@ -167,11 +176,11 @@ export const orderService = {
       return { 
         success: true, 
         data: {
-          orderNumber: order.orderNumber,
-          customerName: order.customerName,
+          orderNumber: order.trackingNumber,
+          customerName: `${order.user?.firstName} ${order.user?.lastName}`,
           items: order.items,
           total: order.total,
-          validatedAt: order.validatedAt,
+          approvedAt: order.approvedAt,
           createdAt: order.createdAt
         }
       };

@@ -3,7 +3,7 @@ import { useParams, Link } from 'react-router-dom';
 import { useQuery } from 'react-query';
 import { ordersAPI } from '../services/api';
 import { localOrdersAPI } from '../services/localOrdersAPI';
-import { Package, MapPin, CreditCard, Calendar, Truck, ArrowLeft, Clock, CheckCircle, FileText } from 'lucide-react';
+import { Package, MapPin, CreditCard, Calendar, Truck, ArrowLeft, Clock, CheckCircle, FileText, XCircle } from 'lucide-react';
 import OrderStatus from '../components/OrderStatus';
 import Invoice from '../components/Invoice';
 
@@ -173,13 +173,26 @@ const OrderDetail = () => {
                 <span className={`badge ${getStatusColor(order.orderStatus)}`}>
                   {getStatusText(order.orderStatus)}
                 </span>
-                <button
-                  onClick={() => setShowInvoice(true)}
-                  className="flex items-center px-3 py-1 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm"
-                >
-                  <FileText className="h-4 w-4 mr-1" />
-                  Facture
-                </button>
+                {/* SÉCURITÉ : Bouton de facture seulement pour les commandes approuvées */}
+                {order.orderStatus === 'approved' || order.orderStatus === 'delivered' ? (
+                  <button
+                    onClick={() => setShowInvoice(true)}
+                    className="flex items-center px-3 py-1 bg-green-600 text-white rounded-lg hover:bg-green-700 text-sm"
+                  >
+                    <FileText className="h-4 w-4 mr-1" />
+                    Facture Disponible
+                  </button>
+                ) : order.orderStatus === 'rejected' ? (
+                  <div className="flex items-center px-3 py-1 bg-red-100 text-red-800 rounded-lg text-sm">
+                    <XCircle className="h-4 w-4 mr-1" />
+                    Facture Non Disponible
+                  </div>
+                ) : (
+                  <div className="flex items-center px-3 py-1 bg-yellow-100 text-yellow-800 rounded-lg text-sm">
+                    <Clock className="h-4 w-4 mr-1" />
+                    En Attente de Validation
+                  </div>
+                )}
               </div>
               {order.orderStatus === 'pending_approval' && (
                 <div className="mt-2 text-sm text-yellow-600">
@@ -384,8 +397,8 @@ const OrderDetail = () => {
         </div>
       </div>
 
-      {/* Modal de facture */}
-      {showInvoice && (
+      {/* Modal de facture - SÉCURITÉ : Seulement pour les commandes approuvées */}
+      {showInvoice && (order.orderStatus === 'approved' || order.orderStatus === 'delivered') && (
         <div className="fixed inset-0 bg-black bg-opacity-50 z-50 overflow-y-auto">
           <div className="relative">
             <Invoice 
