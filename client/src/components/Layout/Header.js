@@ -80,8 +80,8 @@ const Header = () => {
             {/* Categories - Compact */}
             <div className="flex items-center space-x-3">
               <Link to="/products" className="text-white hover:text-gray-200 transition-colors text-sm font-medium">
-                <span className="hidden lg:inline">Tous les produits</span>
-                <span className="lg:hidden">Produits</span>
+                <span className="hidden lg:inline">Catalogue</span>
+                <span className="lg:hidden">Catalogue</span>
               </Link>
             </div>
             
@@ -229,7 +229,7 @@ const Header = () => {
                 className="text-secondary-700 hover:text-primary-600 transition-colors"
                 onClick={() => setIsMenuOpen(false)}
               >
-                Tous les produits
+                Catalogue
               </Link>
               
               {isAuthenticated ? (
