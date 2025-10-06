@@ -22,6 +22,8 @@ services:
         generateValue: true
       - key: CORS_ORIGIN
         value: https://bowoye-frontend.vercel.app
+      - key: CLIENT_URL
+        value: https://bowoye-frontend.vercel.app
 
 databases:
   - name: bowoye-db

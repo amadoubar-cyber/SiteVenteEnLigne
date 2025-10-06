@@ -116,7 +116,9 @@ const Orders = () => {
 
       // Générer la facture HTML
       const dateFacture = new Date().toLocaleDateString('fr-FR');
+      const heureFacture = new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
       const dateCommande = new Date(order.createdAt).toLocaleDateString('fr-FR');
+      const heureCommande = new Date(order.createdAt).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
       
       const factureHTML = `
 <!DOCTYPE html>
@@ -287,8 +289,8 @@ const Orders = () => {
             </div>
             <div class="info-section">
                 <h3>Informations Facture</h3>
-                <p><strong>Date de facture:</strong> ${dateFacture}</p>
-                <p><strong>Date de commande:</strong> ${dateCommande}</p>
+                <p><strong>Date de facture:</strong> ${dateFacture} à <span style="font-family: monospace; color: #3B82F6;">${heureFacture}</span></p>
+                <p><strong>Date de commande:</strong> ${dateCommande} à <span style="font-family: monospace; color: #3B82F6;">${heureCommande}</span></p>
                 <p><strong>Méthode de paiement:</strong> ${order.paymentMethod === 'mobile_money' ? 'Mobile Money' : order.paymentMethod}</p>
                 <p><strong>Statut:</strong> ${order.orderStatus === 'approved' ? 'Approuvée' : 'Livrée'}</p>
             </div>
@@ -338,7 +340,7 @@ const Orders = () => {
             <p>Merci pour votre confiance !</p>
             <p>Pour toute question, contactez-nous au +224 612 63 73 35</p>
             <p>Bowoye Multi Services - Labé, République de Guinée</p>
-            <p>Cette facture a été générée automatiquement le ${dateFacture}</p>
+            <p>Cette facture a été générée automatiquement le ${dateFacture} à <span style="font-family: monospace; color: #3B82F6;">${heureFacture}</span></p>
         </div>
     </div>
 </body>
@@ -490,7 +492,7 @@ const Orders = () => {
                             Commande {order.trackingNumber}
                           </h3>
                           <p className="text-sm text-gray-500">
-                            Passée le {new Date(order.createdAt).toLocaleDateString('fr-FR')}
+                            Passée le {new Date(order.createdAt).toLocaleDateString('fr-FR')} à <span className="font-mono text-blue-600">{new Date(order.createdAt).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}</span>
                           </p>
                         </div>
                       </div>

@@ -16,7 +16,24 @@ const Invoice = ({ order, onClose }) => {
       month: 'long',
       day: 'numeric',
       hour: '2-digit',
-      minute: '2-digit'
+      minute: '2-digit',
+      second: '2-digit'
+    });
+  };
+
+  const formatTime = (date) => {
+    return new Date(date).toLocaleTimeString('fr-FR', {
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit'
+    });
+  };
+
+  const formatDateOnly = (date) => {
+    return new Date(date).toLocaleDateString('fr-FR', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
     });
   };
 
@@ -164,7 +181,8 @@ const Invoice = ({ order, onClose }) => {
                 <h3 className="font-semibold text-gray-900 mb-2">Informations Facture</h3>
                 <div className="text-sm text-gray-600 space-y-1">
                   <p><strong>N° Facture:</strong> {order.trackingNumber || order._id}</p>
-                  <p><strong>Date:</strong> {formatDate(order.createdAt)}</p>
+                  <p><strong>Date:</strong> {formatDateOnly(order.createdAt)}</p>
+                  <p><strong>Heure:</strong> <span className="font-mono text-blue-600">{formatTime(order.createdAt)}</span></p>
                   <p><strong>Statut:</strong> 
                     <span className={`status-badge status-${order.orderStatus} ml-2`}>
                       {getStatusText(order.orderStatus)}
@@ -208,12 +226,13 @@ const Invoice = ({ order, onClose }) => {
               <div className="text-sm text-gray-600 space-y-1">
                 <p><strong>Numéro de suivi:</strong> {order.trackingNumber || order._id}</p>
                 <p><strong>Méthode de paiement:</strong> {getPaymentMethodText(order.paymentMethod)}</p>
-                <p><strong>Date de commande:</strong> {formatDate(order.createdAt)}</p>
+                <p><strong>Date de commande:</strong> {formatDateOnly(order.createdAt)}</p>
+                <p><strong>Heure de commande:</strong> <span className="font-mono text-blue-600">{formatTime(order.createdAt)}</span></p>
                 {order.approvedAt && (
-                  <p><strong>Date d'approbation:</strong> {formatDate(order.approvedAt)}</p>
+                  <p><strong>Date d'approbation:</strong> {formatDateOnly(order.approvedAt)} à <span className="font-mono text-green-600">{formatTime(order.approvedAt)}</span></p>
                 )}
                 {order.rejectedAt && (
-                  <p><strong>Date de rejet:</strong> {formatDate(order.rejectedAt)}</p>
+                  <p><strong>Date de rejet:</strong> {formatDateOnly(order.rejectedAt)} à <span className="font-mono text-red-600">{formatTime(order.rejectedAt)}</span></p>
                 )}
               </div>
             </div>
@@ -343,7 +362,7 @@ const Invoice = ({ order, onClose }) => {
             <p>Bowoye Multi Services - Labé, République de Guinée</p>
             <p>Contact: +224 612 63 73 35</p>
             <p className="mt-2">
-              Cette facture a été générée le {formatDate(new Date())}
+              Cette facture a été générée le {formatDateOnly(new Date())} à <span className="font-mono text-blue-600">{formatTime(new Date())}</span>
             </p>
           </div>
         </div>

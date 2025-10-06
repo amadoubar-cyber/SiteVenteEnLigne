@@ -59,9 +59,12 @@ app.use(cors({
   origin: [
     'http://localhost:3000',
     'http://localhost:3001',
+    'https://bowoye-frontend.vercel.app',
+    'https://bowoye-frontend-git-main.vercel.app',
     'https://bowoye.vercel.app',
     'https://bowoye-multiservices.vercel.app',
-    process.env.CLIENT_URL
+    process.env.CLIENT_URL,
+    process.env.CORS_ORIGIN
   ].filter(Boolean),
   credentials: true
 }));

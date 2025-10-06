@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useQuery } from 'react-query';
 import { ordersAPI, productsAPI } from '../../services/api';
-import { Package, ShoppingCart, Users, TrendingUp, DollarSign, Trash2, AlertTriangle, RefreshCw, Settings } from 'lucide-react';
+import { Package, ShoppingCart, Users, TrendingUp, DollarSign, Trash2, AlertTriangle, RefreshCw, Settings, Edit, Save, X } from 'lucide-react';
 import ResetButton from '../../components/ResetButton';
 import NotificationPanel from '../../components/NotificationPanel';
 import useNotifications from '../../hooks/useNotifications';
@@ -15,6 +15,13 @@ const AdminDashboard = () => {
   const [syncCount, setSyncCount] = useState(0);
   const [showRevenueManager, setShowRevenueManager] = useState(false);
   const [adjustedRevenue, setAdjustedRevenue] = useState(null);
+  const [isEditing, setIsEditing] = useState(false);
+  const [editValues, setEditValues] = useState({
+    totalOrders: 0,
+    totalRevenue: 0,
+    totalUsers: 0,
+    totalProducts: 0
+  });
 
   // Synchronisation en temps réel
   const { forceSync, getStats } = useRealtimeSync('dashboard', (eventType, data) => {
@@ -193,6 +200,52 @@ const AdminDashboard = () => {
     });
   };
 
+  // Fonctions de gestion de la modification
+  const handleEditClick = () => {
+    const stats = orderStats?.overview;
+    const products = productsData?.length || 0;
+    const users = JSON.parse(localStorage.getItem('users') || '[]').length;
+    
+    setEditValues({
+      totalOrders: stats?.totalOrders || 0,
+      totalRevenue: stats?.totalRevenue || 0,
+      totalUsers: users,
+      totalProducts: products
+    });
+    setIsEditing(true);
+  };
+
+  const handleSaveChanges = () => {
+    // Sauvegarder les modifications dans localStorage
+    const dashboardData = {
+      totalOrders: editValues.totalOrders,
+      totalRevenue: editValues.totalRevenue,
+      totalUsers: editValues.totalUsers,
+      totalProducts: editValues.totalProducts,
+      lastModified: new Date().toISOString()
+    };
+    
+    localStorage.setItem('adminDashboardData', JSON.stringify(dashboardData));
+    
+    // Forcer le rafraîchissement des données
+    refetchOrderStats();
+    refetchProducts();
+    
+    setIsEditing(false);
+    alert('Modifications sauvegardées avec succès !');
+  };
+
+  const handleCancelEdit = () => {
+    setIsEditing(false);
+  };
+
+  const handleInputChange = (field, value) => {
+    setEditValues(prev => ({
+      ...prev,
+      [field]: value
+    }));
+  };
+
   const getStatusColor = (status) => {
     const colors = {
       pending: 'bg-yellow-100 text-yellow-800',
@@ -300,7 +353,36 @@ const AdminDashboard = () => {
             </div>
             
             {/* Boutons d'action dans le tableau de bord */}
-            <div className="flex items-center space-x-3">
+            <div className="flex items-center space-x-3 flex-wrap">
+              {/* Bouton de modification - Toujours visible */}
+              {!isEditing ? (
+                <button
+                  onClick={handleEditClick}
+                  className="flex items-center px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors shadow-sm font-medium"
+                  style={{ zIndex: 10, position: 'relative' }}
+                >
+                  <Edit className="h-5 w-5 mr-2" />
+                  Modifier
+                </button>
+              ) : (
+                <div className="flex items-center space-x-2">
+                  <button
+                    onClick={handleSaveChanges}
+                    className="flex items-center px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors shadow-sm font-medium"
+                  >
+                    <Save className="h-5 w-5 mr-2" />
+                    Sauvegarder
+                  </button>
+                  <button
+                    onClick={handleCancelEdit}
+                    className="flex items-center px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors shadow-sm font-medium"
+                  >
+                    <X className="h-5 w-5 mr-2" />
+                    Annuler
+                  </button>
+                </div>
+              )}
+              
               {/* Panneau de notifications */}
               <NotificationPanel />
               
@@ -340,9 +422,18 @@ const AdminDashboard = () => {
               </div>
               <div className="ml-4">
                 <p className="text-sm font-medium text-gray-600">Commandes</p>
-                <p className="text-2xl font-bold text-gray-900">
-                  {stats.totalOrders || 0}
-                </p>
+                {isEditing ? (
+                  <input
+                    type="number"
+                    value={editValues.totalOrders}
+                    onChange={(e) => handleInputChange('totalOrders', parseInt(e.target.value) || 0)}
+                    className="text-2xl font-bold text-gray-900 bg-gray-50 border border-gray-300 rounded px-2 py-1 w-20"
+                  />
+                ) : (
+                  <p className="text-2xl font-bold text-gray-900">
+                    {stats.totalOrders || 0}
+                  </p>
+                )}
               </div>
             </div>
           </div>
@@ -370,9 +461,19 @@ const AdminDashboard = () => {
                 </div>
                 <div className="ml-4">
                   <p className="text-sm font-medium text-gray-600">Chiffre d'affaires</p>
-                  <p className="text-2xl font-bold text-gray-900">
-                    {formatPrice(stats.totalRevenue || 0)}
-                  </p>
+                  {isEditing ? (
+                    <input
+                      type="number"
+                      value={editValues.totalRevenue}
+                      onChange={(e) => handleInputChange('totalRevenue', parseFloat(e.target.value) || 0)}
+                      className="text-2xl font-bold text-gray-900 bg-gray-50 border border-gray-300 rounded px-2 py-1 w-32"
+                      placeholder="0"
+                    />
+                  ) : (
+                    <p className="text-2xl font-bold text-gray-900">
+                      {formatPrice(stats.totalRevenue || 0)}
+                    </p>
+                  )}
                 </div>
               </div>
               <button
@@ -392,9 +493,18 @@ const AdminDashboard = () => {
               </div>
               <div className="ml-4">
                 <p className="text-sm font-medium text-gray-600">Produits</p>
-                <p className="text-2xl font-bold text-gray-900">
-                  {recentProducts.length}
-                </p>
+                {isEditing ? (
+                  <input
+                    type="number"
+                    value={editValues.totalProducts}
+                    onChange={(e) => handleInputChange('totalProducts', parseInt(e.target.value) || 0)}
+                    className="text-2xl font-bold text-gray-900 bg-gray-50 border border-gray-300 rounded px-2 py-1 w-20"
+                  />
+                ) : (
+                  <p className="text-2xl font-bold text-gray-900">
+                    {recentProducts.length}
+                  </p>
+                )}
               </div>
             </div>
           </div>
@@ -402,13 +512,22 @@ const AdminDashboard = () => {
           <div className="bg-white rounded-lg shadow-sm border p-6">
             <div className="flex items-center">
               <div className="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center">
-                <TrendingUp className="h-6 w-6 text-orange-600" />
+                <Users className="h-6 w-6 text-orange-600" />
               </div>
               <div className="ml-4">
-                <p className="text-sm font-medium text-gray-600">Panier moyen</p>
-                <p className="text-2xl font-bold text-gray-900">
-                  {formatPrice(stats.averageOrderValue || 0)}
-                </p>
+                <p className="text-sm font-medium text-gray-600">Utilisateurs</p>
+                {isEditing ? (
+                  <input
+                    type="number"
+                    value={editValues.totalUsers}
+                    onChange={(e) => handleInputChange('totalUsers', parseInt(e.target.value) || 0)}
+                    className="text-2xl font-bold text-gray-900 bg-gray-50 border border-gray-300 rounded px-2 py-1 w-20"
+                  />
+                ) : (
+                  <p className="text-2xl font-bold text-gray-900">
+                    {JSON.parse(localStorage.getItem('users') || '[]').length}
+                  </p>
+                )}
               </div>
             </div>
           </div>
@@ -568,6 +687,23 @@ const AdminDashboard = () => {
           </div>
         </div>
       </div>
+
+      {/* Bouton de modification flottant - Toujours visible */}
+      {!isEditing && (
+        <div 
+          className="fixed top-4 right-4 z-50"
+          style={{ zIndex: 9999 }}
+        >
+          <button
+            onClick={handleEditClick}
+            className="flex items-center px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors shadow-lg font-medium"
+            title="Modifier les statistiques du tableau de bord"
+          >
+            <Edit className="h-5 w-5 mr-2" />
+            Modifier
+          </button>
+        </div>
+      )}
 
     </div>
   );
