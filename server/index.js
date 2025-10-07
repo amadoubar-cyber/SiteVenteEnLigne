@@ -43,14 +43,16 @@ app.use(helmet({
   },
 }));
 
-// Rate limiting
+// Rate limiting - Configuration plus permissive pour la production
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100, // limit each IP to 100 requests per windowMs
+  max: process.env.NODE_ENV === 'production' ? 1000 : 100, // Plus permissif en production
   message: {
     success: false,
     message: 'Trop de requêtes depuis cette IP, veuillez réessayer plus tard.'
-  }
+  },
+  standardHeaders: true,
+  legacyHeaders: false,
 });
 app.use('/api/', limiter);
 
