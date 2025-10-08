@@ -56,6 +56,9 @@ const limiter = rateLimit({
 });
 app.use('/api/', limiter);
 
+// Trust proxy for Render (fixes rate limiting warnings)
+app.set('trust proxy', 1);
+
 // CORS configuration
 app.use(cors({
   origin: [
