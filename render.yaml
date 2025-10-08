@@ -6,9 +6,11 @@ services:
     name: bowoye-backend
     env: node
     plan: free
-    buildCommand: cd server && npm install
-    startCommand: cd server && node index.js
+    region: frankfurt
+    buildCommand: cd server && npm ci --only=production
+    startCommand: cd server && NODE_ENV=production node index.js
     healthCheckPath: /api/health
+    autoDeploy: true
     envVars:
       - key: NODE_ENV
         value: production
@@ -29,3 +31,4 @@ databases:
   - name: bowoye-db
     plan: free
     databaseName: bowoye_production
+    ipAllowList: []

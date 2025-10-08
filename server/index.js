@@ -171,10 +171,22 @@ app.use((err, req, res, next) => {
 
 const PORT = process.env.PORT || 3001; // Port 3001 par défaut
 
-app.listen(PORT, () => {
+// Validation des variables d'environnement critiques en production
+if (process.env.NODE_ENV === 'production') {
+  const requiredEnvVars = ['MONGODB_URI', 'JWT_SECRET'];
+  const missingVars = requiredEnvVars.filter(varName => !process.env[varName]);
+  
+  if (missingVars.length > 0) {
+    console.error('❌ Variables d\'environnement manquantes:', missingVars.join(', '));
+    process.exit(1);
+  }
+}
+
+app.listen(PORT, '0.0.0.0', () => {
   console.log(`🚀 Serveur Koula E-commerce démarré sur le port ${PORT}`);
   console.log(`📱 Environnement: ${process.env.NODE_ENV || 'development'}`);
   console.log(`🌐 API disponible sur: http://localhost:${PORT}/api`);
+  console.log(`✅ Health check: http://localhost:${PORT}/api/health`);
 });
 
 module.exports = app;
