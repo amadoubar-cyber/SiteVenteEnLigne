@@ -17,7 +17,7 @@ const config = {
   },
   
   production: {
-    API_URL: 'https://bowoye-backend.onrender.com/api',
+    API_URL: 'https://bowoye-backend-5nd0.onrender.com/api',
     DEBUG: false,
     LOG_LEVEL: 'error'
   }

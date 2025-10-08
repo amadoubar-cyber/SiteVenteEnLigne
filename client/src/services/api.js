@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:3001/api';
+const API_BASE_URL = process.env.REACT_APP_API_URL || (process.env.NODE_ENV === 'production' ? 'https://bowoye-backend-5nd0.onrender.com/api' : 'http://localhost:3001/api');
 
 // Créer une instance axios
 const api = axios.create({
