@@ -16,12 +16,12 @@ const DebugProductImages = ({ product }) => {
         {product.images?.length > 0 && (
           <div className="mt-2">
             <p><strong>Première image URL:</strong> {product.images[0]?.url}</p>
-            <p><strong>URL complète:</strong> http://localhost:3001{product.images[0]?.url}</p>
+            <p><strong>URL complète:</strong> {process.env.NODE_ENV === 'production' ? 'https://bowoye-backend-5nd0.onrender.com' : 'http://localhost:3001'}{product.images[0]?.url}</p>
             <div className="flex gap-4">
               <div>
                 <p className="text-xs text-gray-600">Test URL serveur:</p>
                 <img 
-                  src={`http://localhost:3001${product.images[0]?.url}`}
+                  src={`${process.env.NODE_ENV === 'production' ? 'https://bowoye-backend-5nd0.onrender.com' : 'http://localhost:3001'}${product.images[0]?.url}`}
                   alt="Test image serveur"
                   className="w-16 h-16 object-cover border rounded"
                   onError={(e) => {

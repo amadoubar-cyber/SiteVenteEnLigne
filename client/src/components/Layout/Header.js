@@ -38,7 +38,7 @@ const Header = () => {
           <Link to="/" className="flex items-center space-x-2 text-white hover:text-gray-200 transition-colors flex-shrink-0">
             <div className="w-8 h-8 rounded flex items-center justify-center overflow-hidden bg-white">
               <img 
-                src="http://localhost:3000/images/products/logo/logo-koula.jpg" 
+                src={process.env.NODE_ENV === 'production' ? 'https://bowoye-backend-5nd0.onrender.com/uploads/products/logo/logo-koula.jpg' : 'http://localhost:3001/uploads/products/logo/logo-koula.jpg'} 
                 alt="Bowoye Multi Services Logo" 
                 className="w-full h-full object-contain"
                 onError={(e) => {

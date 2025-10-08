@@ -1,5 +1,5 @@
 // Configuration de l'API
-const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:3001';
+const API_BASE_URL = process.env.REACT_APP_API_URL || (process.env.NODE_ENV === 'production' ? 'https://bowoye-backend-5nd0.onrender.com' : 'http://localhost:3001');
 
 // Images de test encodées en base64
 const TEST_IMAGES = {

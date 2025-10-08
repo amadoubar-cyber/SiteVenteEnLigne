@@ -53,6 +53,12 @@ const limiter = rateLimit({
   },
   standardHeaders: true,
   legacyHeaders: false,
+  // Réduire la taille des headers pour éviter l'erreur 431
+  skip: (req) => {
+    // Skip rate limiting pour les requêtes avec des headers trop volumineux
+    const headerSize = JSON.stringify(req.headers).length;
+    return headerSize > 8000; // 8KB
+  }
 });
 app.use('/api/', limiter);
 
@@ -75,8 +81,8 @@ app.use(cors({
 }));
 
 // Body parser middleware
-app.use(express.json({ limit: '10mb' }));
-app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+app.use(express.json({ limit: '5mb' }));
+app.use(express.urlencoded({ extended: true, limit: '5mb' }));
 
 // Compression middleware
 app.use(compression());
