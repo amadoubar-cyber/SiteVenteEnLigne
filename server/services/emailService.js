@@ -4,13 +4,19 @@ const emailConfig = require('../config/email');
 class EmailService {
   constructor() {
     // Configuration Gmail simple et directe
+    // ⚠️ IMPORTANT: Le mot de passe doit être dans les variables d'environnement !
     this.transporter = nodemailer.createTransport({
       service: 'gmail',
       auth: {
-        user: 'amadoubarkere4@gmail.com',
-        pass: 'atlz bogk zajd uglz' // ✅ MOT DE PASSE D'APPLICATION GMAIL CONFIGURÉ
+        user: process.env.EMAIL_USER || 'amadoubarkere4@gmail.com',
+        pass: process.env.EMAIL_PASSWORD // UTILISEZ UN MOT DE PASSE D'APPLICATION GMAIL
       }
     });
+
+    // Vérification que le mot de passe est configuré
+    if (!process.env.EMAIL_PASSWORD) {
+      console.warn('⚠️  EMAIL_PASSWORD non configuré - les emails ne pourront pas être envoyés');
+    }
   }
 
   // Envoyer un email de vérification
